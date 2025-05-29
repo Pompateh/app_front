@@ -18,8 +18,8 @@
         "@fontsource/literata": "^5.2.5",
         "@hello-pangea/dnd": "^16.5.0",
         "@netlify/plugin-nextjs": "^4.41.3",
-        "axios": "^1.6.7",
         "@tailwindcss/line-clamp": "^0.4.4",
+        "axios": "^1.6.7",
         "formidable": "^3.5.2",
         "framer-motion": "^11.0.5",
         "js-cookie": "^3.0.5",
@@ -32,6 +32,7 @@
         "swr": "^2.2.4"
     },
     "devDependencies": {
+        "@babel/core": "^7.27.3",
         "@types/cookie": "^0.6.0",
         "@types/js-cookie": "^3.0.6",
         "@types/node": "^20.11.19",
