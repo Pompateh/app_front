@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Additional global styles */
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+.custom-heading {
+  font-size: 5.1rem;
+  line-height: 1;
+}
+
+.max-h-custom {
+  max-height: 40rem; /* Adjust this value as needed */
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-in-out forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.vertical-line-grey {
+  position: fixed;
+  top: 0;
+  left: 0; /* Position it on the left side of the screen */
+  width: 13px;
+  height: 100vh; /* Use viewport height to ensure it spans the full height */
+  background-color: grey; /* Base color for the line */
+  background-image: linear-gradient(
+    to bottom,
+    #f5f3ef 12%, /* Adjusted to reduce thickness */
+    transparent 5%,
+    transparent 15%, /* Adjusted to reduce thickness */
+    #f5f3ef 15%
+  );
+  background-size: 100% 35px; /* Adjust the size to create the ladder effect */
+  border-left: 1px solid #b0a99f; /* Border color for the segments */
+  border-right: 1px solid #b0a99f; /* Border color for the segments */
+  z-index: 1; /* Ensure it stays on top of other content */
+}
+
+.vertical-line-black {
+  position: fixed;
+  top: 0;
+  left: 0; /* Position it on the left side of the screen */
+  width: 13px;
+  height: 100vh; /* Use viewport height to ensure it spans the full height */
+  background-color: white; /* Base color for the line */
+  background-image: linear-gradient(
+    to bottom,
+    black 12%, /* Adjusted to reduce thickness */
+    transparent 5%,
+    transparent 15%, /* Adjusted to reduce thickness */
+    black 15%
+  );
+  background-size: 100% 35px; /* Adjust the size to create the ladder effect */
+  border-left: 1px solid #b0a99f; /* Border color for the segments */
+  border-right: 1px solid #b0a99f; /* Border color for the segments */
+  z-index: 1; /* Ensure it stays on top of other content */
+}
+
+.header, .footer, .newsletter, .relevant_post {
+  position: relative; /* Ensure positioning context */
+  z-index: 10; /* Higher z-index to stay above the line */
+}
+
+.header{
+  align-items: center;
+}
+
+.border-wrapper {
+  position: relative;
+  border-bottom: 2px solid grey; /* Bottom border remains unaffected */
+  padding-top: 1px; /* Adjust if needed */
+}
+
+.border-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-top: 2px solid transparent; /* Base thickness for the top border */
+  /* Apply the custom dashed pattern using borderImage */
+  border-image: repeating-linear-gradient(to right, #999380, #999380 50px, transparent 50px, transparent 55px) 1;
+  pointer-events: none;
+}
+
+.artworks-button{
+  border-bottom: 0px solid grey; /* Bottom border remains unaffected */
+}
+.subscribe-button{
+  border-bottom: 0px solid grey;
+  padding-top: 10px; /* Bottom border remains unaffected */
+}
+.w-2 {
+  width: 0rem; /* Customize the width as needed */
+}

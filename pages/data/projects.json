@@ -1,0 +1,26 @@
+[
+    {
+      "id": "1",
+      "title": "Sample Project",
+      "slug": "sample-project",
+      "blocks": [
+        {
+          "id": "1",
+          "type": "full-image",
+          "src": "/uploads/sample.jpg",
+          "alt": "Sample image",
+          "layout": "left"
+        },
+        {
+          "id": "2",
+          "type": "text",
+          "text": "<p>This is a sample project demo block.</p>"
+        }
+      ],
+      "team": [
+        { "name": "Alice", "role": "Designer" },
+        { "name": "Bob", "role": "Developer" }
+      ]
+    }
+  ]
+  
