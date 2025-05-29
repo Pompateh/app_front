@@ -7,13 +7,13 @@
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
-  NEXT_PUBLIC_API_URL = "http://localhost:3001"
+  NEXT_PUBLIC_API_URL = "https://app-front-4b3a.up.railway.app"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
 [[redirects]]
   from = "/api/*"
-  to = "http://localhost:3001/:splat"
+  to = "https://app-front-4b3a.up.railway.app/:splat"
   status = 200
   force = true 
