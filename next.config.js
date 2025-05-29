@@ -36,7 +36,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://api.wearenewstalgia.com/:path*',
+        destination: 'https://app-back-k5m0.onrender.com/api/:path*',
       },
     ];
   },
@@ -51,6 +51,8 @@ const nextConfig = {
   },
   // Add output configuration for static export
   output: 'standalone',
+  // Add trailing slash to ensure proper static file serving
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;
