@@ -36,7 +36,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://app-back-k5m0.onrender.com/api/:path*',
+        destination: 'https://app-back-gc64.onrender.com/api/:path*',
       },
     ];
   },
