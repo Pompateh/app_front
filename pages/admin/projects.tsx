@@ -221,7 +221,7 @@ const AdminProjects: React.FC = () => {
     fd.append('file', file);
   
     try {
-      const res = await axios.post('/api/upload', fd, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, fd, {
         onUploadProgress: (progressEvent) => {
           const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
           setUploadProgress(percent);
