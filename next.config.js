@@ -31,15 +31,6 @@ const nextConfig = {
   },
   // Only include pages that should be built
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  // Disable API routes since we're using an external API
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'https://app-back-gc64.onrender.com/api/:path*',
-      },
-    ];
-  },
   // Disable static generation for dynamic routes
   exportPathMap: async function () {
     return {
