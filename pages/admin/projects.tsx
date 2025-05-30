@@ -10,7 +10,7 @@ import dynamic from 'next/dynamic';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import axiosInstance from '../../lib/axiosInstance';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com/api';
 const ProjectPreview = dynamic(() => import('../../components/ProjectPreview'), { ssr: false });
 
 const fetcher = async (url: string) => {
