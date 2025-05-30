@@ -28,7 +28,7 @@ interface Studio {
 }
 
 const fetcher = async (url: string) => {
-  const res = await fetch(url, {
+  const res = await fetch(`https://app-back-gc64.onrender.com${url}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

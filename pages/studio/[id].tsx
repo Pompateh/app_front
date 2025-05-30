@@ -17,7 +17,7 @@ interface StudioDetail {
 }
 
 const fetcher = (url: string) =>
-  fetch(url, { headers: { 'Content-Type': 'application/json' } }).then(res =>
+  fetch(`https://app-back-gc64.onrender.com${url}`, { headers: { 'Content-Type': 'application/json' } }).then(res =>
     res.json()
   );
 
