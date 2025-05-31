@@ -137,7 +137,7 @@ const Header: React.FC = () => {
           <nav className="md:hidden bg-white border-t-4 border-[#999380]">
             <div className="flex flex-col divide-y-2 divide-[#999380]">
               <div className="px-6 py-3">
-                <Link href="/product" className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
+                <Link href="/project" className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
                   onClick={() => setIsMenuOpen(false)}>
                   Ấn-phẩm
