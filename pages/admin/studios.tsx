@@ -381,7 +381,7 @@ const AdminStudios = () => {
                   <td className="py-2 px-4 border-b">{studio.description}</td>
                   <td className="py-2 px-4 border-b">
                     {studio.thumbnail ? (
-                      <img src={studio.thumbnail} alt={studio.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={`${process.env.NEXT_PUBLIC_API_URL}${studio.thumbnail}`} alt={studio.name} className="w-16 h-16 object-cover rounded" />
                     ) : (
                       'No Thumbnail'
                     )}
@@ -484,7 +484,7 @@ const AdminStudios = () => {
                 </div>
                 {formData.logo && (
                   <img
-                    src={formData.logo}
+                    src={`${process.env.NEXT_PUBLIC_API_URL}${formData.logo}`}
                     alt="Logo Preview"
                     className="w-24 h-24 object-contain bg-white mt-2 border"
                   />

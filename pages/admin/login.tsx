@@ -13,20 +13,31 @@ const AdminLogin = () => {
 
     try {
       // Call your NestJS API for login
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ email, password }),
-        credentials: 'include',  // <— make sure the browser accepts the cookie
+        credentials: 'include',
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Login failed');
+        const errorData = await res.json().catch(() => ({ message: 'Login failed' }));
+        console.error('Login error:', errorData);
+        console.error('Response status:', res.status);
+        console.error('Response headers:', Object.fromEntries(res.headers.entries()));
+        throw new Error(errorData.message || `Login failed with status ${res.status}`);
       }
+
+      const data = await res.json();
+      console.log('Login successful:', data);
+      
       // Redirect to the admin dashboard
       router.push('/admin/dashboard');
     } catch (err: any) {
+      console.error('Login error details:', err);
       setError(err.message || 'Login failed');
     }
   };

@@ -20,7 +20,7 @@ export function middleware(req: NextRequest) {
     const token = req.cookies.get('token')
     if (!token) {
       const loginUrl = req.nextUrl.clone()
-      loginUrl.pathname = '/login'
+      loginUrl.pathname = '/admin/login'
       return NextResponse.redirect(loginUrl)
     }
   }

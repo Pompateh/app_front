@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['wearenewstalgia.com'],
+    domains: ['wearenewstalgia.com', 'app-back-gc64.onrender.com'],
     unoptimized: true,
   },
   eslint: {

@@ -69,7 +69,7 @@ type Props = {
   related: ProjectDetail[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
