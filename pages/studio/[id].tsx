@@ -14,6 +14,7 @@ interface StudioDetail {
   portfolio?: { id: string; title: string; image: string; type: string; year: number }[];
   fonts?: { id: string; name: string; image: string; type: string; price: number }[];
   artworks?: { id: string; name: string; author: string; image: string; type: string; }[];
+  thumbnail?: string;
 }
 
 const fetcher = (url: string) =>

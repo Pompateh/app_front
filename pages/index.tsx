@@ -130,7 +130,7 @@ const MasterHomepage: NextPage = () => {
                   <div className="w-full h-full relative">
                     {studio.thumbnail.match(/\.mp4$/i) ? (
                       <video
-                        src={studio.thumbnail}
+                        src={`${process.env.NEXT_PUBLIC_API_URL}${studio.thumbnail}`}
                         className="w-full h-full object-cover animate-fadeIn"
                         autoPlay
                         loop
@@ -141,7 +141,7 @@ const MasterHomepage: NextPage = () => {
                       />
                     ) : (
                       <img
-                        src={studio.thumbnail}
+                        src={`${process.env.NEXT_PUBLIC_API_URL}${studio.thumbnail}`}
                         alt={studio.name}
                         className="w-full h-full object-cover transform transition-transform duration-1000 ease-in-out hover:scale-105 opacity-0 animate-fadeIn"
                       />
@@ -214,7 +214,7 @@ const MasterHomepage: NextPage = () => {
                         {studio.logo ? (
                           <div className="flex items-center w-full" style={{ height: '2.5rem', marginBottom: '0.75rem' }}>
                             <img
-                              src={studio.logo}
+                              src={`${process.env.NEXT_PUBLIC_API_URL}${studio.logo}`}
                               alt={studio.name + ' logo'}
                               className="max-h-10 object-contain"
                               style={{ maxWidth: '100%', maxHeight: '2.5rem' }}
