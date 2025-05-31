@@ -7,7 +7,7 @@
   NEXT_TELEMETRY_DISABLED = "1"
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
-  NEXT_PUBLIC_API_URL = "https://app-back-gc64.onrender.com"
+  NEXT_PUBLIC_API_BASE = "https://app-back-gc64.onrender.com"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
