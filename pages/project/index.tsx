@@ -57,7 +57,7 @@ export default function ProjectListPage() {
               className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
             >
               <img
-                src={project.thumbnail || '/path/to/default-thumbnail.jpg'}
+                src={`${process.env.NEXT_PUBLIC_API_URL}${project.thumbnail || '/path/to/default-thumbnail.jpg'}`}
                 alt={project.title}
                 className="w-full h-48 object-cover"
               />

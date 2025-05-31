@@ -137,7 +137,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         return (
           <div key={idx} className="border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden">
             <img
-              src={block.src}
+              src={`${process.env.NEXT_PUBLIC_API_URL}${block.src}`}
               alt={block.alt || title}
               className="object-cover"
               style={style}
@@ -160,7 +160,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
             </div>
             {!isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
-                <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
+                <img src={`${process.env.NEXT_PUBLIC_API_URL}${image.src}`} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
           </div>
@@ -174,12 +174,12 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           <div key={idx} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
               <div className="border-t-2 border-[#999380] overflow-hidden flex">
-                <img src={left.src} alt={left.alt || title} className="w-full h-auto object-cover" />
+                <img src={`${process.env.NEXT_PUBLIC_API_URL}${left.src}`} alt={left.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
             {right && (
               <div className="border-t-2 border-l-2 border-b-0 border-[#999380] overflow-hidden flex">
-                <img src={right.src} alt={right.alt || title} className="w-full h-auto object-cover" />
+                <img src={`${process.env.NEXT_PUBLIC_API_URL}${right.src}`} alt={right.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
           </div>
@@ -211,7 +211,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
                       <div dangerouslySetInnerHTML={{ __html: item.text }} />
                     </div>
                   ) : (
-                    <img src={item.src} alt={item.alt || title} className="w-full h-full object-cover" />
+                    <img src={`${process.env.NEXT_PUBLIC_API_URL}${item.src}`} alt={item.alt || title} className="w-full h-full object-cover" />
                   )}
                 </div>
               );
@@ -264,12 +264,12 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
   >
    <img
-src={r.thumbnail || '/path/to/default-thumbnail.jpg'} // Use thumbnail or a default image
+src={`${process.env.NEXT_PUBLIC_API_URL}${r.thumbnail || '/path/to/default-thumbnail.jpg'}`}
 alt={r.title}
 className="w-full h-48 object-cover"
     />
     <div className="p-4">
-      <p className="text-sm text-gray-500">{r.category}</p> {/* Display project type */}
+      <p className="text-sm text-gray-500">{r.category}</p>
       <h3 className="text-xl font-semibold">{r.title}</h3>
       <p className="text-sm text-gray-500 mt-2">{r.description}</p>
     </div>

@@ -223,7 +223,7 @@ const StudioHomepage: React.FC = () => {
                           duration: 0.4,
                           delay: index * 0.15 + 0.2
                         }}
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
+                        src={item.image}
                         alt={item.title}
                         className="w-full h-auto max-h-custom object-cover"
                       />
@@ -379,7 +379,7 @@ const StudioHomepage: React.FC = () => {
                           scale: 1.05,
                           transition: { duration: 0.3 }
                         }}
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
+                        src={item.image}
                         alt={item.name}
                         className="w-full h-full object-contain"
                       />
@@ -515,7 +515,7 @@ const StudioHomepage: React.FC = () => {
                           scale: 1.05,
                           transition: { duration: 0.3 }
                         }}
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
+                        src={item.image}
                         alt={item.name}
                         className="w-full object-cover"
                         style={{ aspectRatio: '1 / 1', height: 'auto' }}
@@ -559,7 +559,7 @@ const StudioHomepage: React.FC = () => {
                           scale: 1.05,
                           transition: { duration: 0.3 }
                         }}
-                        src={`${process.env.NEXT_PUBLIC_API_URL}${item.image}`}
+                        src={item.image}
                         alt={item.name}
                         className="w-full object-cover"
                         style={{ width: '100%', height: '700px' }}

@@ -46,7 +46,11 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
       case 'full_image':
         return (
           <div key={i} className="border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden">
-            <img src={block.src} alt={block.alt || ''} className="object-cover w-full h-auto" />
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}${block.src}`}
+              alt={block.alt || ''}
+              className="object-cover w-full h-auto"
+            />
           </div>
         );
       case 'text_and_side_image': {
@@ -55,7 +59,11 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
           <div key={i} className="grid grid-cols-2 gap-0 md:col-span-2">
             {isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
-                <img src={block.data.image.src} alt={block.data.image.alt || ''} className="w-full h-auto object-cover" />
+                <img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${block.data.image.src}`}
+                  alt={block.data.image.alt || ''}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
             <div className="prose lg:prose-lg border-2 border-[#999380] p-4">
@@ -63,7 +71,11 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
             </div>
             {!isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
-                <img src={block.data.image.src} alt={block.data.image.alt || ''} className="w-full h-auto object-cover" />
+                <img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${block.data.image.src}`}
+                  alt={block.data.image.alt || ''}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
           </div>
@@ -77,12 +89,20 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
           <div key={i} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
               <div className="border-t-2 border-[#999380] overflow-hidden">
-                <img src={left.src} alt={left.alt || ''} className="w-full h-auto object-cover" />
+                <img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${left.src}`}
+                  alt={left.alt || ''}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
             {right && (
               <div className="border-t-2 border-l-2 border-[#999380] overflow-hidden">
-                <img src={right.src} alt={right.alt || ''} className="w-full h-auto object-cover" />
+                <img
+                  src={`${process.env.NEXT_PUBLIC_API_URL}${right.src}`}
+                  alt={right.alt || ''}
+                  className="w-full h-auto object-cover"
+                />
               </div>
             )}
           </div>
@@ -115,7 +135,11 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
                       <div dangerouslySetInnerHTML={{ __html: item.text }} />
                     </div>
                   ) : (
-                    <img src={item.src} alt={item.alt || ''} className="w-full h-full object-cover" />
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL}${item.src}`}
+                      alt={item.alt || ''}
+                      className="w-full h-full object-cover"
+                    />
                   )}
                 </div>
               );
