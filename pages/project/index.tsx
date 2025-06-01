@@ -132,8 +132,8 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         );
       case 'full_image': {
         const style: React.CSSProperties = {
-          width:  '100%',
-          height:  'auto',
+          width: '100%',
+          height: 'auto',
         };
         if (!block.src) return null;
         return (
@@ -147,7 +147,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
             className="border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden"
           >
             <img
-              src={block.src}
+              src={block.src?.startsWith('http') ? block.src : `${API_BASE}/uploads/${block.src}`}
               alt={block.alt || title}
               className="object-cover"
               style={style}
@@ -174,7 +174,11 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           >
             {isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
-                <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
+                <img 
+                  src={image.src?.startsWith('http') ? image.src : `${API_BASE}/uploads/${image.src}`} 
+                  alt={image.alt || title} 
+                  className="w-full h-auto object-cover" 
+                />
               </div>
             )}
             <div className="p-4 prose lg:prose-lg border-2 border-[#999380]">
@@ -182,7 +186,11 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
             </div>
             {!isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
-                <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
+                <img 
+                  src={image.src?.startsWith('http') ? image.src : `${API_BASE}/uploads/${image.src}`} 
+                  alt={image.alt || title} 
+                  className="w-full h-auto object-cover" 
+                />
               </div>
             )}
           </motion.div>
@@ -209,12 +217,20 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           >
             {left && left.src && (
               <div className="border-t-2 border-[#999380] overflow-hidden flex">
-                <img src={left.src} alt={left.alt || title} className="w-full h-auto object-cover" />
+                <img 
+                  src={left.src?.startsWith('http') ? left.src : `${API_BASE}/uploads/${left.src}`} 
+                  alt={left.alt || title} 
+                  className="w-full h-auto object-cover" 
+                />
               </div>
             )}
             {right && right.src && (
               <div className="border-t-2 border-l-2 border-b-0 border-[#999380] overflow-hidden flex">
-                <img src={right.src} alt={right.alt || title} className="w-full h-auto object-cover" />
+                <img 
+                  src={right.src?.startsWith('http') ? right.src : `${API_BASE}/uploads/${right.src}`} 
+                  alt={right.alt || title} 
+                  className="w-full h-auto object-cover" 
+                />
               </div>
             )}
           </motion.div>
@@ -258,9 +274,12 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
                       <div dangerouslySetInnerHTML={{ __html: item.text || '' }} />
                     </div>
                   ) : item.type === 'image' && item.src ? (
-                    <img src={item.src} alt={item.alt || title} className="w-full h-full object-cover" />
-                   ) : null
-                  }
+                    <img 
+                      src={item.src?.startsWith('http') ? item.src : `${API_BASE}/uploads/${item.src}`} 
+                      alt={item.alt || title} 
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : null}
                 </div>
               );
             })}
@@ -271,7 +290,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     }
   };
 
-   return (
+  return (
     <Layout>
       <VerticalLine />
       <div className="container mx-auto py-12 px-5 mt-20">
@@ -295,18 +314,18 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
               <div className="pt-20 pr-80 pb-20 pl-8 border-r-2 border-l-2 border-t-2 border-[#999380]">
                 {Array.isArray(team) && team.map((m, i) => (
                   m && m.name && m.role ? (
-                   <motion.div
-                    key={i}
-                    custom={i}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, amount: 0.2 }}
-                    variants={teamVariants}
-                    className="flex justify-between border-[#999380] py-2"
-                  >
-                    <p className="text-sm text-gray-600">{m.role}</p>
-                    <p className="font-semibold">{m.name}</p>
-                  </motion.div>
+                    <motion.div
+                      key={i}
+                      custom={i}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true, amount: 0.2 }}
+                      variants={teamVariants}
+                      className="flex justify-between border-[#999380] py-2"
+                    >
+                      <p className="text-sm text-gray-600">{m.role}</p>
+                      <p className="font-semibold">{m.name}</p>
+                    </motion.div>
                   ) : null
                 ))}
               </div>
@@ -317,34 +336,34 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
       {Array.isArray(related) && related.length > 0 && (
         <section className="w-full bg-[#eeebdd] py-12">
           <div className="container mx-auto space-y-6 px-5">
-          <h1 className="text-2xl font-semibold">Related Projects</h1>
-<div className="flex items-center justify-between ">
-  <button className="text-3xl font-bold text-gray-800 hover:underline mb-16">
-    Xem thêm Ấn-phẩm khác
-  </button>
-  <img src="/assets/newstalgia-doodle.svg" alt="Newstalgia Doodle" className="w-16 h-16" />
-</div>
+            <h1 className="text-2xl font-semibold">Related Projects</h1>
+            <div className="flex items-center justify-between ">
+              <button className="text-3xl font-bold text-gray-800 hover:underline mb-16">
+                Xem thêm Ấn-phẩm khác
+              </button>
+              <img src="/assets/newstalgia-doodle.svg" alt="Newstalgia Doodle" className="w-16 h-16" />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Array.isArray(related) && related.map((r) => (
-  r && r.id && r.slug && r.title ? (
-  <Link
-    key={r.id}
-    href={`/project/${r.slug}`}
-    className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-  >
-    <img
-src={r.thumbnail || '/path/to/default-thumbnail.jpg'}
-alt={r.title}
-className="w-full h-48 object-cover"
-    />
-    <div className="p-4">
-      <p className="text-sm text-gray-500">{r.category || ''}</p>
-      <h3 className="text-xl font-semibold">{r.title}</h3>
-      <p className="text-sm text-gray-500 mt-2">{r.description || ''}</p>
-    </div>
-  </Link>
-  ) : null
-))}
+              {Array.isArray(related) && related.map((r) => (
+                r && r.id && r.slug && r.title ? (
+                  <Link
+                    key={r.id}
+                    href={`/project/${r.slug}`}
+                    className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+                  >
+                    <img
+                      src={r.thumbnail?.startsWith('http') ? r.thumbnail : `${API_BASE}/uploads/${r.thumbnail}`}
+                      alt={r.title}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <p className="text-sm text-gray-500">{r.category || ''}</p>
+                      <h3 className="text-xl font-semibold">{r.title}</h3>
+                      <p className="text-sm text-gray-500 mt-2">{r.description || ''}</p>
+                    </div>
+                  </Link>
+                ) : null
+              ))}
             </div>
           </div>
         </section>
