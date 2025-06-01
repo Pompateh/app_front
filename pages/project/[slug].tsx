@@ -90,7 +90,6 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         setProject(data);
       } catch (error) {
         console.error('Error fetching project:', error);
-        // Instead of redirecting to 404, show error state
         setProject(null);
       } finally {
         setLoading(false);
@@ -98,7 +97,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     };
 
     fetchProject();
-  }, [slug, router]);
+  }, [slug]);
 
   if (loading) {
     return (
@@ -304,18 +303,62 @@ className="w-full h-48 object-cover"
   );
 };
 
-// Disable static generation for this page
-export const getStaticProps = async () => {
-  return {
-    props: {},
-  };
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  try {
+    const slug = params?.slug as string;
+    const response = await fetch(`${API_BASE}/projects/${slug}`);
+    if (!response.ok) {
+      return { notFound: true };
+    }
+
+    const project = await response.json();
+    
+    // Fetch related projects
+    const allProjectsResponse = await fetch(`${API_BASE}/projects`);
+    if (!allProjectsResponse.ok) {
+      return { notFound: true };
+    }
+    
+    const allProjects = await allProjectsResponse.json();
+    const related = Array.isArray(allProjects) 
+      ? allProjects.filter(p => p.id !== project.id).slice(0, 3)
+      : [];
+
+    return {
+      props: { 
+        project,
+        related
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    return { notFound: true };
+  }
 };
 
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: true,
-  };
+export const getStaticPaths: GetStaticPaths = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/projects`);
+    if (!response.ok) {
+      return { paths: [], fallback: true };
+    }
+
+    const projects = await response.json();
+    const paths = Array.isArray(projects)
+      ? projects.map((project) => ({
+          params: { slug: project.slug },
+        }))
+      : [];
+
+    return {
+      paths,
+      fallback: true,
+    };
+  } catch (error) {
+    console.error('Error generating paths:', error);
+    return { paths: [], fallback: true };
+  }
 };
 
 export default ProjectPage;
