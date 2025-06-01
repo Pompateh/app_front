@@ -69,35 +69,38 @@ type Props = {
   related: ProjectDetail[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com/api';
 
 const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
   const { slug } = router.query;
-  const [projectState, setProject] = useState<Project | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [projectState, setProject] = useState<ProjectDetail | null>(project || null);
+  const [loading, setLoading] = useState(!project);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!slug) return;
 
     const fetchProject = async () => {
       try {
-        // First try to get from static props
+        // If we have project from static props, use it
         if (project) {
           setProject(project);
           setLoading(false);
           return;
         }
 
-        // If not available from static props, fetch from API
-        const response = await fetch(`https://app-back-gc64.onrender.com/api/projects/${slug}`);
+        // Otherwise fetch from API
+        const response = await fetch(`${API_BASE}/projects/${slug}`);
         if (!response.ok) {
-          throw new Error('Project not found');
+          throw new Error(`Project not found: ${response.statusText}`);
         }
         const data = await response.json();
         setProject(data);
+        setError(null);
       } catch (error) {
         console.error('Error fetching project:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load project');
         setProject(null);
       } finally {
         setLoading(false);
@@ -119,13 +122,13 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     );
   }
 
-  if (!projectState) {
+  if (error || !projectState) {
     return (
       <Layout>
         <div className="container mx-auto py-12 px-5 mt-20">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
-            <p className="mb-4">The project you're looking for doesn't exist or has been removed.</p>
+            <p className="mb-4">{error || "The project you're looking for doesn't exist or has been removed."}</p>
             <Link href="/" className="text-blue-600 hover:underline">
               Return to Homepage
             </Link>
@@ -318,7 +321,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       return { notFound: true };
     }
 
-    const response = await fetch(`https://app-back-gc64.onrender.com/api/projects/${slug}`);
+    const response = await fetch(`${API_BASE}/projects/${slug}`);
     if (!response.ok) {
       console.error(`API responded with status: ${response.status} for slug: ${slug}`);
       return { notFound: true };
@@ -327,7 +330,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const project = await response.json();
     
     // Fetch related projects
-    const allProjectsResponse = await fetch(`https://app-back-gc64.onrender.com/api/projects`);
+    const allProjectsResponse = await fetch(`${API_BASE}/projects`);
     if (!allProjectsResponse.ok) {
       console.error('Failed to fetch related projects');
       return { 
@@ -335,7 +338,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           project,
           related: []
         },
-        revalidate: 60,
+        revalidate: 10, // Reduce revalidation time to 10 seconds
       };
     }
     
@@ -349,7 +352,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         project,
         related
       },
-      revalidate: 60,
+      revalidate: 10, // Reduce revalidation time to 10 seconds
     };
   } catch (error) {
     console.error('Error in getStaticProps:', error);
@@ -359,16 +362,16 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`https://app-back-gc64.onrender.com/api/projects`);
+    const response = await fetch(`${API_BASE}/projects`);
     if (!response.ok) {
       console.error('Failed to fetch projects for static paths');
-      return { paths: [], fallback: true };
+      return { paths: [], fallback: 'blocking' }; // Change to blocking for better UX
     }
 
     const projects = await response.json();
     if (!Array.isArray(projects)) {
       console.error('Invalid projects data format');
-      return { paths: [], fallback: true };
+      return { paths: [], fallback: 'blocking' };
     }
 
     const paths = projects.map((project) => ({
@@ -377,11 +380,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     return {
       paths,
-      fallback: true,
+      fallback: 'blocking', // Change to blocking for better UX
     };
   } catch (error) {
     console.error('Error in getStaticPaths:', error);
-    return { paths: [], fallback: true };
+    return { paths: [], fallback: 'blocking' };
   }
 };
 
