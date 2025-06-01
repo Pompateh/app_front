@@ -373,20 +373,30 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
 };
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
+  console.log('Attempting to fetch projects in getStaticProps for /project index page...');
   try {
     const response = await fetch(`${API_BASE}/projects`);
+    
     if (!response.ok) {
-      console.error('Failed to fetch projects:', response.status);
+      console.error(`Failed to fetch projects in getStaticProps for /project index: Status ${response.status}, ${response.statusText}`);
+      // Log response body if available for more details
+      try {
+        const errorBody = await response.text();
+        console.error('Response body:', errorBody);
+      } catch (e) {
+        console.error('Could not read response body:', e);
+      }
       return { notFound: true };
     }
 
     const all = await response.json();
+    console.log('Successfully fetched projects in getStaticProps for /project index. Number of projects:', all.length);
+
     if (!Array.isArray(all) || all.length === 0) {
-      console.error('No projects found in response');
+      console.error('No projects found or response is not an array in getStaticProps for /project index.', all);
       return { notFound: true };
     }
-
-    // Ensure all image URLs are absolute
+    
     const processedProjects = all.map(project => ({
       ...project,
       thumbnail: project.thumbnail?.startsWith('http') ? project.thumbnail : `${API_BASE}/uploads/${project.thumbnail}`,
@@ -442,6 +452,8 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
       })
     }));
 
+    console.log('Returning props for /project index.', { project: processedProjects[0], related: processedProjects.slice(1) });
+
     return {
       props: { 
         project: processedProjects[0], 
@@ -450,7 +462,7 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
       revalidate: 60,
     };
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error('Error in getStaticProps for /project index:', error);
     return { notFound: true };
   }
 };
