@@ -82,7 +82,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
 
     const fetchProject = async () => {
       try {
-        const response = await fetch(`${API_BASE}/projects/${slug}`);
+        const response = await fetch(`https://app-back-gc64.onrender.com/projects/${slug}`);
         if (!response.ok) {
           throw new Error('Project not found');
         }
@@ -118,8 +118,8 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
             <p className="mb-4">The project you're looking for doesn't exist or has been removed.</p>
-            <Link href="/project" className="text-blue-600 hover:underline">
-              Return to Projects
+            <Link href="/" className="text-blue-600 hover:underline">
+              Return to Homepage
             </Link>
           </div>
         </div>
@@ -306,7 +306,7 @@ className="w-full h-48 object-cover"
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
     const slug = params?.slug as string;
-    const response = await fetch(`${API_BASE}/projects/${slug}`);
+    const response = await fetch(`https://app-back-gc64.onrender.com/projects/${slug}`);
     if (!response.ok) {
       return { notFound: true };
     }
@@ -314,7 +314,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const project = await response.json();
     
     // Fetch related projects
-    const allProjectsResponse = await fetch(`${API_BASE}/projects`);
+    const allProjectsResponse = await fetch(`https://app-back-gc64.onrender.com/projects`);
     if (!allProjectsResponse.ok) {
       return { notFound: true };
     }
@@ -339,7 +339,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/projects`);
+    const response = await fetch(`https://app-back-gc64.onrender.com/projects`);
     if (!response.ok) {
       return { paths: [], fallback: true };
     }
