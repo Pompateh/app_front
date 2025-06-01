@@ -294,31 +294,34 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         <section className="w-full bg-[#eeebdd] py-12">
           <div className="container mx-auto space-y-6 px-5">
             <h1 className="text-2xl font-semibold">Related Projects</h1>
-            <div className="flex items-center justify-between ">
+            <div className="flex items-center justify-between">
               <button className="text-3xl font-bold text-gray-800 hover:underline mb-16">
                 Xem thêm Ấn-phẩm khác
               </button>
               <img src="/assets/newstalgia-doodle.svg" alt="Newstalgia Doodle" className="w-16 h-16" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {related.map((r) => (
-                <Link
-                  key={r?.id || ''}
-                  href={`/project/${r?.slug || ''}`}
-                  className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-                >
-                  <img
-                    src={r?.thumbnail || '/path/to/default-thumbnail.jpg'}
-                    alt={r?.title || ''}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <p className="text-sm text-gray-500">{r?.category || ''}</p>
-                    <h3 className="text-xl font-semibold">{r?.title || ''}</h3>
-                    <p className="text-sm text-gray-500 mt-2">{r?.description || ''}</p>
-                  </div>
-                </Link>
-              ))}
+              {related.map((r) => {
+                console.log('Rendering related project:', r); // Debug log
+                return (
+                  <Link
+                    key={r?.id || ''}
+                    href={`/project/${r?.slug || ''}`}
+                    className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+                  >
+                    <img
+                      src={r?.thumbnail || '/assets/default-project.jpg'}
+                      alt={r?.title || ''}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <p className="text-sm text-gray-500">{r?.category || ''}</p>
+                      <h3 className="text-xl font-semibold">{r?.title || ''}</h3>
+                      <p className="text-sm text-gray-500 mt-2 line-clamp-2">{r?.description || ''}</p>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -373,6 +376,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
     
     const allProjects = await allProjectsResponse.json();
+    console.log('All projects fetched:', allProjects); // Debug log
+
     const related = Array.isArray(allProjects) 
       ? allProjects
           .filter(p => p && p.id && p.id !== validatedProject.id)
@@ -383,6 +388,8 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             team: Array.isArray(p.team) ? p.team : [],
           }))
       : [];
+
+    console.log('Related projects:', related); // Debug log
 
     return {
       props: { 
