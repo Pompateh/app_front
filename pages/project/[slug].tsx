@@ -90,7 +90,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         }
 
         // If not available from static props, fetch from API
-        const response = await fetch(`https://app-back-gc64.onrender.com/projects/${slug}`);
+        const response = await fetch(`https://app-back-gc64.onrender.com/api/projects/${slug}`);
         if (!response.ok) {
           throw new Error('Project not found');
         }
@@ -318,7 +318,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       return { notFound: true };
     }
 
-    const response = await fetch(`https://app-back-gc64.onrender.com/projects/${slug}`);
+    const response = await fetch(`https://app-back-gc64.onrender.com/api/projects/${slug}`);
     if (!response.ok) {
       console.error(`API responded with status: ${response.status} for slug: ${slug}`);
       return { notFound: true };
@@ -327,7 +327,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     const project = await response.json();
     
     // Fetch related projects
-    const allProjectsResponse = await fetch(`https://app-back-gc64.onrender.com/projects`);
+    const allProjectsResponse = await fetch(`https://app-back-gc64.onrender.com/api/projects`);
     if (!allProjectsResponse.ok) {
       console.error('Failed to fetch related projects');
       return { 
@@ -359,7 +359,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`https://app-back-gc64.onrender.com/projects`);
+    const response = await fetch(`https://app-back-gc64.onrender.com/api/projects`);
     if (!response.ok) {
       console.error('Failed to fetch projects for static paths');
       return { paths: [], fallback: true };
