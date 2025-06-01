@@ -68,7 +68,7 @@ const blockVariants = {
       delay: i * 0.15,
       type: 'spring',
       stiffness: 80,
-    },
+    }
   }),
 };
 
@@ -341,7 +341,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
                 r && r.id && r.slug && r.title ? (
                   <Link
                     key={r.id}
-                    href={`/project/${r.slug}`}
+                    href={`/project/${r.id}`}
                     className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
                   >
                     <img
@@ -404,7 +404,7 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
     const project = await projectResponse.json();
 
     if (!project) {
-      console.error(`Project with ID ${id} not found`);
+       console.error(`Project with ID ${id} not found`);
       return { notFound: true };
     }
 
@@ -554,4 +554,4 @@ export const getStaticProps: GetStaticProps<Props> = async ({ params }) => {
   }
 };
 
-export default ProjectPage;
+export default ProjectPage; 

@@ -7,7 +7,7 @@ const API_BASE = 'https://app-back-gc64.onrender.com/api';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [firstProjectId, setFirstProjectId] = useState<string | null>(null);
+  const [firstProjectSlug, setFirstProjectSlug] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFirstProject = async () => {
@@ -16,7 +16,7 @@ const Header: React.FC = () => {
         if (!response.ok) return;
         const projects = await response.json();
         if (Array.isArray(projects) && projects.length > 0) {
-          setFirstProjectId(projects[0].id);
+          setFirstProjectSlug(projects[0].slug);
         }
       } catch (error) {
         console.error('Error fetching first project:', error);
@@ -84,7 +84,7 @@ const Header: React.FC = () => {
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
                 <Link 
-                  href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
+                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
                   className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}>
                   Ấn-phẩm
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
               <div className="flex-1 flex items-center justify-center">
                 <Link href="/step" onClick={e => handleNavClick(e, '/step')}
                   className="w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c25d' }}
                   aria-disabled="true"
                   tabIndex={-1}>
                   Quy-trình
@@ -160,7 +160,7 @@ const Header: React.FC = () => {
             <div className="flex flex-col divide-y-2 divide-[#999380]">
               <div className="px-6 py-3">
                 <Link 
-                  href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
+                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
                   className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
                   onClick={() => setIsMenuOpen(false)}>
@@ -170,7 +170,7 @@ const Header: React.FC = () => {
               <div className="px-6 py-3">
                 <Link href="/step" onClick={e => { handleNavClick(e, '/step'); setIsMenuOpen(false); }}
                   className="block w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c25d' }}
                   aria-disabled="true"
                   tabIndex={-1}>
                   Quy-trình
