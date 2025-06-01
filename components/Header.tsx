@@ -79,15 +79,14 @@ const Header: React.FC = () => {
           </div>
 
           {/* Right half - Navigation */}
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 relative flex items-stretch justify-start">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div>
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
                 <Link 
                   href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
                   className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                >
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}>
                   Ấn-phẩm
                 </Link>
               </div>
@@ -108,7 +107,7 @@ const Header: React.FC = () => {
                   Bảng-tin
                 </Link>
               </div>
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-[2] flex items-center justify-center">
                 <Link href="/shop/" className="w-full h-full flex items-center justify-center transition-all bg-yellow-400 text-gray-800 font-bold px-4 whitespace-nowrap opacity-60 cursor-not-allowed pointer-events-auto"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
                   aria-disabled="true"
@@ -164,8 +163,7 @@ const Header: React.FC = () => {
                   href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
                   className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                  onClick={() => setIsMenuOpen(false)}
-                >
+                  onClick={() => setIsMenuOpen(false)}>
                   Ấn-phẩm
                 </Link>
               </div>
