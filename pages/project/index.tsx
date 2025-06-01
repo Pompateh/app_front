@@ -1,4 +1,4 @@
-import type { NextPage, GetStaticProps, GetStaticPaths } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import VerticalLine from '../../components/VerticalLine';
