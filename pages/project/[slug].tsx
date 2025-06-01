@@ -69,7 +69,7 @@ type Props = {
   related: ProjectDetail[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com';
 
 const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
@@ -91,11 +91,22 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         }
 
         // Otherwise fetch from API
-        const response = await fetch(`${API_BASE}/projects/${slug}`);
+        const response = await fetch(`${API_BASE}/api/projects/${slug}`);
         if (!response.ok) {
-          throw new Error(`Project not found: ${response.statusText}`);
+          const errorData = await response.json().catch(() => null);
+          const errorMessage = errorData?.message || `Error: ${response.status} ${response.statusText}`;
+          console.error('API Error:', {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorData
+          });
+          throw new Error(errorMessage);
         }
         const data = await response.json();
+        if (!data || !data.id) {
+          console.error('Invalid project data:', data);
+          throw new Error('Invalid project data received from server');
+        }
         setProject(data);
         setError(null);
       } catch (error) {
@@ -318,27 +329,37 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   try {
     const slug = params?.slug as string;
     if (!slug) {
+      console.error('No slug provided in params');
       return { notFound: true };
     }
 
-    const response = await fetch(`${API_BASE}/projects/${slug}`);
+    const response = await fetch(`${API_BASE}/api/projects/${slug}`);
     if (!response.ok) {
       console.error(`API responded with status: ${response.status} for slug: ${slug}`);
+      const errorData = await response.json().catch(() => null);
+      console.error('API Error details:', errorData);
       return { notFound: true };
     }
 
     const project = await response.json();
+    if (!project || !project.id) {
+      console.error('Invalid project data received:', project);
+      return { notFound: true };
+    }
     
     // Fetch related projects
-    const allProjectsResponse = await fetch(`${API_BASE}/projects`);
+    const allProjectsResponse = await fetch(`${API_BASE}/api/projects`);
     if (!allProjectsResponse.ok) {
-      console.error('Failed to fetch related projects');
+      console.error('Failed to fetch related projects:', {
+        status: allProjectsResponse.status,
+        statusText: allProjectsResponse.statusText
+      });
       return { 
         props: { 
           project,
           related: []
         },
-        revalidate: 10, // Reduce revalidation time to 10 seconds
+        revalidate: 10,
       };
     }
     
@@ -352,7 +373,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         project,
         related
       },
-      revalidate: 10, // Reduce revalidation time to 10 seconds
+      revalidate: 10,
     };
   } catch (error) {
     console.error('Error in getStaticProps:', error);
@@ -362,15 +383,18 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/projects`);
+    const response = await fetch(`${API_BASE}/api/projects`);
     if (!response.ok) {
-      console.error('Failed to fetch projects for static paths');
-      return { paths: [], fallback: 'blocking' }; // Change to blocking for better UX
+      console.error('Failed to fetch projects for static paths:', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      return { paths: [], fallback: 'blocking' };
     }
 
     const projects = await response.json();
     if (!Array.isArray(projects)) {
-      console.error('Invalid projects data format');
+      console.error('Invalid projects data format:', projects);
       return { paths: [], fallback: 'blocking' };
     }
 
@@ -380,7 +404,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     return {
       paths,
-      fallback: 'blocking', // Change to blocking for better UX
+      fallback: 'blocking',
     };
   } catch (error) {
     console.error('Error in getStaticPaths:', error);
