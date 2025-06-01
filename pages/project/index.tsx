@@ -347,13 +347,38 @@ className="w-full h-48 object-cover"
   );
 };
 
-export const getStaticProps: GetStaticProps = async () => {
-  const all = await fetch(`${API_BASE}/projects`).then(r => r.json());
-  if (!Array.isArray(all) || all.length === 0) return { notFound: true };
-  return {
-    props: { project: all[0], related: all.slice(1) },
-    revalidate: 60,
-  };
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  try {
+    console.log('Fetching projects in getStaticProps...');
+    const response = await fetch('https://app-back-gc64.onrender.com/api/projects');
+    if (!response.ok) {
+      console.error('Failed to fetch projects:', response.status, response.statusText);
+      throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+    }
+    const projects = await response.json();
+    console.log('Projects fetched successfully:', projects.length, 'projects found');
+    if (!projects || projects.length === 0) {
+      console.error('No projects found in the response');
+      return {
+        notFound: true,
+      };
+    }
+    const [project, ...related] = projects;
+    console.log('First project:', project);
+    console.log('Related projects:', related.length);
+    return {
+      props: {
+        project,
+        related,
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error('Error in getStaticProps:', error);
+    return {
+      notFound: true,
+    };
+  }
 };
 
 export default ProjectPage;
