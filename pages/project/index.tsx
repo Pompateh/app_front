@@ -1,4 +1,4 @@
-import type { NextPage, GetStaticProps, GetStaticPaths } from 'next';
+import type { NextPage, GetServerSideProps, GetStaticPaths } from 'next';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import VerticalLine from '../../components/VerticalLine';
@@ -347,15 +347,14 @@ className="w-full h-48 object-cover"
   );
 };
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   try {
-    console.log('Fetching projects in getStaticProps...');
+    console.log('Fetching projects in getServerSideProps...');
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(`${API_BASE}/projects`, {
       signal: controller.signal,
-      next: { revalidate: 60 }
     });
     clearTimeout(timeoutId);
 
@@ -382,10 +381,9 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
         project,
         related,
       },
-      revalidate: 60,
     };
   } catch (error) {
-    console.error('Error in getStaticProps:', error);
+    console.error('Error in getServerSideProps:', error);
     return {
       notFound: true,
     };
