@@ -82,7 +82,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
 
     const fetchProject = async () => {
       try {
-        const response = await fetch(`${API}/projects/${slug}`);
+        const response = await fetch(`${API_BASE}/projects/${slug}`);
         if (!response.ok) {
           throw new Error('Project not found');
         }
@@ -90,7 +90,8 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         setProject(data);
       } catch (error) {
         console.error('Error fetching project:', error);
-        router.push('/404');
+        // Instead of redirecting to 404, show error state
+        setProject(null);
       } finally {
         setLoading(false);
       }
@@ -100,11 +101,31 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
   }, [slug, router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Layout>
+        <div className="container mx-auto py-12 px-5 mt-20">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   if (!projectState) {
-    return null;
+    return (
+      <Layout>
+        <div className="container mx-auto py-12 px-5 mt-20">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
+            <p className="mb-4">The project you're looking for doesn't exist or has been removed.</p>
+            <Link href="/project" className="text-blue-600 hover:underline">
+              Return to Projects
+            </Link>
+          </div>
+        </div>
+      </Layout>
+    );
   }
 
   const { title, blocks, team } = projectState as ProjectDetail;
