@@ -1,10 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 
+const API_BASE = 'https://app-back-gc64.onrender.com/api';
+
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [firstProjectId, setFirstProjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchFirstProject = async () => {
+      try {
+        const response = await fetch(`${API_BASE}/projects`);
+        if (!response.ok) return;
+        const projects = await response.json();
+        if (Array.isArray(projects) && projects.length > 0) {
+          setFirstProjectId(projects[0].id);
+        }
+      } catch (error) {
+        console.error('Error fetching first project:', error);
+      }
+    };
+
+    fetchFirstProject();
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -59,12 +79,15 @@ const Header: React.FC = () => {
           </div>
 
           {/* Right half - Navigation */}
-          <div className="flex-1 relative flex items-stretch justify-start">
+          <div className="flex-1 flex items-center">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div>
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
-                <Link href="/project" className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}>
+                <Link 
+                  href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
+                  className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
+                >
                   Ấn-phẩm
                 </Link>
               </div>
@@ -85,7 +108,7 @@ const Header: React.FC = () => {
                   Bảng-tin
                 </Link>
               </div>
-              <div className="flex-[2] flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center">
                 <Link href="/shop/" className="w-full h-full flex items-center justify-center transition-all bg-yellow-400 text-gray-800 font-bold px-4 whitespace-nowrap opacity-60 cursor-not-allowed pointer-events-auto"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
                   aria-disabled="true"
@@ -137,9 +160,12 @@ const Header: React.FC = () => {
           <nav className="md:hidden bg-white border-t-4 border-[#999380]">
             <div className="flex flex-col divide-y-2 divide-[#999380]">
               <div className="px-6 py-3">
-                <Link href="/project" className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
+                <Link 
+                  href={firstProjectId ? `/project/${firstProjectId}` : '/project'} 
+                  className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                  onClick={() => setIsMenuOpen(false)}>
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Ấn-phẩm
                 </Link>
               </div>
