@@ -329,7 +329,7 @@ export const getStaticProps: GetStaticProps = async () => {
       console.error(`API responded with status: ${response.status}`);
       return { notFound: true };
     }
-    
+
     const all = await response.json();
     if (!Array.isArray(all) || all.length === 0) {
       console.error('No projects found or invalid data format');
@@ -346,29 +346,6 @@ export const getStaticProps: GetStaticProps = async () => {
   } catch (error) {
     console.error('Error fetching projects:', error);
     return { notFound: true };
-  }
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  try {
-    const response = await fetch(`${API_BASE}/projects`);
-    if (!response.ok) {
-      console.error(`API responded with status: ${response.status}`);
-      return { paths: [], fallback: true };
-    }
-
-    const data: ProjectDetail[] = await response.json();
-    const paths = Array.isArray(data)
-      ? data.map((p) => ({ params: { slug: p.slug } }))
-      : [];
-
-    return { 
-      paths, 
-      fallback: true 
-    };
-  } catch (error) {
-    console.error('Error generating static paths:', error);
-    return { paths: [], fallback: true };
   }
 };
 
