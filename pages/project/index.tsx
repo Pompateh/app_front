@@ -350,22 +350,33 @@ className="w-full h-48 object-cover"
 export const getStaticProps: GetStaticProps<Props> = async () => {
   try {
     console.log('Fetching projects in getStaticProps...');
-    const response = await fetch(`${API_BASE}/projects`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const response = await fetch(`${API_BASE}/projects`, {
+      signal: controller.signal,
+      next: { revalidate: 60 }
+    });
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       console.error('Failed to fetch projects:', response.status, response.statusText);
-      throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
+      return {
+        notFound: true,
+      };
     }
+
     const projects = await response.json();
     console.log('Projects fetched successfully:', projects.length, 'projects found');
-    if (!projects || projects.length === 0) {
+    
+    if (!Array.isArray(projects) || projects.length === 0) {
       console.error('No projects found in the response');
       return {
         notFound: true,
       };
     }
+
     const [project, ...related] = projects;
-    console.log('First project:', project);
-    console.log('Related projects:', related.length);
     return {
       props: {
         project,
