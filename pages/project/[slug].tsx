@@ -69,7 +69,7 @@ type Props = {
   related: ProjectDetail[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com';
 
 const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
@@ -96,16 +96,18 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         }
 
         // Otherwise fetch from API
-        const response = await fetch(`${API_BASE}/projects/${slug}`);
+        const response = await fetch(`${API_BASE}/api/projects/${slug}`);
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
-          const errorMessage = errorData?.message || `Error: ${response.status} ${response.statusText}`;
           console.error('API Error:', {
             status: response.status,
             statusText: response.statusText,
             error: errorData
           });
-          throw new Error(errorMessage);
+          if (response.status === 404) {
+            throw new Error('Project not found');
+          }
+          throw new Error(errorData?.message || `Error: ${response.status} ${response.statusText}`);
         }
         const data = await response.json();
         if (!data || !data.id) {
@@ -360,10 +362,13 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     // Add error handling for the fetch
     let project;
     try {
-      const response = await fetch(`${API_BASE}/projects/${slug}`);
+      const response = await fetch(`${API_BASE}/api/projects/${slug}`);
       if (!response.ok) {
         console.error(`API responded with status: ${response.status} for slug: ${slug}`);
-        return { notFound: true };
+        if (response.status === 404) {
+          return { notFound: true };
+        }
+        throw new Error(`API responded with status: ${response.status}`);
       }
       project = await response.json();
       console.log('Fetched project:', project); // Debug log
@@ -388,7 +393,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     let related: ProjectDetail[] = [];
     try {
       console.log('Fetching all projects for related projects...');
-      const allProjectsResponse = await fetch(`${API_BASE}/projects`);
+      const allProjectsResponse = await fetch(`${API_BASE}/api/projects`);
       if (!allProjectsResponse.ok) {
         console.error('Failed to fetch all projects:', {
           status: allProjectsResponse.status,
@@ -442,7 +447,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/projects`);
+    const response = await fetch(`${API_BASE}/api/projects`);
     if (!response.ok) {
       console.error('Failed to fetch projects for static paths:', {
         status: response.status,
