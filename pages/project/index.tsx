@@ -350,7 +350,7 @@ className="w-full h-48 object-cover"
 export const getStaticProps: GetStaticProps<Props> = async () => {
   try {
     console.log('Fetching projects in getStaticProps...');
-    const response = await fetch('https://app-back-gc64.onrender.com/api/projects');
+    const response = await fetch(`${API_BASE}/projects`);
     if (!response.ok) {
       console.error('Failed to fetch projects:', response.status, response.statusText);
       throw new Error(`Failed to fetch projects: ${response.status} ${response.statusText}`);
