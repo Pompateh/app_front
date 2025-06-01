@@ -1,9 +1,10 @@
-import type { NextPage, GetServerSideProps, GetStaticPaths } from 'next';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import VerticalLine from '../../components/VerticalLine';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import useSWR from 'swr';
 
 // Block type interfaces matching Prisma schema
 interface FullImageBlock {
@@ -57,12 +58,12 @@ interface ProjectDetail {
   thumbnail: string;
 }
 
-type Props = {
-  project: ProjectDetail;
-  related: ProjectDetail[];
-};
-
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+
+const fetcher = (url: string) =>
+  fetch(`${API_BASE}${url}`, { headers: { 'Content-Type': 'application/json' } }).then(res =>
+    res.json()
+  );
 
 const blockVariants = {
   hidden: { opacity: 0, y: 40 },
@@ -92,9 +93,15 @@ const teamVariants = {
   }),
 };
 
-const ProjectPage: NextPage<Props> = ({ project, related }) => {
+const ProjectPage: NextPage = () => {
   const router = useRouter();
+  const { data, error } = useSWR<{ project: ProjectDetail; related: ProjectDetail[] }>('/projects', fetcher);
+
   if (router.isFallback) return <div>Loading...</div>;
+  if (error) return <div>Error loading projects</div>;
+  if (!data) return <div>Loading...</div>;
+
+  const { project, related } = data;
 
   if (!project) {
     return <div>Error: Project data not found.</div>;
@@ -345,49 +352,6 @@ className="w-full h-48 object-cover"
       )}
     </Layout>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
-  try {
-    console.log('Fetching projects in getServerSideProps...');
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-    const response = await fetch(`${API_BASE}/projects`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.error('Failed to fetch projects:', response.status, response.statusText);
-      return {
-        notFound: true,
-      };
-    }
-
-    const projects = await response.json();
-    console.log('Projects fetched successfully:', projects.length, 'projects found');
-    
-    if (!Array.isArray(projects) || projects.length === 0) {
-      console.error('No projects found in the response');
-      return {
-        notFound: true,
-      };
-    }
-
-    const [project, ...related] = projects;
-    return {
-      props: {
-        project,
-        related,
-      },
-    };
-  } catch (error) {
-    console.error('Error in getServerSideProps:', error);
-    return {
-      notFound: true,
-    };
-  }
 };
 
 export default ProjectPage;
