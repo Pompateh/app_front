@@ -1,4 +1,4 @@
-import type { NextPage } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import VerticalLine from '../../components/VerticalLine';
@@ -58,7 +58,7 @@ interface ProjectDetail {
   thumbnail: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+const API_BASE = 'https://app-back-gc64.onrender.com/api';
 
 const fetcher = (url: string) =>
   fetch(`${API_BASE}${url}`, { headers: { 'Content-Type': 'application/json' } }).then(res =>
@@ -93,15 +93,14 @@ const teamVariants = {
   }),
 };
 
-const ProjectPage: NextPage = () => {
+interface Props {
+  project: ProjectDetail;
+  related: ProjectDetail[];
+}
+
+const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
-  const { data, error } = useSWR<{ project: ProjectDetail; related: ProjectDetail[] }>('/projects', fetcher);
-
   if (router.isFallback) return <div>Loading...</div>;
-  if (error) return <div>Error loading projects</div>;
-  if (!data) return <div>Loading...</div>;
-
-  const { project, related } = data;
 
   if (!project) {
     return <div>Error: Project data not found.</div>;
@@ -354,12 +353,87 @@ className="w-full h-48 object-cover"
   );
 };
 
-export default ProjectPage;
+export const getStaticProps: GetStaticProps<Props> = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/projects`);
+    if (!response.ok) {
+      console.error('Failed to fetch projects:', response.status);
+      return { notFound: true };
+    }
 
-//export const getStaticPaths: GetStaticPaths = async () => {
-//  const data: ProjectDetail[] = await fetch(`${API_BASE}/projects`).then((r) => r.json());
-//  const paths = Array.isArray(data)
-//    ? data.map((p) => ({ params: { slug: p.slug } }))
-//    : [];
-//  return { paths, fallback: true };
-//};
+    const all = await response.json();
+    if (!Array.isArray(all) || all.length === 0) {
+      console.error('No projects found in response');
+      return { notFound: true };
+    }
+
+    // Ensure all image URLs are absolute
+    const processedProjects = all.map(project => ({
+      ...project,
+      thumbnail: project.thumbnail?.startsWith('http') ? project.thumbnail : `${API_BASE}/uploads/${project.thumbnail}`,
+      blocks: project.blocks?.map((block: ContentBlock) => {
+        if (block.type === 'full_image') {
+          return {
+            ...block,
+            src: block.src?.startsWith('http') ? block.src : `${API_BASE}/uploads/${block.src}`
+          };
+        }
+        if (block.type === 'text_and_side_image') {
+          return {
+            ...block,
+            data: {
+              ...block.data,
+              image: {
+                ...block.data.image,
+                src: block.data.image.src?.startsWith('http') ? block.data.image.src : `${API_BASE}/uploads/${block.data.image.src}`
+              }
+            }
+          };
+        }
+        if (block.type === 'side_by_side_image') {
+          return {
+            ...block,
+            data: {
+              ...block.data,
+              images: block.data.images.map((img: { src: string; alt?: string; layout: 'left' | 'right' }) => ({
+                ...img,
+                src: img.src?.startsWith('http') ? img.src : `${API_BASE}/uploads/${img.src}`
+              }))
+            }
+          };
+        }
+        if (block.type === 'three_grid_layout') {
+          return {
+            ...block,
+            data: {
+              ...block.data,
+              items: block.data.items.map((item: { type: 'text' | 'image'; text?: string; src?: string; alt?: string; layout: 'left' | 'right' }) => {
+                if (item.type === 'image') {
+                  return {
+                    ...item,
+                    src: item.src?.startsWith('http') ? item.src : `${API_BASE}/uploads/${item.src}`
+                  };
+                }
+                return item;
+              })
+            }
+          };
+        }
+        return block;
+      })
+    }));
+
+    return {
+      props: { 
+        project: processedProjects[0], 
+        related: processedProjects.slice(1) 
+      },
+      revalidate: 60,
+    };
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    return { notFound: true };
+  }
+};
+
+export default ProjectPage;
