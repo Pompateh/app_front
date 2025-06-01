@@ -69,17 +69,22 @@ type Props = {
   related: ProjectDetail[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com/api';
 
 const ProjectPage: NextPage<Props> = ({ project, related }) => {
   const router = useRouter();
   const { slug } = router.query;
   const [projectState, setProject] = useState<ProjectDetail | null>(project || null);
-  const [loading, setLoading] = useState(!project);
+  const [loading, setLoading] = useState(!project || router.isFallback);
   const [error, setError] = useState<string | null>(null);
 
+  // Debug log for props
   useEffect(() => {
-    if (!slug) return;
+    console.log('Component props:', { project, related });
+  }, [project, related]);
+
+  useEffect(() => {
+    if (!slug || router.isFallback) return;
 
     const fetchProject = async () => {
       try {
@@ -91,7 +96,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         }
 
         // Otherwise fetch from API
-        const response = await fetch(`${API_BASE}/api/projects/${slug}`);
+        const response = await fetch(`${API_BASE}/projects/${slug}`);
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);
           const errorMessage = errorData?.message || `Error: ${response.status} ${response.statusText}`;
@@ -119,7 +124,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     };
 
     fetchProject();
-  }, [slug, project]);
+  }, [slug, project, router.isFallback]);
 
   if (loading) {
     return (
@@ -267,6 +272,53 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
     }
   };
 
+  // Update the related projects section
+  const renderRelatedProjects = () => {
+    console.log('Rendering related projects:', related); // Debug log
+    
+    if (!Array.isArray(related) || related.length === 0) {
+      console.log('No related projects to display'); // Debug log
+      return null;
+    }
+
+    return (
+      <section className="w-full bg-[#eeebdd] py-12">
+        <div className="container mx-auto space-y-6 px-5">
+          <h1 className="text-2xl font-semibold">Related Projects</h1>
+          <div className="flex items-center justify-between">
+            <button className="text-3xl font-bold text-gray-800 hover:underline mb-16">
+              Xem thêm Ấn-phẩm khác
+            </button>
+            <img src="/assets/newstalgia-doodle.svg" alt="Newstalgia Doodle" className="w-16 h-16" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {related.map((r) => {
+              console.log('Rendering related project item:', r); // Debug log
+              return (
+                <Link
+                  key={r?.id || ''}
+                  href={`/project/${r?.slug || ''}`}
+                  className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+                >
+                  <img
+                    src={r?.thumbnail || '/assets/default-project.jpg'}
+                    alt={r?.title || ''}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <p className="text-sm text-gray-500">{r?.category || ''}</p>
+                    <h3 className="text-xl font-semibold">{r?.title || ''}</h3>
+                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">{r?.description || ''}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
   return (
     <Layout>
       <VerticalLine />
@@ -290,42 +342,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           </section>
         )}
       </div>
-      {Array.isArray(related) && related.length > 0 && (
-        <section className="w-full bg-[#eeebdd] py-12">
-          <div className="container mx-auto space-y-6 px-5">
-            <h1 className="text-2xl font-semibold">Related Projects</h1>
-            <div className="flex items-center justify-between">
-              <button className="text-3xl font-bold text-gray-800 hover:underline mb-16">
-                Xem thêm Ấn-phẩm khác
-              </button>
-              <img src="/assets/newstalgia-doodle.svg" alt="Newstalgia Doodle" className="w-16 h-16" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {related.map((r) => {
-                console.log('Rendering related project:', r); // Debug log
-                return (
-                  <Link
-                    key={r?.id || ''}
-                    href={`/project/${r?.slug || ''}`}
-                    className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-                  >
-                    <img
-                      src={r?.thumbnail || '/assets/default-project.jpg'}
-                      alt={r?.title || ''}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="p-4">
-                      <p className="text-sm text-gray-500">{r?.category || ''}</p>
-                      <h3 className="text-xl font-semibold">{r?.title || ''}</h3>
-                      <p className="text-sm text-gray-500 mt-2 line-clamp-2">{r?.description || ''}</p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+      {renderRelatedProjects()}
     </Layout>
   );
 };
@@ -338,15 +355,23 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       return { notFound: true };
     }
 
-    const response = await fetch(`${API_BASE}/api/projects/${slug}`);
-    if (!response.ok) {
-      console.error(`API responded with status: ${response.status} for slug: ${slug}`);
-      const errorData = await response.json().catch(() => null);
-      console.error('API Error details:', errorData);
+    console.log('Fetching project for slug:', slug);
+
+    // Add error handling for the fetch
+    let project;
+    try {
+      const response = await fetch(`${API_BASE}/projects/${slug}`);
+      if (!response.ok) {
+        console.error(`API responded with status: ${response.status} for slug: ${slug}`);
+        return { notFound: true };
+      }
+      project = await response.json();
+      console.log('Fetched project:', project); // Debug log
+    } catch (error) {
+      console.error('Error fetching project:', error);
       return { notFound: true };
     }
 
-    const project = await response.json();
     if (!project || !project.id) {
       console.error('Invalid project data received:', project);
       return { notFound: true };
@@ -359,44 +384,55 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       team: Array.isArray(project.team) ? project.team : [],
     };
     
-    // Fetch related projects
-    const allProjectsResponse = await fetch(`${API_BASE}/api/projects`);
-    if (!allProjectsResponse.ok) {
-      console.error('Failed to fetch related projects:', {
-        status: allProjectsResponse.status,
-        statusText: allProjectsResponse.statusText
-      });
-      return { 
-        props: { 
-          project: validatedProject,
-          related: []
-        },
-        revalidate: 10,
-      };
+    // Fetch related projects with error handling
+    let related: ProjectDetail[] = [];
+    try {
+      console.log('Fetching all projects for related projects...');
+      const allProjectsResponse = await fetch(`${API_BASE}/projects`);
+      if (!allProjectsResponse.ok) {
+        console.error('Failed to fetch all projects:', {
+          status: allProjectsResponse.status,
+          statusText: allProjectsResponse.statusText
+        });
+      } else {
+        const allProjects = await allProjectsResponse.json();
+        console.log('All projects fetched:', allProjects); // Debug log
+        
+        if (Array.isArray(allProjects)) {
+          // Filter out the current project and get up to 3 related projects
+          const filteredProjects = allProjects.filter(p => p && p.id && p.id !== validatedProject.id);
+          console.log('Filtered projects:', filteredProjects); // Debug log
+          
+          related = filteredProjects
+            .slice(0, 3)
+            .map(p => ({
+              id: p.id,
+              title: p.title,
+              slug: p.slug,
+              category: p.category,
+              description: p.description,
+              thumbnail: p.thumbnail,
+              blocks: Array.isArray(p.blocks) ? p.blocks : [],
+              team: Array.isArray(p.team) ? p.team : [],
+            }));
+          console.log('Processed related projects:', related); // Debug log
+        } else {
+          console.error('All projects response is not an array:', allProjects);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching related projects:', error);
     }
-    
-    const allProjects = await allProjectsResponse.json();
-    console.log('All projects fetched:', allProjects); // Debug log
 
-    const related = Array.isArray(allProjects) 
-      ? allProjects
-          .filter(p => p && p.id && p.id !== validatedProject.id)
-          .slice(0, 3)
-          .map(p => ({
-            ...p,
-            blocks: Array.isArray(p.blocks) ? p.blocks : [],
-            team: Array.isArray(p.team) ? p.team : [],
-          }))
-      : [];
-
-    console.log('Related projects:', related); // Debug log
+    const props = {
+      project: validatedProject,
+      related
+    };
+    console.log('Final props:', props); // Debug log
 
     return {
-      props: { 
-        project: validatedProject,
-        related
-      },
-      revalidate: 10,
+      props,
+      revalidate: 60,
     };
   } catch (error) {
     console.error('Error in getStaticProps:', error);
@@ -406,32 +442,43 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/api/projects`);
+    const response = await fetch(`${API_BASE}/projects`);
     if (!response.ok) {
       console.error('Failed to fetch projects for static paths:', {
         status: response.status,
         statusText: response.statusText
       });
-      return { paths: [], fallback: 'blocking' };
+      return { 
+        paths: [], 
+        fallback: true
+      };
     }
 
     const projects = await response.json();
     if (!Array.isArray(projects)) {
       console.error('Invalid projects data format:', projects);
-      return { paths: [], fallback: 'blocking' };
+      return { 
+        paths: [], 
+        fallback: true 
+      };
     }
 
-    const paths = projects.map((project) => ({
-      params: { slug: project.slug },
-    }));
+    const paths = projects
+      .filter(p => p && p.slug) // Only include projects with valid slugs
+      .map((project) => ({
+        params: { slug: project.slug },
+      }));
 
     return {
       paths,
-      fallback: 'blocking',
+      fallback: true,
     };
   } catch (error) {
     console.error('Error in getStaticPaths:', error);
-    return { paths: [], fallback: 'blocking' };
+    return { 
+      paths: [], 
+      fallback: true 
+    };
   }
 };
 
