@@ -24,7 +24,7 @@ const fetcher = (url: string) =>
 
 const formatSlogan = (slogan: string) => {
   const lines = [
-    "We&apos;re a Powerhouse crafting the",
+    "We are a Powerhouse crafting the",
     "next best sh*t on the net: Branding,",
     "Typeface, Illustration."
   ];

@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['wearenewstalgia.com', 'app-back-gc64.onrender.com', 'res.cloudinary.com', 'images.unsplash.com'],
+    domains: [
+      'wearenewstalgia.com',
+      'app-back-gc64.onrender.com',
+      'res.cloudinary.com',
+    ],
     unoptimized: true,
   },
   eslint: {
@@ -29,19 +33,13 @@ const nextConfig = {
     }
     return config;
   },
-  // Only include pages that should be built
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-  // Disable static generation for dynamic routes
-  exportPathMap: async function () {
-    return {
-      '/': { page: '/' },
-      '/studio': { page: '/studio' },
-      '/admin/projects': { page: '/admin/projects' },
-      '/admin/posts': { page: '/admin/posts' },
-    };
-  },
-  // Add trailing slash to ensure proper static file serving
-  trailingSlash: true,
+  // Disable static export map to enable proper dynamic SSR
+  // output: 'standalone' is fine
+  output: 'standalone',
+  distDir: '.next',
+  trailingSlash: false,
+  assetPrefix: '',
+  basePath: '',
 };
 
 module.exports = nextConfig;
