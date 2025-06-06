@@ -362,7 +362,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     // Add error handling for the fetch
     let project;
     try {
-      const response = await fetch(`${API_BASE}/api/projects/${slug}`);
+      const response = await fetch(`${API_BASE}/api/projects/${slug}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) {
         console.error(`API responded with status: ${response.status} for slug: ${slug}`);
         if (response.status === 404) {
@@ -393,7 +398,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     let related: ProjectDetail[] = [];
     try {
       console.log('Fetching all projects for related projects...');
-      const allProjectsResponse = await fetch(`${API_BASE}/api/projects`);
+      const allProjectsResponse = await fetch(`${API_BASE}/api/projects`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!allProjectsResponse.ok) {
         console.error('Failed to fetch all projects:', {
           status: allProjectsResponse.status,
@@ -437,7 +447,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
     return {
       props,
-      revalidate: 60,
+      revalidate: 1, // Reduce revalidation time to 1 second
     };
   } catch (error) {
     console.error('Error in getStaticProps:', error);
@@ -447,7 +457,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/api/projects`);
+    const response = await fetch(`${API_BASE}/api/projects`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     if (!response.ok) {
       console.error('Failed to fetch projects for static paths:', {
         status: response.status,
@@ -455,7 +470,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       });
       return { 
         paths: [], 
-        fallback: true
+        fallback: 'blocking' // Change to blocking to prevent flash of loading state
       };
     }
 
@@ -464,7 +479,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       console.error('Invalid projects data format:', projects);
       return { 
         paths: [], 
-        fallback: true 
+        fallback: 'blocking'
       };
     }
 
@@ -476,13 +491,13 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
     return {
       paths,
-      fallback: true,
+      fallback: 'blocking',
     };
   } catch (error) {
     console.error('Error in getStaticPaths:', error);
     return { 
       paths: [], 
-      fallback: true 
+      fallback: 'blocking'
     };
   }
 };
