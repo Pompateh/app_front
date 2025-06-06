@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['wearenewstalgia.com', 'app-back-gc64.onrender.com'],
+    domains: ['wearenewstalgia.com', 'app-back-gc64.onrender.com', 'res.cloudinary.com', 'images.unsplash.com'],
     unoptimized: true,
   },
   eslint: {
@@ -40,8 +40,6 @@ const nextConfig = {
       '/admin/posts': { page: '/admin/posts' },
     };
   },
-  // Add output configuration for static export
-  output: 'standalone',
   // Add trailing slash to ensure proper static file serving
   trailingSlash: true,
 };
