@@ -5,6 +5,7 @@ import VerticalLine from '../../components/VerticalLine';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { API } from '../../utils/api';
+import fetch from 'node-fetch';
 
 // Block type interfaces matching Prisma schema
 interface FullImageBlock {
@@ -57,11 +58,30 @@ interface ProjectDetail {
   id: string;
   title: string;
   slug: string;
-  blocks: ContentBlock[];
-  team: TeamMember[];
   category: string;
   description: string;
-  thumbnail : string;
+  thumbnail: string;
+  blocks: any[];
+  team: any[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ApiResponse {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  description: string;
+  thumbnail: string;
+  blocks: any[];
+  team: any[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface ErrorResponse {
+  message: string;
 }
 
 type Props = {
@@ -98,7 +118,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         // Otherwise fetch from API
         const response = await fetch(`${API_BASE}/api/projects/${slug}`);
         if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' })) as ErrorResponse;
           console.error('API Error:', {
             status: response.status,
             statusText: response.statusText,
@@ -107,14 +127,18 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
           if (response.status === 404) {
             throw new Error('Project not found');
           }
-          throw new Error(errorData?.message || `Error: ${response.status} ${response.statusText}`);
+          throw new Error(errorData.message || `Error: ${response.status} ${response.statusText}`);
         }
-        const data = await response.json();
+        const data = await response.json() as ApiResponse;
         if (!data || !data.id) {
           console.error('Invalid project data:', data);
           throw new Error('Invalid project data received from server');
         }
-        setProject(data);
+        setProject({
+          ...data,
+          blocks: Array.isArray(data.blocks) ? data.blocks : [],
+          team: Array.isArray(data.team) ? data.team : []
+        });
         setError(null);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -360,7 +384,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     console.log('Fetching project for slug:', slug);
 
     // Add error handling for the fetch
-    let project;
+    let project: ApiResponse | null = null;
     try {
       const response = await fetch(`${API_BASE}/api/projects/${slug}`, {
         headers: {
@@ -375,7 +399,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
         }
         throw new Error(`API responded with status: ${response.status}`);
       }
-      project = await response.json();
+      project = await response.json() as ApiResponse;
       console.log('Fetched project:', project); // Debug log
     } catch (error) {
       console.error('Error fetching project:', error);
@@ -388,7 +412,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
 
     // Ensure project has required arrays
-    const validatedProject = {
+    const validatedProject: ProjectDetail = {
       ...project,
       blocks: Array.isArray(project.blocks) ? project.blocks : [],
       team: Array.isArray(project.team) ? project.team : [],
@@ -410,7 +434,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           statusText: allProjectsResponse.statusText
         });
       } else {
-        const allProjects = await allProjectsResponse.json();
+        const allProjects = await allProjectsResponse.json() as ApiResponse[];
         console.log('All projects fetched:', allProjects); // Debug log
         
         if (Array.isArray(allProjects)) {
@@ -447,7 +471,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
     return {
       props,
-      revalidate: 1, // Reduce revalidation time to 1 second
+      revalidate: 1,
     };
   } catch (error) {
     console.error('Error in getStaticProps:', error);
@@ -470,7 +494,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       });
       return { 
         paths: [], 
-        fallback: 'blocking' // Change to blocking to prevent flash of loading state
+        fallback: 'blocking'
       };
     }
 
