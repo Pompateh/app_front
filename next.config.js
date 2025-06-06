@@ -21,7 +21,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config, { isServer }) => {
-    // Exclude API directory from client-side bundle
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -29,6 +28,19 @@ const nextConfig = {
         net: false,
         tls: false,
         dns: false,
+        child_process: false,
+        http: false,
+        https: false,
+        os: false,
+        crypto: false,
+        stream: false,
+        buffer: false,
+        url: false,
+        zlib: false,
+        path: false,
+        util: false,
+        assert: false,
+        constants: false,
       };
     }
     return config;

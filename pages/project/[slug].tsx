@@ -5,7 +5,6 @@ import VerticalLine from '../../components/VerticalLine';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { API } from '../../utils/api';
-import fetch from 'node-fetch';
 
 // Block type interfaces matching Prisma schema
 interface FullImageBlock {
