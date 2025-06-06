@@ -17,7 +17,7 @@
         "@fontsource/crimson-pro": "^5.2.5",
         "@fontsource/literata": "^5.2.5",
         "@hello-pangea/dnd": "^16.5.0",
-        "@netlify/plugin-nextjs": "^4.41.3",
+        "@netlify/plugin-nextjs": "^5.11.2",
         "@tailwindcss/line-clamp": "^0.4.4",
         "axios": "^1.6.7",
         "cookie": "^1.0.2",
