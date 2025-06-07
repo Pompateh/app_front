@@ -7,32 +7,41 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
     const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-      const checkAuthorization = async () => {
+      const validateToken = async () => {
         try {
-          // Check if we're on the client side
-          if (typeof window === 'undefined') {
-            return;
-          }
-
-          // Validate the token with an API call
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/validate`, {
-            credentials: 'include', // This ensures cookies are sent with the request
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+          console.log('Validating token with:', `${apiUrl}/api/auth/validate`);
+          
+          const res = await fetch(`${apiUrl}/api/auth/validate`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Accept': 'application/json'
+            }
           });
-          console.log('Validate response:', response.status, await response.text());
 
-          if (!response.ok) {
+          console.log('Validation response status:', res.status);
+          const data = await res.json();
+          console.log('Validation response data:', data);
+
+          if (!res.ok) {
+            console.error('Token validation failed:', {
+              status: res.status,
+              statusText: res.statusText,
+              data
+            });
             router.push('/admin/login');
             return;
           }
 
           setAuthorized(true);
         } catch (error) {
-          console.error('Authorization check failed:', error);
+          console.error('Token validation error:', error);
           router.push('/admin/login');
         }
       };
 
-      checkAuthorization();
+      validateToken();
     }, [router]);
 
     if (!authorized) {

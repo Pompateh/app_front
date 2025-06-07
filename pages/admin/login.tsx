@@ -39,14 +39,14 @@ const AdminLogin = () => {
           statusText: res.statusText,
           data
         });
-        throw new Error(data.message || `Login failed with status ${res.status}`);
+        throw new Error(data.message?.message || data.message || `Login failed with status ${res.status}`);
       }
 
-      // Store the token in localStorage for client-side auth
-      if (data.accessToken) {
-        localStorage.setItem('token', data.accessToken);
-        // Also set a cookie for server-side auth
-        document.cookie = `token=${data.accessToken}; path=/; secure; samesite=lax`;
+      // Store the token in cookies for both client and server-side auth
+      if (data.token) {
+        document.cookie = `token=${data.token}; path=/; secure; samesite=lax`;
+      } else {
+        throw new Error('No token received from server');
       }
 
       console.log('Login successful:', data);
