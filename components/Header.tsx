@@ -68,7 +68,7 @@ const Header: React.FC = () => {
           <div className="flex-1 flex items-center justify-start">
             <Link href="/" className="whitespace-nowrap">
               <Image 
-                src="/assets/logo-01.png" 
+                src="/assets/Vector.png" 
                 alt="NEWStalgia Logo" 
                 width={160}
                 height={40}
