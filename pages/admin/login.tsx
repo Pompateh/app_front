@@ -46,7 +46,8 @@ const AdminLogin = () => {
       const token = data.token || data.accessToken;
       if (token) {
         console.log('Token received:', token);
-        document.cookie = `token=${token}; path=/; secure; samesite=lax`;
+        document.cookie = `token=${token}; path=/; secure; samesite=strict; max-age=3600`;
+        console.log('Cookie set successfully');
       } else {
         console.error('No token in response:', data);
         throw new Error('No token received from server');
