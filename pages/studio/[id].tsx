@@ -359,6 +359,11 @@ const StudioHomepage: React.FC = () => {
                     : index === 1 
                     ? 'https://app-back-gc64.onrender.com/uploads/1748277637253-image 64.png'
                     : 'https://app-back-gc64.onrender.com/uploads/1748277657397-image 65.png';
+                  const fallbackImage = index === 0 
+                    ? '/assets/61.png'
+                    : index === 1 
+                    ? '/assets/64.png'
+                    : '/assets/65.png';
                   return (
                     <motion.div
                       key={item.id}
@@ -390,7 +395,7 @@ const StudioHomepage: React.FC = () => {
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            target.src = `/assets/Vector.png`; // Fallback to logo if image fails to load
+                            target.src = fallbackImage; // Fallback to local static image
                           }}
                         />
                       </motion.div>
