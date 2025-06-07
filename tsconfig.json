@@ -16,11 +16,11 @@
       "incremental": true,
       "baseUrl": ".",
       "allowSyntheticDefaultImports": true,
-      "typeRoots": ["./types", "./node_modules/@types"],
       "paths": {
         "@/*": ["./*"]
-      }
+      },
+      "typeRoots": ["./node_modules/@types", "./types"]
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "types/**/*.d.ts"],
     "exclude": ["node_modules"]
   }

@@ -343,6 +343,15 @@ const MasterHomepage: NextPage = () => {
           0% { opacity: 0; }
           100% { opacity: 1; }
         }
+                  .micro-divider {
+content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+
+  /* Apply the custom dashed pattern using borderImage */
+  border-image: repeating-linear-gradient(to right, #999380, #999380 67px, transparent 67px, transparent 72px) 1;
+  pointer-events: none;
       `}</style>
     </div>
   );
