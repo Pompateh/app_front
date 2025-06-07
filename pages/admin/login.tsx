@@ -48,8 +48,8 @@ const AdminLogin = () => {
         <h2 className="text-2xl font-bold mb-4 text-center">Admin Login</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <input
-          type="email"
-          placeholder="Email"
+          type="text"
+          placeholder="Username"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="border p-2 mb-4 w-full rounded"
