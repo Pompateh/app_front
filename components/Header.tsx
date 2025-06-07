@@ -70,9 +70,9 @@ const Header: React.FC = () => {
               <Image 
                 src="/assets/Vector.png" 
                 alt="NEWStalgia Logo" 
-                width={160}
-                height={40}
-                className="h-10 w-auto"
+                width={180}
+                height={50}
+                style={{ objectFit: 'contain', height: '50px', width: '180px' }}
                 priority
               />
             </Link>
