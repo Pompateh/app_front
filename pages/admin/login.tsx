@@ -43,9 +43,12 @@ const AdminLogin = () => {
       }
 
       // Store the token in cookies for both client and server-side auth
-      if (data.token) {
-        document.cookie = `token=${data.token}; path=/; secure; samesite=lax`;
+      const token = data.token || data.accessToken;
+      if (token) {
+        console.log('Token received:', token);
+        document.cookie = `token=${token}; path=/; secure; samesite=lax`;
       } else {
+        console.error('No token in response:', data);
         throw new Error('No token received from server');
       }
 
