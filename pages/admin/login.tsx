@@ -46,7 +46,7 @@ const AdminLogin = () => {
       const token = data.token || data.accessToken;
       if (token) {
         console.log('Token received:', token);
-        document.cookie = `token=${token}; path=/; secure; samesite=strict; max-age=3600`;
+        document.cookie = `token=${token}; path=/; domain=.onrender.com; secure; samesite=none`;
         console.log('Cookie set successfully');
       } else {
         console.error('No token in response:', data);
