@@ -78,6 +78,7 @@ const StudioHomepage: React.FC = () => {
     return (
       <Layout>
         <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-gray-400 mr-4"></div>
           <p className="text-gray-400 text-lg">Loading studio details...</p>
         </div>
       </Layout>
