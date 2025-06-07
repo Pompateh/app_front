@@ -44,6 +44,7 @@ function MyApp({ Component, pageProps }: AppProps) {
             `,
           }}
         />
+        <link rel="icon" type="image/png" href="/favicon/unnamed.png" />
       </Head>
       <ErrorBoundary>
         <Component {...pageProps} />
