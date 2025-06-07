@@ -12,3 +12,7 @@ const AdminDashboard = () => {
 }
 
 export default withAuth(AdminDashboard)
+
+export async function getServerSideProps() {
+  return { props: {} }
+}

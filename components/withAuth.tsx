@@ -18,6 +18,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/validate`, {
             credentials: 'include', // This ensures cookies are sent with the request
           });
+          console.log('Validate response:', response.status, await response.text());
 
           if (!response.ok) {
             router.push('/admin/login');
