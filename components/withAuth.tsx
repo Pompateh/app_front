@@ -24,7 +24,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           const data = await res.json();
           console.log('Validation response data:', data);
 
-          if (!res.ok) {
+          if (!res.ok || !data.valid) {
             console.error('Token validation failed:', {
               status: res.status,
               statusText: res.statusText,
@@ -34,6 +34,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
             return;
           }
 
+          console.log('Token validation successful:', data);
           setAuthorized(true);
         } catch (error) {
           console.error('Token validation error:', error);
