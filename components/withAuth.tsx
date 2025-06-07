@@ -9,19 +9,22 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
     useEffect(() => {
       const checkAuthorization = async () => {
         try {
-          // Retrieve token from localStorage (consider using HTTP-only cookies in production)
-          const token = localStorage.getItem('token');
-          if (!token) {
-            router.push('/admin/login');
-          } else {
-            // Optionally, validate the token with an API call
-            const isValid = await validateToken(token);
-            if (!isValid) {
-              router.push('/admin/login');
-            } else {
-              setAuthorized(true);
-            }
+          // Check if we're on the client side
+          if (typeof window === 'undefined') {
+            return;
           }
+
+          // Validate the token with an API call
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/validate`, {
+            credentials: 'include', // This ensures cookies are sent with the request
+          });
+
+          if (!response.ok) {
+            router.push('/admin/login');
+            return;
+          }
+
+          setAuthorized(true);
         } catch (error) {
           console.error('Authorization check failed:', error);
           router.push('/admin/login');
