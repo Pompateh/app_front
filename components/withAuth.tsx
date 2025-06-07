@@ -9,14 +9,21 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
     useEffect(() => {
       const validateToken = async () => {
         try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            console.log('No token found in localStorage');
+            router.push('/admin/login');
+            return;
+          }
+
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
           console.log('Validating token with:', `${apiUrl}/api/auth/validate`);
           
           const res = await fetch(`${apiUrl}/api/auth/validate`, {
             method: 'GET',
-            credentials: 'include',
             headers: {
-              'Accept': 'application/json'
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`
             }
           });
 
@@ -30,6 +37,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
               statusText: res.statusText,
               data
             });
+            localStorage.removeItem('token');
             router.push('/admin/login');
             return;
           }
@@ -38,6 +46,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           setAuthorized(true);
         } catch (error) {
           console.error('Token validation error:', error);
+          localStorage.removeItem('token');
           router.push('/admin/login');
         }
       };

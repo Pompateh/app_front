@@ -42,12 +42,12 @@ const AdminLogin = () => {
         throw new Error(data.message?.message || data.message || `Login failed with status ${res.status}`);
       }
 
-      // Store the token in cookies for both client and server-side auth
+      // Store the token in localStorage instead of cookies
       const token = data.token || data.accessToken;
       if (token) {
         console.log('Token received:', token);
-        document.cookie = `token=${token}; path=/; domain=.onrender.com; secure; samesite=none`;
-        console.log('Cookie set successfully');
+        localStorage.setItem('token', token);
+        console.log('Token stored in localStorage');
       } else {
         console.error('No token in response:', data);
         throw new Error('No token received from server');
