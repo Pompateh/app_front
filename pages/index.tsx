@@ -327,7 +327,13 @@ const MasterHomepage: NextPage = () => {
         ) : (
           <div className="h-screen flex items-center justify-center bg-indigo-900">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-300 mx-auto mb-4"></div>
+              <div className="animate-pulse">
+                <img 
+                  src="/assets/Vector.png" 
+                  alt="Logo" 
+                  className="h-16 w-16 mx-auto mb-4"
+                />
+              </div>
               <p className="text-indigo-300 text-lg">Loading studios...</p>
             </div>
           </div>
