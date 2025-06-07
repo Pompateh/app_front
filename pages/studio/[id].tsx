@@ -353,50 +353,61 @@ const StudioHomepage: React.FC = () => {
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {studio.fonts.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.6,
-                      delay: index * 0.2,
-                      type: "spring",
-                      stiffness: 50
-                    }}
-                    viewport={{ once: true }}
-                    className="overflow-hidden transform transition duration-300"
-                  >
-                    <motion.div 
-                      className="bg-[#2A211C] px-14 py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
-                      whileHover={{ 
-                        scale: 1.02,
-                        transition: { duration: 0.3 }
+                {studio.fonts.map((item, index) => {
+                  const imagePath = index === 0 
+                    ? 'https://app-back-gc64.onrender.com/uploads/1748277600202-image 61.png'
+                    : index === 1 
+                    ? 'https://app-back-gc64.onrender.com/uploads/1748277637253-image 64.png'
+                    : 'https://app-back-gc64.onrender.com/uploads/1748277657397-image 65.png';
+                  return (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.6,
+                        delay: index * 0.2,
+                        type: "spring",
+                        stiffness: 50
                       }}
+                      viewport={{ once: true }}
+                      className="overflow-hidden transform transition duration-300"
                     >
-                      <motion.img
+                      <motion.div 
+                        className="bg-[#2A211C] px-14 py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
                         whileHover={{ 
-                          scale: 1.05,
+                          scale: 1.02,
                           transition: { duration: 0.3 }
                         }}
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-contain"
-                      />
+                      >
+                        <motion.img
+                          whileHover={{ 
+                            scale: 1.05,
+                            transition: { duration: 0.3 }
+                          }}
+                          src={imagePath}
+                          alt={`${item.name} font preview`}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `/assets/Vector.png`; // Fallback to logo if image fails to load
+                          }}
+                        />
+                      </motion.div>
+                      <div className="py-2 bg-gray-50">
+                        <div className="text-gray-700 uppercase">
+                          {item.type}
+                        </div>
+                        <h3 className="text-2xl font-bold mb-2">
+                          {item.name}
+                        </h3>
+                        <div className="text-gray-700">
+                          từ {item.price}đ
+                        </div>
+                      </div>
                     </motion.div>
-                    <div className="py-2 bg-gray-50">
-                      <div className="text-gray-700 uppercase">
-                        {item.type}
-                      </div>
-                      <h3 className="text-2xl font-bold mb-2">
-                        {item.name}
-                      </h3>
-                      <div className="text-gray-700">
-                        từ {item.price}đ
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </motion.section>
