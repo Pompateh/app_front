@@ -356,10 +356,10 @@ const StudioHomepage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {studio.fonts.map((item, index) => {
                   const imagePath = index === 0 
-                    ? 'https://app-back-gc64.onrender.com/uploads/1748277600202-image 61.png'
+                    ? '/assets/image 61.png'
                     : index === 1 
-                    ? 'https://app-back-gc64.onrender.com/uploads/1748277637253-image 64.png'
-                    : 'https://app-back-gc64.onrender.com/uploads/1748277657397-image 65.png';
+                    ? '/assets/image 64.png'
+                    : '/assets/image 65.png';
                   const fallbackImage = index === 0 
                     ? '/assets/61.png'
                     : index === 1 
