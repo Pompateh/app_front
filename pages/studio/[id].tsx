@@ -176,7 +176,7 @@ const StudioHomepage: React.FC = () => {
 
         {/* Work Portfolio Section */}
         {studio.portfolio && (
-          <section className="w-full py-10 bg-black text-white">
+          <section className="w-full pt-10 bg-black text-white">
             <div className="max-w-screen-2xl mx-auto px-4">
               <div className="space-y-12">
                 {studio.portfolio.map((item, index) => (
