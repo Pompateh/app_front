@@ -5,6 +5,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
   const Wrapper = (props: P) => {
     const router = useRouter();
     const [authorized, setAuthorized] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
       const validateToken = async () => {
@@ -16,15 +17,17 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
             return;
           }
 
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+          const apiUrl = 'https://app-back-gc64.onrender.com';
           console.log('Validating token with:', `${apiUrl}/api/auth/validate`);
           
           const res = await fetch(`${apiUrl}/api/auth/validate`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
+              'Authorization': `Bearer ${token}`,
+              'Origin': 'https://wearenewstalgia.com'
+            },
+            credentials: 'include'
           });
 
           console.log('Validation response status:', res.status);
@@ -48,14 +51,24 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           console.error('Token validation error:', error);
           localStorage.removeItem('token');
           router.push('/admin/login');
+        } finally {
+          setIsLoading(false);
         }
       };
 
       validateToken();
     }, [router]);
 
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+      );
+    }
+
     if (!authorized) {
-      return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+      return null; // This will trigger the redirect in useEffect
     }
 
     return <WrappedComponent {...props} />;

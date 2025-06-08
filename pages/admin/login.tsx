@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 const AdminLogin = () => {
@@ -8,20 +8,30 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      console.log('Token found in localStorage, redirecting to dashboard');
+      router.push('/admin/dashboard');
+    }
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+      const apiUrl = 'https://app-back-gc64.onrender.com';
       console.log('Attempting login to:', `${apiUrl}/api/auth/login`);
       
       const res = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Origin': 'https://wearenewstalgia.com'
         },
         body: JSON.stringify({ email, password }),
         credentials: 'include',
@@ -42,21 +52,22 @@ const AdminLogin = () => {
         throw new Error(data.message?.message || data.message || `Login failed with status ${res.status}`);
       }
 
-      // Store the token in localStorage instead of cookies
+      // Store the token in localStorage
       const token = data.token || data.accessToken;
       if (token) {
         console.log('Token received:', token);
         localStorage.setItem('token', token);
         console.log('Token stored in localStorage');
+        
+        // Add a small delay before redirect to ensure token is stored
+        setTimeout(() => {
+          console.log('Redirecting to dashboard...');
+          router.push('/admin/dashboard');
+        }, 100);
       } else {
         console.error('No token in response:', data);
         throw new Error('No token received from server');
       }
-
-      console.log('Login successful:', data);
-      
-      // Redirect to the admin dashboard
-      router.push('/admin/dashboard');
     } catch (err: any) {
       console.error('Login error details:', {
         message: err.message,
@@ -80,7 +91,7 @@ const AdminLogin = () => {
         )}
         <input
           type="text"
-          placeholder="Username"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="border p-2 mb-4 w-full rounded"

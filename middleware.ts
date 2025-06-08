@@ -17,12 +17,13 @@ export function middleware(req: NextRequest) {
 
   // protect /admin/*
   if (pathname.startsWith('/admin')) {
-    const token = req.cookies.get('token')
-    if (!token) {
-      const loginUrl = req.nextUrl.clone()
-      loginUrl.pathname = '/admin/login'
-      return NextResponse.redirect(loginUrl)
+    // Skip middleware for login page
+    if (pathname === '/admin/login') {
+      return NextResponse.next()
     }
+    
+    // For other admin routes, let the client-side auth handle it
+    return NextResponse.next()
   }
 
   return NextResponse.next()
