@@ -201,10 +201,10 @@ const MasterHomepage: NextPage = () => {
               {/* Right: Studio details and Navigation */}
               <div className="flex-1 flex flex-col bg-[#1a1916] relative">
                 <div className="flex-1 flex flex-col justify-center items-center">
-                  <div
-                    className="relative border border-gray-300 bg-black text-white"
-                    style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5rem' }}
-                  >
+                <div
+  className="relative border border-[#999380] bg-black text-white"
+  style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5rem' }}
+>
                     {/* Doodle Stickers Around the Studio Box */}
                     <img src="/assets/inv_sticker10.png" alt="Doodle Behind Box" style={{ position: 'absolute', top: '-60px', left: '-80px', width: '90px', height: '90px', zIndex: 0, transform: 'rotate(-8deg)' }} />
                     <img src="/assets/inv_sticker11.png" alt="Doodle Far Right" style={{ position: 'absolute', top: '60px', right: '-110px', width: '90px', height: '90px', zIndex: 10, transform: 'rotate(12deg)' }} />
@@ -312,7 +312,7 @@ const MasterHomepage: NextPage = () => {
                   </div>
                 </div>
                 {/* Full-Width Navigation Bar */}
-                <div className="w-full">
+                <div className="w-full order border-[#999380]">
                   <NavigationProvider key={studio.id}>
                     <StudioNavigation navItems={studio.navigation || [
                       { label: 'Overview', href: `/studio/${studio.id}/overview` },
