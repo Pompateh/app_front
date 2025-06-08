@@ -549,16 +549,17 @@ const StudioHomepage: React.FC = () => {
                           {item.name}
                         </h3>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-              <div className="border-wrapper">
+                      <div className="border-wrapper">
   <button
     className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
     xem tất cả Tranh-vẽ
   </button>
 </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
               <div className="mb-24">
                 <div className="grid grid-cols-4 gap-0">
                   {studio.artworks.slice(2, 6).map((item, index) => (
@@ -606,14 +607,15 @@ const StudioHomepage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.section>
-        )}
-        <div className="border-wrapper">
+            <div className="border-wrapper">
   <button
     className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
     xem tất cả Tranh-vẽ
   </button>
 </div>
+          </motion.section>
+        )}
+
 
         {/* Newsletter Section (temporarily hidden) */}
         {/* 
