@@ -21,7 +21,7 @@ const StudioNavigation: React.FC<StudioNavigationProps> = ({ navItems }) => {
             <a
               href={item.href}
               onClick={() => setActiveLink(item.href)}
-              className={`block no-underline py-3 px-4 border border-[#EEE]  
+              className={`block no-underline py-3 px-4 border border-[#999380]  
                 ${activeLink === item.href ? 'text-[#EEE]' : 'text-[#CCC]'}`}
               style={{
                 fontFamily: '"Gothic A1", sans-serif',
