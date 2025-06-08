@@ -1,7 +1,14 @@
-
 import React from 'react';
 
 const Footer: React.FC = () => {
+  const handleComingSoon = () => {
+    alert('Coming Soon!');
+  };
+
+  const handleSocialClick = (url: string) => {
+    window.open(url, '_blank');
+  };
+
   return (
     <footer className="bg-[#221E1B] text-[#F5D76E] footer">
       <div className="max-w-[1500px] mx-auto px-6 py-12 flex flex-col md:flex-row">
@@ -14,18 +21,32 @@ const Footer: React.FC = () => {
         <div className="w-full md:w-1/2 flex justify-center mt-4 md:mt-0 ml-40">
           <div className="flex space-x-24">
             {/* Column 1 */}
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-left text-sm">
               <button className="mb-2">Ấn-phẩm</button>
-              <button className="mb-2">Tiệm-chữ</button>
-              <button className="mb-2">Bảng-tin</button>
-              <button>Quy-trình</button>
+              <button className="mb-2" onClick={handleComingSoon}>Tiệm-chữ</button>
+              <button className="mb-2" onClick={handleComingSoon}>Bảng-tin</button>
+              <button onClick={handleComingSoon}>Quy-trình</button>
             </div>
-            {/* Column 2 */}
-            <div className="flex flex-col items-center">
-              <button className="mb-2">Liên-hệ</button>
-              <button className="mb-2">Instagram</button>
-              <button className="mb-2">Behance</button>
-              <button>Facebook</button>
+            {/* Column 2: Social Media */}
+            <div className="flex flex-col items-left text-sm">
+              <button 
+                className="mb-2 hover:text-white transition-colors" 
+                onClick={() => handleSocialClick('https://www.instagram.com/wearenewstalgia/')}
+              >
+                Instagram
+              </button>
+              <button 
+                className="mb-2 hover:text-white transition-colors" 
+                onClick={() => handleSocialClick('https://www.behance.net/hieu53')}
+              >
+                Behance
+              </button>
+              <button 
+                className="hover:text-white transition-colors" 
+                onClick={() => handleSocialClick('https://www.facebook.com/profile.php?id=61573128395554')}
+              >
+                Facebook
+              </button>
             </div>
           </div>
         </div>

@@ -8,14 +8,10 @@ const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  // Check if user is already logged in
+  // Clear any existing token on component mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      console.log('Token found in localStorage, redirecting to dashboard');
-      router.push('/admin/dashboard');
-    }
-  }, [router]);
+    localStorage.removeItem('token');
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

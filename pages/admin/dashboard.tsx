@@ -28,33 +28,50 @@ const AdminDashboard = () => {
         console.log('Fetching dashboard data from:', `${apiUrl}/api/admin/dashboard`);
         
         const response = await fetch(`${apiUrl}/api/admin/dashboard`, {
+          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
+            'Content-Type': 'application/json',
             'Origin': 'https://wearenewstalgia.com'
-          },
-          credentials: 'include'
+          }
         });
 
         console.log('Dashboard response status:', response.status);
         console.log('Dashboard response headers:', Object.fromEntries(response.headers.entries()));
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Dashboard error response:', {
-            status: response.status,
-            statusText: response.statusText,
-            data: errorData
-          });
-          throw new Error(errorData.message || 'Failed to fetch dashboard data');
+          let errorMessage = 'Failed to fetch dashboard data';
+          try {
+            const errorData = await response.json();
+            console.error('Dashboard error response:', {
+              status: response.status,
+              statusText: response.statusText,
+              data: errorData
+            });
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            console.error('Failed to parse error response:', e);
+          }
+          throw new Error(errorMessage);
         }
 
         const data = await response.json();
         console.log('Dashboard data received:', data);
+        
+        if (!data) {
+          throw new Error('No data received from server');
+        }
+        
         setStats(data);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
         setError(err.message || 'Failed to fetch dashboard data');
+        // If unauthorized, redirect to login
+        if (err.message.includes('unauthorized') || err.message.includes('token')) {
+          localStorage.removeItem('token');
+          window.location.href = '/admin/login';
+        }
       } finally {
         setLoading(false);
       }
@@ -79,6 +96,12 @@ const AdminDashboard = () => {
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
+          <button 
+            onClick={() => window.location.href = '/admin/login'}
+            className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Return to Login
+          </button>
         </div>
       </AdminLayout>
     );
