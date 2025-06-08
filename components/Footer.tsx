@@ -21,14 +21,14 @@ const Footer: React.FC = () => {
         <div className="w-full md:w-1/2 flex justify-center mt-4 md:mt-0 ml-40">
           <div className="flex space-x-24">
             {/* Column 1 */}
-            <div className="flex flex-col items-left text-sm">
+            <div className="flex flex-col text-left text-sm">
               <button className="mb-2">Ấn-phẩm</button>
               <button className="mb-2" onClick={handleComingSoon}>Tiệm-chữ</button>
               <button className="mb-2" onClick={handleComingSoon}>Bảng-tin</button>
               <button onClick={handleComingSoon}>Quy-trình</button>
             </div>
             {/* Column 2: Social Media */}
-            <div className="flex flex-col items-left text-sm">
+            <div className="flex flex-col text-left text-sm">
               <button 
                 className="mb-2 hover:text-white transition-colors" 
                 onClick={() => handleSocialClick('https://www.instagram.com/wearenewstalgia/')}
