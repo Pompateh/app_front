@@ -4,18 +4,19 @@ import type { NextRequest } from 'next/server'
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
-  // let HMR, assets, login & auth calls through
+  // Allow all static files, assets, and API routes
   if (
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/static/') ||
     pathname === '/favicon.ico' ||
-    pathname === '/admin/login' ||
-    pathname.startsWith('/api/auth')
+    pathname.startsWith('/api/') ||
+    pathname.includes('.json') ||
+    pathname.startsWith('/_next/data/')
   ) {
     return NextResponse.next()
   }
 
-  // protect /admin/*
+  // Handle admin routes
   if (pathname.startsWith('/admin')) {
     // Skip middleware for login page
     if (pathname === '/admin/login') {
@@ -30,5 +31,9 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    '/admin/:path*',
+    '/_next/data/:path*',
+    '/api/:path*'
+  ],
 } 

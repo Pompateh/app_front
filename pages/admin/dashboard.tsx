@@ -24,23 +24,37 @@ const AdminDashboard = () => {
           throw new Error('No authentication token found');
         }
 
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+        const apiUrl = 'https://app-back-gc64.onrender.com';
+        console.log('Fetching dashboard data from:', `${apiUrl}/api/admin/dashboard`);
+        
         const response = await fetch(`${apiUrl}/api/admin/dashboard`, {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json'
-          }
+            'Accept': 'application/json',
+            'Origin': 'https://wearenewstalgia.com'
+          },
+          credentials: 'include'
         });
 
+        console.log('Dashboard response status:', response.status);
+        console.log('Dashboard response headers:', Object.fromEntries(response.headers.entries()));
+
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Dashboard error response:', {
+            status: response.status,
+            statusText: response.statusText,
+            data: errorData
+          });
+          throw new Error(errorData.message || 'Failed to fetch dashboard data');
         }
 
         const data = await response.json();
+        console.log('Dashboard data received:', data);
         setStats(data);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
-        setError(err.message);
+        setError(err.message || 'Failed to fetch dashboard data');
       } finally {
         setLoading(false);
       }
@@ -138,10 +152,10 @@ const AdminDashboard = () => {
         </div>
       </div>
     </AdminLayout>
-  )
-}
+  );
+};
 
-export default withAuth(AdminDashboard)
+export default withAuth(AdminDashboard);
 
 export async function getServerSideProps() {
   return { props: {} }
