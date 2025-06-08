@@ -214,7 +214,7 @@ const MasterHomepage: NextPage = () => {
                         {studio.logo ? (
                           <div className="flex items-center w-full" style={{ height: '2.5rem', marginBottom: '0.75rem' }}>
                             <img
-                              src="/assets/logo-02.png"
+                              src="/assets/Vector-w.png"
                               alt={studio.name + ' logo'}
                               className="max-h-10 object-contain"
                               style={{ maxWidth: '100%', maxHeight: '2.5rem' }}

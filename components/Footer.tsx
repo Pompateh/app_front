@@ -14,7 +14,7 @@ const Footer: React.FC = () => {
       <div className="max-w-[1500px] mx-auto px-6 py-12 flex flex-col md:flex-row">
         {/* Left half: Logo and Slogan */}
         <div className="w-full md:w-1/2 flex flex-col items-start">
-          <img src="/assets/logo-02.png" alt="NEWStalgia Logo" className="h-[7.5rem] mb-2" />
+          <img src="/assets/Vector.png" alt="NEWStalgia Logo" className="h-[7.5rem] mb-2" />
           <p className="text-left text-sm">Honor the past / Bridge the future</p>
         </div>
         {/* Right half: Navigation buttons with centered columns, moved slightly right */}
