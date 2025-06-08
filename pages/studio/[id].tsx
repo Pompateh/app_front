@@ -549,12 +549,6 @@ const StudioHomepage: React.FC = () => {
                           {item.name}
                         </h3>
                       </div>
-                      <div className="border-wrapper">
-  <button
-    className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
-    xem tất cả Tranh-vẽ
-  </button>
-</div>
                     </motion.div>
                   ))}
                 </div>
