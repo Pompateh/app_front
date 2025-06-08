@@ -36,7 +36,7 @@ const Footer: React.FC = () => {
           <p className="text-left text-[#F5D76E] text-sm font-medium">
             <span className="font-normal italic font-crimson">Honor the Past</span>
             <span className="font-normal"> / </span>
-            <span className="font-bold">Bridge the Future</span>
+            <span className="font-normal">Bridge the Future</span>
           </p>
         </div>
         {/* Right half: Navigation buttons with centered columns, moved slightly right */}

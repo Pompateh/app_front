@@ -418,6 +418,12 @@ const StudioHomepage: React.FC = () => {
                 </div>
               </div>
             </div>
+            <div className="border-wrapper">
+  <button
+    className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
+    xem tất cả Phông-chữ
+  </button>
+</div>
           </motion.section>
         )}
 
@@ -507,7 +513,7 @@ const StudioHomepage: React.FC = () => {
                 Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
-              <div className="mb-24">
+              <div className="mb-20">
                 <div className="grid grid-cols-2 gap-0">
                   {studio.artworks.slice(0, 2).map((item, index) => (
                     <motion.div
