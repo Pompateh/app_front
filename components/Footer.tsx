@@ -22,27 +22,27 @@ const Footer: React.FC = () => {
           <div className="flex space-x-24">
             {/* Column 1 */}
             <div className="flex flex-col text-left text-sm">
-              <button className="mb-2">Ấn-phẩm</button>
-              <button className="mb-2" onClick={handleComingSoon}>Tiệm-chữ</button>
-              <button className="mb-2" onClick={handleComingSoon}>Bảng-tin</button>
-              <button onClick={handleComingSoon}>Quy-trình</button>
+              <button className="mb-2 block text-left">Ấn-phẩm</button>
+              <button className="mb-2 block text-left" onClick={handleComingSoon}>Tiệm-chữ</button>
+              <button className="mb-2 block text-left" onClick={handleComingSoon}>Bảng-tin</button>
+              <button className="block text-left" onClick={handleComingSoon}>Quy-trình</button>
             </div>
             {/* Column 2: Social Media */}
             <div className="flex flex-col text-left text-sm">
               <button 
-                className="mb-2 hover:text-white transition-colors" 
+                className="mb-2 block text-left hover:text-white transition-colors" 
                 onClick={() => handleSocialClick('https://www.instagram.com/wearenewstalgia/')}
               >
                 Instagram
               </button>
               <button 
-                className="mb-2 hover:text-white transition-colors" 
+                className="mb-2 block text-left hover:text-white transition-colors" 
                 onClick={() => handleSocialClick('https://www.behance.net/hieu53')}
               >
                 Behance
               </button>
               <button 
-                className="hover:text-white transition-colors" 
+                className="block text-left hover:text-white transition-colors" 
                 onClick={() => handleSocialClick('https://www.facebook.com/profile.php?id=61573128395554')}
               >
                 Facebook
