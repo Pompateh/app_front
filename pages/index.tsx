@@ -312,7 +312,7 @@ const MasterHomepage: NextPage = () => {
                   </div>
                 </div>
                 {/* Full-Width Navigation Bar */}
-                <div className="w-full order border-[#999380]">
+                <div className="w-full border border-[#999380]">
                   <NavigationProvider key={studio.id}>
                     <StudioNavigation navItems={studio.navigation || [
                       { label: 'Overview', href: `/studio/${studio.id}/overview` },
