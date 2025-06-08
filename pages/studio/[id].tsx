@@ -353,67 +353,72 @@ const StudioHomepage: React.FC = () => {
                 Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {studio.fonts.map((item, index) => {
-                  const imagePath = index === 0 
-                    ? '/assets/image 61.png'
-                    : index === 1 
-                    ? '/assets/image 64.png'
-                    : '/assets/image 65.png';
-                  const fallbackImage = index === 0 
-                    ? '/assets/61.png'
-                    : index === 1 
-                    ? '/assets/64.png'
-                    : '/assets/65.png';
-                  return (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ 
-                        duration: 0.6,
-                        delay: index * 0.2,
-                        type: "spring",
-                        stiffness: 50
-                      }}
-                      viewport={{ once: true }}
-                      className="overflow-hidden transform transition duration-300"
-                    >
-                      <motion.div 
-                        className="bg-[#2A211C] px-14 py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
-                        whileHover={{ 
-                          scale: 1.02,
-                          transition: { duration: 0.3 }
-                        }}
-                      >
-                        <motion.img
-                          whileHover={{ 
-                            scale: 1.05,
-                            transition: { duration: 0.3 }
+              <div className="space-y-24">
+                <div className="mb-24">
+                  <h2 className="text-2xl font-bold mb-8">Fonts</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {studio.fonts.map((item, index) => {
+                      const imagePath = index === 0 
+                        ? '/assets/image 61.png'
+                        : index === 1 
+                        ? '/assets/image 64.png'
+                        : '/assets/image 65.png';
+                      const fallbackImage = index === 0 
+                        ? '/assets/61.png'
+                        : index === 1 
+                        ? '/assets/64.png'
+                        : '/assets/65.png';
+                      return (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0, y: 50 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ 
+                            duration: 0.6,
+                            delay: index * 0.2,
+                            type: "spring",
+                            stiffness: 50
                           }}
-                          src={imagePath}
-                          alt={`${item.name} font preview`}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = fallbackImage; // Fallback to local static image
-                          }}
-                        />
-                      </motion.div>
-                      <div className="py-2 bg-gray-50">
-                        <div className="text-gray-700 uppercase">
-                          {item.type}
-                        </div>
-                        <h3 className="text-2xl font-bold mb-2">
-                          {item.name}
-                        </h3>
-                        <div className="text-gray-700">
-                          từ {item.price}đ
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                          viewport={{ once: true }}
+                          className="overflow-hidden transform transition duration-300"
+                        >
+                          <motion.div 
+                            className="bg-[#2A211C] px-14 py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
+                            whileHover={{ 
+                              scale: 1.02,
+                              transition: { duration: 0.3 }
+                            }}
+                          >
+                            <motion.img
+                              whileHover={{ 
+                                scale: 1.05,
+                                transition: { duration: 0.3 }
+                              }}
+                              src={imagePath}
+                              alt={`${item.name} font preview`}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = fallbackImage; // Fallback to local static image
+                              }}
+                            />
+                          </motion.div>
+                          <div className="py-2 bg-gray-50">
+                            <div className="text-gray-700 uppercase">
+                              {item.type}
+                            </div>
+                            <h3 className="text-2xl font-bold mb-2">
+                              {item.name}
+                            </h3>
+                            <div className="text-gray-700">
+                              từ {item.price}đ
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </motion.section>
@@ -505,93 +510,103 @@ const StudioHomepage: React.FC = () => {
                 Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
-              <div className="grid grid-cols-2 gap-0">
-                {studio.artworks.slice(0, 2).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.6,
-                      delay: index * 0.2,
-                      type: "spring",
-                      stiffness: 50
-                    }}
-                    viewport={{ once: true }}
-                    className="overflow-hidden transform transition duration-300"
-                  >
-                    <motion.div
-                      whileHover={{ 
-                        scale: 1.02,
-                        transition: { duration: 0.3 }
-                      }}
-                      className="overflow-hidden"
-                    >
-                      <motion.img
-                        whileHover={{ 
-                          scale: 1.05,
-                          transition: { duration: 0.3 }
+              <div className="space-y-24">
+                <div className="mb-24">
+                  <h2 className="text-2xl font-bold mb-8">Artworks</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {studio.artworks.slice(0, 2).map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.6,
+                          delay: index * 0.2,
+                          type: "spring",
+                          stiffness: 50
                         }}
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full object-cover"
-                        style={{ aspectRatio: '1 / 1', height: 'auto' }}
-                      />
-                    </motion.div>
-                    <div className="p-4">
-                      <div className="text-gray-700 uppercase">
-                        {item.author}
-                      </div>
-                      <h3 className="text-2xl font-bold mb-2">
-                        {item.name}
-                      </h3>
-                    </div>
-                  </motion.div>
-                ))}
+                        viewport={{ once: true }}
+                        className="overflow-hidden transform transition duration-300"
+                      >
+                        <motion.div
+                          whileHover={{ 
+                            scale: 1.02,
+                            transition: { duration: 0.3 }
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <motion.img
+                            whileHover={{ 
+                              scale: 1.05,
+                              transition: { duration: 0.3 }
+                            }}
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full object-cover"
+                            style={{ aspectRatio: '1 / 1', height: 'auto' }}
+                          />
+                        </motion.div>
+                        <div className="p-4">
+                          <div className="text-gray-700 uppercase">
+                            {item.author}
+                          </div>
+                          <h3 className="text-2xl font-bold mb-2">
+                            {item.name}
+                          </h3>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-0">
-                {studio.artworks.slice(2, 6).map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.6,
-                      delay: index * 0.2,
-                      type: "spring",
-                      stiffness: 50
-                    }}
-                    viewport={{ once: true }}
-                    className="overflow-hidden transform transition duration-300"
-                  >
-                    <motion.div
-                      whileHover={{ 
-                        scale: 1.02,
-                        transition: { duration: 0.3 }
-                      }}
-                      className="overflow-hidden"
-                    >
-                      <motion.img
-                        whileHover={{ 
-                          scale: 1.05,
-                          transition: { duration: 0.3 }
+              <div className="space-y-24">
+                <div className="mb-24">
+                  <h2 className="text-2xl font-bold mb-8">Artworks</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {studio.artworks.slice(2, 6).map((item, index) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.6,
+                          delay: index * 0.2,
+                          type: "spring",
+                          stiffness: 50
                         }}
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full object-cover"
-                        style={{ width: '100%', height: '700px' }}
-                      />
-                    </motion.div>
-                    <div className="p-4">
-                      <div className="text-gray-700 uppercase">
-                        {item.author}
-                      </div>
-                      <h3 className="text-2xl font-bold mb-2">
-                        {item.name}
-                      </h3>
-                    </div>
-                  </motion.div>
-                ))}
+                        viewport={{ once: true }}
+                        className="overflow-hidden transform transition duration-300"
+                      >
+                        <motion.div
+                          whileHover={{ 
+                            scale: 1.02,
+                            transition: { duration: 0.3 }
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <motion.img
+                            whileHover={{ 
+                              scale: 1.05,
+                              transition: { duration: 0.3 }
+                            }}
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full object-cover"
+                            style={{ width: '100%', height: '700px' }}
+                          />
+                        </motion.div>
+                        <div className="p-4">
+                          <div className="text-gray-700 uppercase">
+                            {item.author}
+                          </div>
+                          <h3 className="text-2xl font-bold mb-2">
+                            {item.name}
+                          </h3>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </motion.section>
