@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
         <div className="w-full md:w-1/2 flex flex-col items-start">
           <img src="/assets/Layer_1.png" alt="NEWStalgia Logo" className="h-[7.5rem] mb-2" />
           <p className="text-left text-[#F5D76E] text-sm font-crimson font-medium">
-            <span className="font-bold italic">Honor the Past</span>
+            <span className="font-normal italic">Honor the Past</span>
             <span className="font-normal"> / </span>
             <span className="font-bold">Bridge the Future</span>
           </p>
