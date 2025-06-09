@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout'
 import { withAuth } from '../../components/withAuth'
+import { toast } from 'react-toastify';
 
 interface DashboardStats {
   totalStudios: number;
@@ -24,51 +25,30 @@ const AdminDashboard = () => {
           throw new Error('No authentication token found');
         }
 
-        const apiUrl = 'https://app-back-gc64.onrender.com';
-        console.log('Fetching dashboard data from:', `${apiUrl}/api/admin/dashboard`);
-        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
         const response = await fetch(`${apiUrl}/api/admin/dashboard`, {
-          method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Origin': 'https://wearenewstalgia.com'
-          }
+          },
+          credentials: 'include',
         });
 
-        console.log('Dashboard response status:', response.status);
-        console.log('Dashboard response headers:', Object.fromEntries(response.headers.entries()));
-
         if (!response.ok) {
-          let errorMessage = 'Failed to fetch dashboard data';
-          try {
-            const errorData = await response.json();
-            console.error('Dashboard error response:', {
-              status: response.status,
-              statusText: response.statusText,
-              data: errorData
-            });
-            errorMessage = errorData.message || errorMessage;
-          } catch (e) {
-            console.error('Failed to parse error response:', e);
+          if (response.status === 401) {
+            throw new Error('Session expired');
           }
-          throw new Error(errorMessage);
+          throw new Error('Failed to fetch dashboard data');
         }
 
         const data = await response.json();
-        console.log('Dashboard data received:', data);
-        
-        if (!data) {
-          throw new Error('No data received from server');
-        }
-        
         setStats(data);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
-        setError(err.message || 'Failed to fetch dashboard data');
-        // If unauthorized, redirect to login
-        if (err.message.includes('unauthorized') || err.message.includes('token')) {
+        setError(err.message);
+        toast.error(err.message);
+        
+        if (err.message.includes('Session expired')) {
           localStorage.removeItem('token');
           window.location.href = '/admin/login';
         }
@@ -133,44 +113,37 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Orders */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Recent Orders</h2>
-            <div className="space-y-4">
-              {stats?.recentOrders?.map((order: any) => (
-                <div key={order._id} className="border-b pb-4">
-                  <p className="font-semibold">Order #{order._id}</p>
-                  <p className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</p>
-                  <p className="text-sm">Status: <span className="font-medium">{order.status}</span></p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recent Projects */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Recent Projects</h2>
-            <div className="space-y-4">
-              {stats?.recentProjects?.map((project: any) => (
-                <div key={project._id} className="border-b pb-4">
-                  <div className="flex items-center space-x-4">
-                    {project.thumbnail && (
-                      <img 
-                        src={project.thumbnail} 
-                        alt={project.title}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    )}
-                    <div>
-                      <p className="font-semibold">{project.title}</p>
-                      <p className="text-sm text-gray-600">{project.studio?.name}</p>
-                      <p className="text-sm">Status: <span className="font-medium">{project.status}</span></p>
-                    </div>
+            <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
+            {stats?.recentOrders?.length ? (
+              <div className="space-y-4">
+                {stats.recentOrders.map((order: any) => (
+                  <div key={order.id} className="border-b pb-2">
+                    <p className="font-medium">{order.customerName}</p>
+                    <p className="text-sm text-gray-600">{order.date}</p>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No recent orders</p>
+            )}
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4">Recent Projects</h3>
+            {stats?.recentProjects?.length ? (
+              <div className="space-y-4">
+                {stats.recentProjects.map((project: any) => (
+                  <div key={project.id} className="border-b pb-2">
+                    <p className="font-medium">{project.name}</p>
+                    <p className="text-sm text-gray-600">{project.date}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No recent projects</p>
+            )}
           </div>
         </div>
       </div>

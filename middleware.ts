@@ -18,13 +18,20 @@ export function middleware(req: NextRequest) {
 
   // Handle admin routes
   if (pathname.startsWith('/admin')) {
-    // Skip middleware for login page
-    if (pathname === '/admin/login') {
+    // Skip middleware for login page and API routes
+    if (pathname === '/admin/login' || pathname.startsWith('/admin/api/')) {
       return NextResponse.next()
     }
     
-    // For other admin routes, let the client-side auth handle it
-    return NextResponse.next()
+    // Check for token in cookies
+    const token = req.cookies.get('token')
+    
+    // If no token, redirect to login
+    if (!token) {
+      const url = new URL('/admin/login', req.url)
+      url.searchParams.set('from', pathname)
+      return NextResponse.redirect(url)
+    }
   }
 
   return NextResponse.next()
@@ -33,7 +40,6 @@ export function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
-    '/_next/data/:path*',
-    '/api/:path*'
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 } 

@@ -1,5 +1,6 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState, ComponentType } from 'react';
+import { toast } from 'react-toastify';
 
 export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
   const Wrapper = (props: P) => {
@@ -17,39 +18,47 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
             return;
           }
 
-          const apiUrl = 'https://app-back-gc64.onrender.com';
-          console.log('Validating token with:', `${apiUrl}/api/auth/validate`);
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
           
           const res = await fetch(`${apiUrl}/api/auth/validate`, {
             method: 'GET',
             headers: {
               'Accept': 'application/json',
               'Authorization': `Bearer ${token}`,
-              'Origin': 'https://wearenewstalgia.com'
             },
             credentials: 'include'
           });
 
-          console.log('Validation response status:', res.status);
-          const data = await res.json();
-          console.log('Validation response data:', data);
+          if (!res.ok) {
+            if (res.status === 401) {
+              // Try to refresh token
+              const refreshRes = await fetch(`${apiUrl}/api/auth/refresh`, {
+                method: 'POST',
+                credentials: 'include'
+              });
 
-          if (!res.ok || !data.valid) {
-            console.error('Token validation failed:', {
-              status: res.status,
-              statusText: res.statusText,
-              data
-            });
-            localStorage.removeItem('token');
-            router.push('/admin/login');
-            return;
+              if (!refreshRes.ok) {
+                throw new Error('Session expired');
+              }
+
+              const refreshData = await refreshRes.json();
+              localStorage.setItem('token', refreshData.accessToken);
+              setAuthorized(true);
+              return;
+            }
+            throw new Error('Token validation failed');
           }
 
-          console.log('Token validation successful:', data);
+          const data = await res.json();
+          if (!data.valid) {
+            throw new Error('Invalid token');
+          }
+
           setAuthorized(true);
         } catch (error) {
           console.error('Token validation error:', error);
           localStorage.removeItem('token');
+          toast.error('Session expired. Please login again.');
           router.push('/admin/login');
         } finally {
           setIsLoading(false);
@@ -61,17 +70,13 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
 
     if (isLoading) {
       return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="flex items-center justify-center h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
       );
     }
 
-    if (!authorized) {
-      return null; // This will trigger the redirect in useEffect
-    }
-
-    return <WrappedComponent {...props} />;
+    return authorized ? <WrappedComponent {...props} /> : null;
   };
 
   return Wrapper;
