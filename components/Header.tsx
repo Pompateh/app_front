@@ -12,7 +12,7 @@ const Header: React.FC = () => {
   useEffect(() => {
     const fetchFirstProject = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/projects`);
+        const response = await fetch(`${API_BASE}/projects`);
         if (!response.ok) return;
         const projects = await response.json();
         if (Array.isArray(projects) && projects.length > 0) {

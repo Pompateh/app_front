@@ -10,7 +10,7 @@ const ProjectIndex = () => {
   useEffect(() => {
     const fetchFirstProject = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/projects`);
+        const response = await fetch(`${API_BASE}/projects`);
         if (!response.ok) {
           throw new Error('Failed to fetch projects');
         }
