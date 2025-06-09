@@ -115,7 +115,7 @@ const ProjectPage: NextPage<Props> = ({ project, related }) => {
         }
 
         // Otherwise fetch from API
-        const response = await fetch(`${API_BASE}/projects/${slug}`);
+        const response = await fetch(`${API_BASE}/api/projects/${slug}`);
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ message: 'Unknown error' })) as ErrorResponse;
           console.error('API Error:', {
@@ -385,7 +385,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     // Add error handling for the fetch
     let project: ApiResponse | null = null;
     try {
-      const response = await fetch(`${API_BASE}/projects/${slug}`, {
+      const response = await fetch(`${API_BASE}/api/projects/${slug}`, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -421,7 +421,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     let related: ProjectDetail[] = [];
     try {
       console.log('Fetching all projects for related projects...');
-      const allProjectsResponse = await fetch(`${API_BASE}/projects`, {
+      const allProjectsResponse = await fetch(`${API_BASE}/api/projects`, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -480,7 +480,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const response = await fetch(`${API_BASE}/projects`, {
+    const response = await fetch(`${API_BASE}/api/projects`, {
       headers: {
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache'
