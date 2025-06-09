@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
 
-const API_BASE = 'https://app-back-gc64.onrender.com/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onrender.com';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -83,8 +83,8 @@ const Header: React.FC = () => {
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div>
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
-                <Link
-                  href={`/project/${firstProjectSlug}`}
+                <Link 
+                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
                   className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}>
                   Ấn-phẩm
@@ -159,8 +159,8 @@ const Header: React.FC = () => {
           <nav className="md:hidden bg-white border-t-4 border-[#999380]">
             <div className="flex flex-col divide-y-2 divide-[#999380]">
               <div className="px-6 py-3">
-                <Link
-                  href={`/project/${firstProjectSlug}`}
+                <Link 
+                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
                   className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
                   onClick={() => setIsMenuOpen(false)}>

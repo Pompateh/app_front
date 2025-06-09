@@ -421,19 +421,14 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     let related: ProjectDetail[] = [];
     try {
       console.log('Fetching all projects for related projects...');
-      const allProjectsResponse = await fetch(`${API_BASE}/api/projects`, {
-        headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
-      if (!allProjectsResponse.ok) {
+      const response = await fetch(`${API_BASE}/api/projects?limit=3&exclude=${project.id}`);
+      if (!response.ok) {
         console.error('Failed to fetch all projects:', {
-          status: allProjectsResponse.status,
-          statusText: allProjectsResponse.statusText
+          status: response.status,
+          statusText: response.statusText
         });
       } else {
-        const allProjects = await allProjectsResponse.json() as ApiResponse[];
+        const allProjects = await response.json() as ApiResponse[];
         console.log('All projects fetched:', allProjects); // Debug log
         
         if (Array.isArray(allProjects)) {
