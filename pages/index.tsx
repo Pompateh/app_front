@@ -62,22 +62,30 @@ const MasterHomepage: NextPage = () => {
     }
   }, []);
 
+  // Remove timer-based preloader logic
+  // useEffect(() => {
+  //   let timer: NodeJS.Timeout;
+  //   if (data || error) {
+  //     if (shouldShowPreloader) {
+  //       // Only show preloader for 1.2s if it's the first visit
+  //       timer = setTimeout(() => {
+  //         setLoading(false);
+  //         // Mark that we've seen the preloader
+  //         localStorage.setItem('hasSeenPreloader', 'true');
+  //       }, 1200);
+  //     } else {
+  //       // If not first visit, just set loading to false immediately
+  //       setLoading(false);
+  //     }
+  //   }
+  //   return () => clearTimeout(timer);
+  // }, [data, error, shouldShowPreloader]);
+
+  // Only set loading to false immediately if not first visit
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (data || error) {
-      if (shouldShowPreloader) {
-        // Only show preloader for 1.2s if it's the first visit
-        timer = setTimeout(() => {
-          setLoading(false);
-          // Mark that we've seen the preloader
-          localStorage.setItem('hasSeenPreloader', 'true');
-        }, 1200);
-      } else {
-        // If not first visit, just set loading to false immediately
-        setLoading(false);
-      }
+    if ((data || error) && !shouldShowPreloader) {
+      setLoading(false);
     }
-    return () => clearTimeout(timer);
   }, [data, error, shouldShowPreloader]);
 
   useEffect(() => {
@@ -100,10 +108,16 @@ const MasterHomepage: NextPage = () => {
     }
   }, [loading]);
 
+  // Handler for preloader video end
+  const handlePreloaderEnd = () => {
+    setLoading(false);
+    localStorage.setItem('hasSeenPreloader', 'true');
+  };
+
   if (!showContent) {
     return (
       <div className={preloaderFade ? 'preloader-fade-out' : ''}>
-        <Preloader />
+        <Preloader onEnded={shouldShowPreloader ? handlePreloaderEnd : undefined} />
         <style jsx global>{`
           .preloader-fade-out {
             animation: preloaderFadeOut 0.4s forwards;
