@@ -3,7 +3,16 @@ import React from 'react';
 const Preloader: React.FC = () => {
   return (
     <div className="h-screen flex items-center justify-center bg-black">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+      <video
+        src="/assets/0611.mp4"
+        className="w-full h-full object-cover"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        style={{ display: 'block' }}
+      />
     </div>
   );
 };
