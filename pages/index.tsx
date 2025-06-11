@@ -52,6 +52,7 @@ const MasterHomepage: NextPage = () => {
   const [showContent, setShowContent] = useState(false);
   const [preloaderFade, setPreloaderFade] = useState(false);
   const [shouldShowPreloader, setShouldShowPreloader] = useState(true);
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   // Check if preloader has been shown before
   useEffect(() => {
@@ -59,27 +60,9 @@ const MasterHomepage: NextPage = () => {
     if (hasSeenPreloader) {
       setShouldShowPreloader(false);
       setShowContent(true);
+      setLoading(false);
     }
   }, []);
-
-  // Remove timer-based preloader logic
-  // useEffect(() => {
-  //   let timer: NodeJS.Timeout;
-  //   if (data || error) {
-  //     if (shouldShowPreloader) {
-  //       // Only show preloader for 1.2s if it's the first visit
-  //       timer = setTimeout(() => {
-  //         setLoading(false);
-  //         // Mark that we've seen the preloader
-  //         localStorage.setItem('hasSeenPreloader', 'true');
-  //       }, 1200);
-  //     } else {
-  //       // If not first visit, just set loading to false immediately
-  //       setLoading(false);
-  //     }
-  //   }
-  //   return () => clearTimeout(timer);
-  // }, [data, error, shouldShowPreloader]);
 
   // Only set loading to false immediately if not first visit
   useEffect(() => {
@@ -99,18 +82,19 @@ const MasterHomepage: NextPage = () => {
 
   // Handle preloader fade out and content fade in
   useEffect(() => {
-    if (!loading) {
+    if (!loading && isVideoReady) {
       setPreloaderFade(true);
       const timer = setTimeout(() => {
         setShowContent(true);
       }, 400);
       return () => clearTimeout(timer);
     }
-  }, [loading]);
+  }, [loading, isVideoReady]);
 
   // Handler for preloader video end
   const handlePreloaderEnd = () => {
     setLoading(false);
+    setIsVideoReady(true);
     localStorage.setItem('hasSeenPreloader', 'true');
   };
 
