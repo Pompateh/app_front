@@ -7,38 +7,43 @@ interface PreloaderProps {
 const Preloader: React.FC<PreloaderProps> = ({ onEnded }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVideoReady, setIsVideoReady] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
-      // Reset video to beginning
-      videoRef.current.currentTime = 0;
-      
-      // Ensure video starts playing immediately
-      const playPromise = videoRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.error('Error playing video:', error);
-        });
+    // Create a new video element for preloading
+    const preloadVideo = document.createElement('video');
+    preloadVideo.src = '/assets/0611.mp4';
+    preloadVideo.preload = 'auto';
+    preloadVideo.muted = true;
+    
+    // Force the browser to load the video
+    preloadVideo.load();
+
+    const handleCanPlayThrough = () => {
+      setIsVideoReady(true);
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play().catch(console.error);
       }
-    }
+    };
+
+    preloadVideo.addEventListener('canplaythrough', handleCanPlayThrough);
+    
+    return () => {
+      preloadVideo.removeEventListener('canplaythrough', handleCanPlayThrough);
+    };
   }, []);
 
-  const handleLoadedData = () => {
-    setIsLoading(false);
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play();
-    }
-  };
+  if (!isVideoReady) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-black">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
-        </div>
-      )}
       <video
         ref={videoRef}
         src="/assets/0611.mp4"
@@ -50,7 +55,6 @@ const Preloader: React.FC<PreloaderProps> = ({ onEnded }) => {
         style={{ display: 'block' }}
         onEnded={onEnded}
         onError={(e) => console.error('Video error:', e)}
-        onLoadedData={handleLoadedData}
       />
     </div>
   );
