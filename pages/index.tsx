@@ -130,7 +130,8 @@ const MasterHomepage: NextPage = () => {
                   <div className="w-full h-full relative">
                     {studio.thumbnail.match(/\.mp4$/i) ? (
                       <video
-                        src={studio.thumbnail}
+                        // src={studio.thumbnail} 
+                        src="/assets/0611.mp4"
                         className="w-full h-full object-cover animate-fadeIn"
                         autoPlay
                         loop
