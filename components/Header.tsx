@@ -76,14 +76,14 @@ const Header: React.FC = () => {
         {/* Desktop Header */}
         <div className="hidden md:flex items-stretch" style={{ height: '50px' }}>
           {/* Left half - Logo/Name */}
-          <div className="flex-1 flex items-center justify-start">
+          <div className="flex-1 flex items-center justify-start pl-4">
             <Link href="/" className="whitespace-nowrap">
               <Image 
                 src="/assets/Vector.png" 
                 alt="NEWStalgia Logo" 
                 width={200}
                 height={40}
-                style={{ objectFit: 'contain', height: '40px', width: '200px' }}
+                style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
                 priority
               />
             </Link>
@@ -138,10 +138,17 @@ const Header: React.FC = () => {
 
         {/* Mobile Header */}
         <div className="md:hidden flex justify-between items-center py-4">
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 pl-4">
             <Link href="/" className="text-3xl font-extrabold text-gray-800 whitespace-nowrap flex items-center justify-center h-full"
               style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}>
-              NEWStalgia
+              <Image 
+                src="/assets/Vector.png" 
+                alt="NEWStalgia Logo" 
+                width={200}
+                height={40}
+                style={{ objectFit: 'contain', height: '40px', width: 'auto' }}
+                priority
+              />
             </Link>
           </div>
           <button
