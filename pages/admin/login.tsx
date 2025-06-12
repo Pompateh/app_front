@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 
 const Login = () => {
   const router = useRouter();
-  const { from } = router.query;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,9 +31,7 @@ const Login = () => {
             const data = await res.json();
             if (data.valid) {
               console.log('Token is valid, redirecting to dashboard');
-              const redirectPath = typeof from === 'string' ? decodeURIComponent(from) : '/admin/dashboard';
-              console.log('Redirecting to:', redirectPath);
-              window.location.href = redirectPath;
+              router.replace('/admin/dashboard');
               return;
             }
           }
@@ -51,7 +48,7 @@ const Login = () => {
     };
 
     checkAuth();
-  }, [from]);
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -93,9 +90,9 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        // Force a direct redirect to dashboard
+        // Use Next.js router for navigation
         console.log('Redirecting to dashboard...');
-        window.location.replace('/admin/dashboard');
+        await router.replace('/admin/dashboard');
       } else {
         console.error('No token in response');
         throw new Error('No token received');

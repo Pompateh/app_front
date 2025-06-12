@@ -55,8 +55,25 @@ const nextConfig = {
   async rewrites() {
     return [
       {
+        source: '/admin/dashboard',
+        destination: '/admin/dashboard',
+      },
+      {
+        source: '/admin/login',
+        destination: '/admin/login',
+      },
+      {
         source: '/admin/:path*',
         destination: '/admin/:path*',
+      },
+    ];
+  },
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true,
       },
     ];
   },
