@@ -39,3 +39,6 @@ next-env.d.ts
 
 # Uploads
 public/uploads/
+
+# Backend
+/backend/
