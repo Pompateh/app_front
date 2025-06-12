@@ -29,9 +29,9 @@ const Footer: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="max-w-[1500px] mx-auto px-6 py-12 flex flex-col md:flex-row">
+      <div className="w-full px-6 py-12 flex flex-col md:flex-row">
         {/* Left half: Logo and Slogan */}
-        <div className="w-full md:w-1/2 flex flex-col items-start pl-4">
+        <div className="w-full md:w-1/2 flex flex-col items-start">
           <img 
             src="/assets/Vector-y.png" 
             alt="NEWStalgia Logo" 
@@ -44,8 +44,8 @@ const Footer: React.FC = () => {
             <span className="font-normal">Bridge the Future</span>
           </p>
         </div>
-        {/* Right half: Navigation buttons with centered columns, moved slightly right */}
-        <div className="w-full md:w-1/2 flex justify-center mt-4 md:mt-0 ml-40">
+        {/* Right half: Navigation buttons with centered columns */}
+        <div className="w-full md:w-1/2 flex justify-start mt-4 md:mt-0">
           <div className="flex space-x-24">
             {/* Column 1 */}
             <div className="flex flex-col text-left text-sm">
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
       </div>
       {/* Footer Content with lighter background full width */}
       <div className="w-full bg-[#3b322d] py-4">
-        <div className="max-w-[1500px] mx-auto px-6">
+        <div className="w-full px-6">
           <p className="text-left text-sm">
             Bảo quyền thuộc về NewStalgia 2025
           </p>

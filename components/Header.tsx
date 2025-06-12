@@ -72,11 +72,11 @@ const Header: React.FC = () => {
     <header className="bg-white fixed top-0 w-full z-50 border-b-2 border-[#999380]">
       <div className="absolute left-0 top-0 h-full w-2 bg-[#999380] z-40" style={{ height: '100vh' }}></div>
       
-      <div className="max-w-[1500px] mx-auto relative">
+      <div className="w-full relative">
         {/* Desktop Header */}
         <div className="hidden md:flex items-stretch" style={{ height: '50px' }}>
           {/* Left half - Logo/Name */}
-          <div className="flex-1 flex items-center justify-start pl-4">
+          <div className="w-1/2 flex items-center justify-start">
             <Link href="/" className="whitespace-nowrap">
               <Image 
                 src="/assets/Vector.png" 
@@ -90,7 +90,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Right half - Navigation */}
-          <div className="flex-1 relative flex items-stretch justify-start">
+          <div className="w-1/2 relative flex items-stretch justify-start">
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div>
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
