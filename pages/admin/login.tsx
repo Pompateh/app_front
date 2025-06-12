@@ -54,7 +54,7 @@ const Login = () => {
   }, [from]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault();
     setIsLoading(true);
     console.log('Login form submitted');
 
@@ -63,7 +63,6 @@ const Login = () => {
       const loginUrl = `${apiUrl}/api/auth/login`;
       
       console.log('Attempting login to:', loginUrl);
-      console.log('Login payload:', { username, password });
       
       const res = await fetch(loginUrl, {
         method: 'POST',
@@ -94,11 +93,9 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        const redirectPath = typeof from === 'string' ? decodeURIComponent(from) : '/admin/dashboard';
-        console.log('About to redirect to:', redirectPath);
-        
-        // Force a hard redirect to ensure the page reloads
-        window.location.href = redirectPath;
+        // Force a direct redirect to dashboard
+        console.log('Redirecting to dashboard...');
+        window.location.replace('/admin/dashboard');
       } else {
         console.error('No token in response');
         throw new Error('No token received');
