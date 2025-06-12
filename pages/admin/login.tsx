@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
 
 const Login = () => {
@@ -8,57 +8,80 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
 
-  // Add effect to check if we're already logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Only check auth if we're on the login page
-        if (window.location.pathname !== '/admin/login') {
-          setIsCheckingAuth(false);
-          return;
-        }
+  // Memoized function to validate token
+  const validateToken = useCallback(async (token: string) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+      const res = await fetch(`${apiUrl}/api/auth/validate`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        credentials: 'include'
+      });
 
-        const token = localStorage.getItem('token');
-        if (token) {
-          console.log('Token found in localStorage, validating...');
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
-          
-          const res = await fetch(`${apiUrl}/api/auth/validate`, {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'include'
-          });
+      if (!res.ok) {
+        throw new Error('Token validation failed');
+      }
 
-          if (res.ok) {
-            const data = await res.json();
-            if (data.valid) {
-              console.log('Token is valid, redirecting to dashboard');
-              // Use router.push instead of window.location to prevent loops
-              router.push('/admin/dashboard');
-              return;
-            }
-          }
-          // If token is invalid, remove it
-          console.log('Token is invalid, removing from localStorage');
-          localStorage.removeItem('token');
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error);
+      const data = await res.json();
+      return data.valid;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return false;
+    }
+  }, []);
+
+  // Memoized function to handle redirect
+  const handleRedirect = useCallback(async () => {
+    if (redirectAttempted) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      const isValid = await validateToken(token);
+      if (isValid) {
+        setRedirectAttempted(true);
+        console.log('Token is valid, redirecting to dashboard');
+        await router.replace('/admin/dashboard');
+      } else {
+        console.log('Token is invalid, removing from localStorage');
         localStorage.removeItem('token');
-      } finally {
         setIsCheckingAuth(false);
       }
+    } catch (error) {
+      console.error('Redirect error:', error);
+      localStorage.removeItem('token');
+      setIsCheckingAuth(false);
+    }
+  }, [router, validateToken, redirectAttempted]);
+
+  // Effect to check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Only check auth if we're on the login page and haven't attempted redirect
+      if (window.location.pathname !== '/admin/login' || redirectAttempted) {
+        setIsCheckingAuth(false);
+        return;
+      }
+
+      await handleRedirect();
     };
 
     checkAuth();
-  }, [router]);
+  }, [handleRedirect, redirectAttempted]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setIsLoading(true);
     console.log('Login form submitted');
 
@@ -97,9 +120,10 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        // Use router.push instead of window.location
+        // Use router.replace for a clean redirect
         console.log('Redirecting to dashboard...');
-        await router.push('/admin/dashboard');
+        setRedirectAttempted(true);
+        await router.replace('/admin/dashboard');
       } else {
         console.error('No token in response');
         throw new Error('No token received');
