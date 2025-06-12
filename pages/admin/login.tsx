@@ -50,7 +50,8 @@ const Login = () => {
       if (isValid) {
         setRedirectAttempted(true);
         console.log('Token is valid, redirecting to dashboard');
-        await router.replace('/admin/dashboard');
+        // Use window.location for a hard redirect
+        window.location.href = '/admin/dashboard';
       } else {
         console.log('Token is invalid, removing from localStorage');
         localStorage.removeItem('token');
@@ -61,7 +62,7 @@ const Login = () => {
       localStorage.removeItem('token');
       setIsCheckingAuth(false);
     }
-  }, [router, validateToken, redirectAttempted]);
+  }, [validateToken, redirectAttempted]);
 
   // Effect to check authentication status
   useEffect(() => {
@@ -120,10 +121,10 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        // Use router.replace for a clean redirect
+        // Use window.location for a hard redirect
         console.log('Redirecting to dashboard...');
         setRedirectAttempted(true);
-        await router.replace('/admin/dashboard');
+        window.location.href = '/admin/dashboard';
       } else {
         console.error('No token in response');
         throw new Error('No token received');

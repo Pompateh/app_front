@@ -78,11 +78,6 @@ const nextConfig = {
         destination: '/admin/dashboard',
         permanent: true,
       },
-      {
-        source: '/',
-        destination: '/admin/login',
-        permanent: false,
-      },
     ];
   },
   // Add security headers
