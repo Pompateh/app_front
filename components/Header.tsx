@@ -76,7 +76,7 @@ const Header: React.FC = () => {
         {/* Desktop Header */}
         <div className="hidden md:flex items-stretch" style={{ height: '50px' }}>
           {/* Left half - Logo/Name */}
-          <div className="flex-1 flex items-left justify-start">
+          <div className="flex-1 flex items-center justify-start">
             <Link href="/" className="whitespace-nowrap">
               <Image 
                 src="/assets/Vector.png" 

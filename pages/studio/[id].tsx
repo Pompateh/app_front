@@ -446,7 +446,7 @@ const StudioHomepage: React.FC = () => {
             viewport={{ once: true }}
             className="w-full pt-12 bg-white"
           >
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6">
+            <div className="max-w-screen-2xl mx-auto">
               <motion.img 
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
