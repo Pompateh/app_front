@@ -16,11 +16,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   })
 
   if (!apiRes.ok) {
-    const { message } = await apiRes.json()
-    return res.status(apiRes.status).json({ message })
+    const { message } = await apiRes.json() as { message: string };
+    return res.status(apiRes.status).json({ message });
   }
 
-  const { accessToken } = await apiRes.json()
+  const { accessToken } = await apiRes.json() as { accessToken: string };
 
   // Set it as an HttpOnly cookie
   res.setHeader('Set-Cookie', cookie.serialize('token', accessToken, {
@@ -31,5 +31,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     maxAge: 60 * 60 * 24, // 1 day
   }))
 
-  return res.status(200).json({ success: true })
+  // Return the token in the response for the frontend
+  return res.status(200).json({ success: true, token: accessToken })
 }
