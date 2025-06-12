@@ -19,9 +19,13 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
+      // Ensure we have the correct API URL with protocol
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+      const loginUrl = `${apiUrl}/api/auth/login`;
       
-      const res = await fetch(`${apiUrl}/auth/login`, {
+      console.log('Attempting login to:', loginUrl); // Debug log
+      
+      const res = await fetch(loginUrl, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -31,11 +35,14 @@ const AdminLogin = () => {
         credentials: 'include',
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
+        const errorData = await res.json().catch(() => ({}));
+        console.error('Login response:', res.status, errorData); // Debug log
+        throw new Error(errorData.message || `Login failed: ${res.status}`);
       }
+
+      const data = await res.json();
+      console.log('Login response data:', data); // Debug log
 
       // Store the token
       if (data.token) {

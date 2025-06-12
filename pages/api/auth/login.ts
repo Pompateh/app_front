@@ -20,17 +20,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ message: 'Username and password are required' });
     }
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+    const backendUrl = `${apiUrl}/api/auth/login`;
+
+    console.log('Forwarding login request to:', backendUrl); // Debug log
+
     // Forward credentials to your Nest endpoint
-    const apiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    const apiRes = await fetch(backendUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
 
+    console.log('Backend response status:', apiRes.status); // Debug log
+
     const data = await apiRes.json() as LoginResponse;
+    console.log('Backend response data:', data); // Debug log
 
     if (!apiRes.ok) {
-      return res.status(apiRes.status).json({ message: data.message || 'Login failed' });
+      return res.status(apiRes.status).json({ 
+        message: data.message || 'Login failed',
+        status: apiRes.status 
+      });
     }
 
     const { accessToken } = data;
@@ -52,6 +63,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ success: true, token: accessToken });
   } catch (error) {
     console.error('Login error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ 
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }
