@@ -29,9 +29,9 @@ const Footer: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="w-full px-6 py-12 flex flex-col md:flex-row">
+      <div className="max-w-[1500px] mx-auto px-6 py-12 flex flex-col md:flex-row">
         {/* Left half: Logo and Slogan */}
-        <div className="w-full md:w-1/2 flex flex-col items-start">
+        <div className="w-full md:w-1/2 flex flex-col items-start pl-4">
           <img 
             src="/assets/Vector-y.png" 
             alt="NEWStalgia Logo" 
