@@ -13,6 +13,12 @@ const Login = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Only check auth if we're on the login page
+        if (window.location.pathname !== '/admin/login') {
+          setIsCheckingAuth(false);
+          return;
+        }
+
         const token = localStorage.getItem('token');
         if (token) {
           console.log('Token found in localStorage, validating...');
@@ -31,7 +37,8 @@ const Login = () => {
             const data = await res.json();
             if (data.valid) {
               console.log('Token is valid, redirecting to dashboard');
-              window.location.href = 'https://wearenewstalgia.com/admin/dashboard';
+              // Use router.push instead of window.location to prevent loops
+              router.push('/admin/dashboard');
               return;
             }
           }
@@ -48,7 +55,7 @@ const Login = () => {
     };
 
     checkAuth();
-  }, []);
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,9 +97,9 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        // Use full URL for redirect
+        // Use router.push instead of window.location
         console.log('Redirecting to dashboard...');
-        window.location.href = 'https://wearenewstalgia.com/admin/dashboard';
+        await router.push('/admin/dashboard');
       } else {
         console.error('No token in response');
         throw new Error('No token received');
