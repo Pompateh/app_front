@@ -21,13 +21,13 @@ const AdminLogin = () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
       
-      const res = await fetch(`${apiUrl}/api/auth/login`, {
+      const res = await fetch(`${apiUrl}/auth/login`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ email: username, password }),
+        body: JSON.stringify({ username, password }),
         credentials: 'include',
       });
 

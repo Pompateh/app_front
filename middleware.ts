@@ -11,7 +11,8 @@ export function middleware(req: NextRequest) {
     pathname === '/favicon.ico' ||
     pathname.startsWith('/api/') ||
     pathname.includes('.json') ||
-    pathname.startsWith('/_next/data/')
+    pathname.startsWith('/_next/data/') ||
+    pathname.startsWith('/images/')
   ) {
     return NextResponse.next()
   }
@@ -23,11 +24,12 @@ export function middleware(req: NextRequest) {
       return NextResponse.next()
     }
     
-    // Check for token in cookies
+    // Check for token in cookies and localStorage
     const token = req.cookies.get('token')
+    const authHeader = req.headers.get('authorization')
     
-    // If no token, redirect to login
-    if (!token) {
+    // If no token in cookie or header, redirect to login
+    if (!token && !authHeader?.startsWith('Bearer ')) {
       const url = new URL('/admin/login', req.url)
       url.searchParams.set('from', pathname)
       return NextResponse.redirect(url)
@@ -39,7 +41,15 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/admin/:path*'
   ],
 } 
