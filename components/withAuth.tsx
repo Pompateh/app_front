@@ -16,7 +16,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           if (!token) {
             console.log('No token found in localStorage');
             toast.error('Please login to access this page');
-            await router.push('/admin/login');
+            window.location.href = '/admin/login';
             return;
           }
 
@@ -67,7 +67,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
           console.error('Token validation error:', error);
           localStorage.removeItem('token');
           toast.error('Session expired. Please login again.');
-          await router.push('/admin/login');
+          window.location.href = '/admin/login';
         } finally {
           setIsLoading(false);
         }
