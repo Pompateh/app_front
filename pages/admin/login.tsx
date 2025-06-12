@@ -17,12 +17,14 @@ const AdminLogin = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Login form submitted');
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
       const loginUrl = `${apiUrl}/api/auth/login`;
       
-      console.log('Attempting login to:', loginUrl); // Debug log
+      console.log('Attempting login to:', loginUrl);
+      console.log('Login payload:', { username, password });
       
       const res = await fetch(loginUrl, {
         method: 'POST',
@@ -38,29 +40,28 @@ const AdminLogin = () => {
       });
 
       const data = await res.json();
-      console.log('Login response:', res.status, data); // Debug log
+      console.log('Login response:', res.status, data);
 
       if (!res.ok) {
-        // Handle validation errors
         if (data.message && Array.isArray(data.message)) {
           throw new Error(data.message.join(', '));
         }
         throw new Error(data.message || `Login failed: ${res.status}`);
       }
 
-      // Store the token
       if (data.token) {
+        console.log('Token received, storing in localStorage');
         localStorage.setItem('token', data.token);
         
-        // Show success message
         toast.success('Login successful');
         
-        // Redirect to the original destination or dashboard
         const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
-        console.log('Redirecting to:', redirectPath);
-        // Use window.location for the redirect
-        window.location.href = redirectPath;
+        console.log('About to redirect to:', redirectPath);
+        
+        // Use Next.js router for navigation
+        await router.push(redirectPath);
       } else {
+        console.error('No token in response');
         throw new Error('No token received');
       }
     } catch (err: any) {

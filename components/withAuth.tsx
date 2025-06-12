@@ -11,14 +11,17 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
     useEffect(() => {
       const validateToken = async () => {
         try {
+          console.log('Validating token...');
           const token = localStorage.getItem('token');
           if (!token) {
             console.log('No token found in localStorage');
-            router.push('/admin/login');
+            toast.error('Please login to access this page');
+            await router.push('/admin/login');
             return;
           }
 
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+          console.log('Validating token with API:', `${apiUrl}/api/auth/validate`);
           
           const res = await fetch(`${apiUrl}/api/auth/validate`, {
             method: 'GET',
@@ -29,8 +32,11 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
             credentials: 'include'
           });
 
+          console.log('Token validation response:', res.status);
+
           if (!res.ok) {
             if (res.status === 401) {
+              console.log('Token expired, attempting refresh...');
               // Try to refresh token
               const refreshRes = await fetch(`${apiUrl}/api/auth/refresh`, {
                 method: 'POST',
@@ -42,6 +48,7 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
               }
 
               const refreshData = await refreshRes.json();
+              console.log('Token refreshed successfully');
               localStorage.setItem('token', refreshData.accessToken);
               setAuthorized(true);
               return;
@@ -54,12 +61,13 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
             throw new Error('Invalid token');
           }
 
+          console.log('Token validation successful');
           setAuthorized(true);
         } catch (error) {
           console.error('Token validation error:', error);
           localStorage.removeItem('token');
           toast.error('Session expired. Please login again.');
-          router.push('/admin/login');
+          await router.push('/admin/login');
         } finally {
           setIsLoading(false);
         }
