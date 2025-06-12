@@ -58,8 +58,8 @@ const AdminLogin = () => {
         const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
         console.log('About to redirect to:', redirectPath);
         
-        // Use Next.js router for navigation
-        await router.push(redirectPath);
+        // Use replace instead of push to prevent back button issues
+        await router.replace(redirectPath, undefined, { shallow: true });
       } else {
         console.error('No token in response');
         throw new Error('No token received');

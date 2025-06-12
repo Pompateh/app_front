@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout'
 import { withAuth } from '../../components/withAuth'
 import { toast } from 'react-toastify';
+import { useRouter } from 'next/router';
 
 interface DashboardStats {
   totalStudios: number;
@@ -13,6 +14,7 @@ interface DashboardStats {
 }
 
 const AdminDashboard = () => {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,9 +24,12 @@ const AdminDashboard = () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          throw new Error('No authentication token found');
+          console.log('No token found, redirecting to login');
+          await router.replace('/admin/login');
+          return;
         }
 
+        console.log('Fetching dashboard data...');
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
         const response = await fetch(`${apiUrl}/api/admin/dashboard`, {
           headers: {
@@ -34,14 +39,20 @@ const AdminDashboard = () => {
           credentials: 'include',
         });
 
+        console.log('Dashboard response status:', response.status);
+
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Session expired');
+            console.log('Session expired, redirecting to login');
+            localStorage.removeItem('token');
+            await router.replace('/admin/login');
+            return;
           }
           throw new Error('Failed to fetch dashboard data');
         }
 
         const data = await response.json();
+        console.log('Dashboard data received:', data);
         setStats(data);
       } catch (err: any) {
         console.error('Error fetching dashboard data:', err);
@@ -50,7 +61,7 @@ const AdminDashboard = () => {
         
         if (err.message.includes('Session expired')) {
           localStorage.removeItem('token');
-          window.location.href = '/admin/login';
+          await router.replace('/admin/login');
         }
       } finally {
         setLoading(false);
@@ -58,7 +69,7 @@ const AdminDashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -77,7 +88,7 @@ const AdminDashboard = () => {
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
           <button 
-            onClick={() => window.location.href = '/admin/login'}
+            onClick={() => router.replace('/admin/login')}
             className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Return to Login
