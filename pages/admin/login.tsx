@@ -31,7 +31,7 @@ const AdminLogin = () => {
           'Accept': 'application/json',
         },
         body: JSON.stringify({
-          username: username,
+          email: username,
           password: password
         }),
         credentials: 'include',
@@ -76,18 +76,18 @@ const AdminLogin = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+              Email
             </label>
             <input
               id="username"
-              type="text"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
-              pattern="[a-zA-Z0-9\._\-]+"
-              title="Username can only contain letters, numbers, dots, underscores, and hyphens"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              title="Please enter a valid email address"
             />
           </div>
           <div>
