@@ -1,13 +1,56 @@
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-const AdminLogin = () => {
+const Login = () => {
   const router = useRouter();
   const { from } = router.query;
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  // Add effect to check if we're already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          console.log('Token found in localStorage, validating...');
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
+          
+          const res = await fetch(`${apiUrl}/api/auth/validate`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            credentials: 'include'
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.valid) {
+              console.log('Token is valid, redirecting to dashboard');
+              const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
+              window.location.href = redirectPath;
+              return;
+            }
+          }
+          // If token is invalid, remove it
+          console.log('Token is invalid, removing from localStorage');
+          localStorage.removeItem('token');
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error);
+        localStorage.removeItem('token');
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [from]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,15 +110,13 @@ const AdminLogin = () => {
     }
   };
 
-  // Add effect to check if we're already logged in
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      console.log('Token found in localStorage, redirecting to dashboard');
-      const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
-      window.location.href = redirectPath;
-    }
-  }, [from]);
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -138,4 +179,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default Login;

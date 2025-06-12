@@ -73,8 +73,13 @@ export function withAuth<P extends object>(WrappedComponent: ComponentType<P>) {
         }
       };
 
-      validateToken();
-    }, [router]);
+      // Only validate if we're not on the login page
+      if (router.pathname !== '/admin/login') {
+        validateToken();
+      } else {
+        setIsLoading(false);
+      }
+    }, [router.pathname]);
 
     if (isLoading) {
       return (
