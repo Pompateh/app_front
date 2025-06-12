@@ -32,7 +32,8 @@ const Login = () => {
             const data = await res.json();
             if (data.valid) {
               console.log('Token is valid, redirecting to dashboard');
-              const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
+              const redirectPath = typeof from === 'string' ? decodeURIComponent(from) : '/admin/dashboard';
+              console.log('Redirecting to:', redirectPath);
               window.location.href = redirectPath;
               return;
             }
@@ -93,7 +94,7 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
+        const redirectPath = typeof from === 'string' ? decodeURIComponent(from) : '/admin/dashboard';
         console.log('About to redirect to:', redirectPath);
         
         // Force a hard redirect to ensure the page reloads
