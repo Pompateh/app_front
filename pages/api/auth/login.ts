@@ -5,7 +5,9 @@ import cookie from 'cookie'
 
 interface LoginResponse {
   accessToken: string;
-  message?: string;
+  message?: string | string[];
+  error?: string;
+  statusCode?: number;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -14,10 +16,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Username and password are required' });
+    if (!email || !password) {
+      return res.status(400).json({ 
+        message: ['Email and password are required'],
+        error: 'Bad Request',
+        statusCode: 400
+      });
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
@@ -29,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const apiRes = await fetch(backendUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
 
     console.log('Backend response status:', apiRes.status); // Debug log
@@ -38,16 +44,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Backend response data:', data); // Debug log
 
     if (!apiRes.ok) {
-      return res.status(apiRes.status).json({ 
-        message: data.message || 'Login failed',
-        status: apiRes.status 
-      });
+      return res.status(apiRes.status).json(data);
     }
 
     const { accessToken } = data;
 
     if (!accessToken) {
-      return res.status(500).json({ message: 'No access token received from server' });
+      return res.status(500).json({ 
+        message: ['No access token received from server'],
+        error: 'Internal Server Error',
+        statusCode: 500
+      });
     }
 
     // Set it as an HttpOnly cookie
@@ -64,8 +71,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ 
-      message: 'Internal server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: ['Internal server error'],
+      error: error instanceof Error ? error.message : 'Unknown error',
+      statusCode: 500
     });
   }
 }

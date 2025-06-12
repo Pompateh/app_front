@@ -19,7 +19,6 @@ const AdminLogin = () => {
     setIsLoading(true);
 
     try {
-      // Ensure we have the correct API URL with protocol
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
       const loginUrl = `${apiUrl}/api/auth/login`;
       
@@ -31,18 +30,23 @@ const AdminLogin = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          email: username, // Changed from username to email
+          password: password
+        }),
         credentials: 'include',
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        console.error('Login response:', res.status, errorData); // Debug log
-        throw new Error(errorData.message || `Login failed: ${res.status}`);
-      }
-
       const data = await res.json();
-      console.log('Login response data:', data); // Debug log
+      console.log('Login response:', res.status, data); // Debug log
+
+      if (!res.ok) {
+        // Handle validation errors
+        if (data.message && Array.isArray(data.message)) {
+          throw new Error(data.message.join(', '));
+        }
+        throw new Error(data.message || `Login failed: ${res.status}`);
+      }
 
       // Store the token
       if (data.token) {
@@ -72,18 +76,18 @@ const AdminLogin = () => {
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+              Email
             </label>
             <input
               id="username"
-              type="text"
+              type="email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
-              pattern="[a-zA-Z0-9\._\-]+"
-              title="Username can only contain letters, numbers, dots, underscores, and hyphens"
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              title="Please enter a valid email address"
             />
           </div>
           <div>
