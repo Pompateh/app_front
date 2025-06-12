@@ -50,8 +50,9 @@ const nextConfig = {
   output: 'standalone',
   distDir: '.next',
   trailingSlash: false,
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_URL || '',
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  // Set the base URL for the application
+  assetPrefix: 'https://wearenewstalgia.com',
+  basePath: '',
   async rewrites() {
     return [
       {
@@ -74,6 +75,28 @@ const nextConfig = {
         source: '/admin',
         destination: '/admin/dashboard',
         permanent: true,
+      },
+    ];
+  },
+  // Add custom headers to handle CORS and other security headers
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization',
+          },
+        ],
       },
     ];
   },

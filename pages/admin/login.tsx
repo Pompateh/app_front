@@ -31,7 +31,7 @@ const Login = () => {
             const data = await res.json();
             if (data.valid) {
               console.log('Token is valid, redirecting to dashboard');
-              router.replace('/admin/dashboard');
+              window.location.href = 'https://wearenewstalgia.com/admin/dashboard';
               return;
             }
           }
@@ -48,7 +48,7 @@ const Login = () => {
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -90,9 +90,9 @@ const Login = () => {
         
         toast.success('Login successful');
         
-        // Use Next.js router for navigation
+        // Use full URL for redirect
         console.log('Redirecting to dashboard...');
-        await router.replace('/admin/dashboard');
+        window.location.href = 'https://wearenewstalgia.com/admin/dashboard';
       } else {
         console.error('No token in response');
         throw new Error('No token received');
