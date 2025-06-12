@@ -50,8 +50,16 @@ const nextConfig = {
   output: 'standalone',
   distDir: '.next',
   trailingSlash: false,
-  assetPrefix: '',
-  basePath: '',
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_URL || '',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  async rewrites() {
+    return [
+      {
+        source: '/admin/:path*',
+        destination: '/admin/:path*',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

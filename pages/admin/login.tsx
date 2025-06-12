@@ -58,11 +58,8 @@ const AdminLogin = () => {
         // Redirect to the original destination or dashboard
         const redirectPath = typeof from === 'string' ? from : '/admin/dashboard';
         console.log('Redirecting to:', redirectPath);
-        router.push(redirectPath).then(() => {
-          console.log('Router push completed');
-        }).catch((err) => {
-          console.error('Router push error:', err);
-        });
+        // Use window.location for the redirect
+        window.location.href = redirectPath;
       } else {
         throw new Error('No token received');
       }
