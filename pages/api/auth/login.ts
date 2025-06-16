@@ -31,10 +31,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log('Forwarding login request to:', backendUrl); // Debug log
 
-    // Forward credentials to your Nest endpoint
+  // Forward credentials to your Nest endpoint
     const apiRes = await fetch(backendUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
 
@@ -43,9 +43,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await apiRes.json() as LoginResponse;
     console.log('Backend response data:', data); // Debug log
 
-    if (!apiRes.ok) {
+  if (!apiRes.ok) {
       return res.status(apiRes.status).json(data);
-    }
+  }
 
     const { accessToken } = data;
 
@@ -57,13 +57,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
-    // Set it as an HttpOnly cookie
-    res.setHeader('Set-Cookie', cookie.serialize('token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24, // 1 day
+  // Set it as an HttpOnly cookie
+  res.setHeader('Set-Cookie', cookie.serialize('token', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24, // 1 day
     }));
 
     // Return the token in the response for the frontend
