@@ -74,6 +74,8 @@ type Props = {
 
 const ProjectPage: NextPage<Props> = ({ project, related, error: initialError }) => {
   const router = useRouter();
+  const [relatedPage, setRelatedPage] = useState(0);
+  const pageSize = 3;
 
   if (router.isFallback) {
     return (
@@ -133,7 +135,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
           height:  'auto',
         };
         return (
-          <div key={idx} className="border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden">
+          <div key={idx} className="border-b-2 border-[#999380] md:col-span-2 overflow-hidden">
             <img
               src={block.src}
               alt={block.alt || title}
@@ -153,11 +155,11 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
                 <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
-            <div className="p-4 prose lg:prose-lg border-2 border-[#999380]">
+            <div className="p-4 prose lg:prose-lg border-l-2 border-b-2 border-r-2 border-[#999380]">
               <div dangerouslySetInnerHTML={{ __html: text }} />
             </div>
             {!isImageLeft && (
-              <div className="border-2 border-[#999380] overflow-hidden">
+              <div className="border-l-2 border-b-2 border-r-2 border-[#999380] overflow-hidden">
                 <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
@@ -171,12 +173,12 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
         return (
           <div key={idx} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
-              <div className="border-t-2 border-l-2 border-[#999380] overflow-hidden flex">
+              <div className=" border-l-2 border-b-2 border-[#999380] overflow-hidden flex">
                 <img src={left.src} alt={left.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
             {right && (
-              <div className="border-t-2 border-r-2 border-l-2 border-b-0 border-[#999380] overflow-hidden flex">
+              <div className=" border-r-2 border-l-2 border-b-2 border-[#999380] overflow-hidden flex">
                 <img src={right.src} alt={right.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
@@ -192,7 +194,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
       
               if (i === 0) {
                 cellClass = 'row-start-1 col-start-1';
-                borderClass = 'border-t-2 border-l-2 border-[#999380] overflow-hidden';
+                borderClass = ' border-l-2 border-[#999380] overflow-hidden';
               }
               if (i === 1) {
                 cellClass = 'row-start-2 col-start-1';
@@ -244,23 +246,58 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
   const renderRelatedProjects = () => {
     if (!related || related.length === 0) return null;
 
+    // Pagination logic
+    const totalPages = Math.ceil(related.length / pageSize);
+    const startIdx = relatedPage * pageSize;
+    const endIdx = startIdx + pageSize;
+    const pageProjects = related.slice(startIdx, endIdx);
+
     return (
-      <div className="mt-16 pt-8 border-t-2 border-[#999380]">
-        <h2 className="text-3xl font-bold mb-8 text-center">Related Projects</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {related.map((p) => (
-            <Link key={p.id} href={`/project/${p.slug}`} className="block group">
-              <div className="border-2 border-[#999380] overflow-hidden">
-                <img
-                  src={p.thumbnail}
-                  alt={p.title}
-                  className="w-full h-64 object-cover transform transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <h3 className="mt-4 text-xl font-semibold">{p.title}</h3>
-              <p className="mt-2 text-gray-600">{p.description}</p>
-            </Link>
-          ))}
+      <div className="w-full bg-[#f7f5ee] py-12 px-4 border-t-2 border-[#999380] relative z-20">
+        <div className="max-w-[1500px] mx-auto ">
+          <h2 className="text-xl font-bold mb-2 text-[#222] tracking-widest uppercase">RELATED WORKS</h2>
+          <h3 className="text-3xl font-serif font-semibold mb-8">
+            Xem thêm <span className="italic font-normal">Ấn-phẩm</span> khác
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {pageProjects.map((p) => (
+              <Link key={p.id} href={`/project/${p.slug}`} className="block group">
+                <div className="border-2 border-[#999380] overflow-hidden bg-white">
+                  <img
+                    src={p.thumbnail}
+                    alt={p.title}
+                    className="w-full h-64 object-cover transform transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="mt-4">
+                  <div className="text-xs font-bold text-[#222] uppercase tracking-widest mb-1 font-serif">
+                    {p.category}
+                  </div>
+                  <h3 className="text-lg font-semibold">{p.title}</h3>
+                  <p className="mt-2 text-gray-600 text-sm">{p.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-8 space-x-4">
+              <button
+                onClick={() => setRelatedPage((prev) => Math.max(prev - 1, 0))}
+                disabled={relatedPage === 0}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                &larr;
+              </button>
+              <span>Page {relatedPage + 1} of {totalPages}</span>
+              <button
+                onClick={() => setRelatedPage((prev) => Math.min(prev + 1, totalPages - 1))}
+                disabled={relatedPage === totalPages - 1}
+                className="px-3 py-1 rounded bg-gray-200 disabled:opacity-50"
+              >
+                &rarr;
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -278,9 +315,9 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
           </div>
           
           {(team || []).length > 0 && renderTeam()}
-          {related && related.length > 0 && renderRelatedProjects()}
         </div>
       </div>
+      {related && related.length > 0 && renderRelatedProjects()}
     </Layout>
   );
 };
@@ -304,13 +341,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       return { notFound: true };
     }
 
-    // Fetch related projects (example: from the same category)
+    // Fetch all other projects (not just same category)
     const { data: related, error: relatedError } = await supabase
       .from('projects')
-      .select('id, title, slug, description, thumbnail')
-      .eq('category', project.category)
-      .neq('id', project.id)
-      .limit(3);
+      .select('id, title, slug, description, thumbnail, category')
+      .neq('id', project.id);
 
     if (relatedError) {
       console.error('Error fetching related projects:', relatedError);

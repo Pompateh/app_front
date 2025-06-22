@@ -828,12 +828,10 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
     </div>
 
     {/* Preview Section */}
-    {formData.id && (
-      <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto">
       <h2 className="text-xl font-semibold mb-4">Preview</h2>
-        <ProjectPreview data={formData} />
-      </div>
-    )}
+      <ProjectPreview data={formData} />
+    </div>
   </div>
 </Modal>
 )}
