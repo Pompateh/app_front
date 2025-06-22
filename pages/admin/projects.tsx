@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { supabase } from '../../lib/supabaseClient';
 import Layout_admin from '../../components/Layout_admin';
 import { GetServerSideProps } from 'next';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+import 'react-quill/dist/quill.snow.css';
 
 
 const API = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
@@ -38,6 +40,25 @@ interface AdminProjectsProps {
   initialProjects: ProjectForm[];
   error?: string;
 }
+
+const quillToolbarOptions = [
+  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  [{ 'font': [] }],
+  [{ 'size': ['small', false, 'large', 'huge'] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ 'color': [] }, { 'background': [] }],
+  [{ 'script': 'sub' }, { 'script': 'super' }],
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+  [{ 'indent': '-1' }, { 'indent': '+1' }],
+  [{ 'align': [] }],
+  ['blockquote', 'code-block'],
+  ['link', 'image', 'video'],
+  ['clean']
+];
+
+const quillModules = {
+  toolbar: quillToolbarOptions,
+};
 
 const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: initialError }) => {
   const [projects, setProjects] = useState<ProjectForm[]>(initialProjects);
@@ -305,11 +326,12 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
               <option value="left">Left</option>
               <option value="right">Right</option>
             </select>
-            <textarea
+            <ReactQuill
               value={block.text || ''}
-              onChange={e => updateBlock(idx, { ...block, text: e.target.value })}
-              className="input w-full"
-              placeholder="Enter text"
+              onChange={val => updateBlock(idx, { ...block, text: val })}
+              className="mb-2"
+              theme="snow"
+              modules={quillModules}
             />
           </>
         );
@@ -394,14 +416,15 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
       case 'text_and_side_image':
         return (
           <>
-            <textarea
-              placeholder="Text content"
+            <ReactQuill
               value={block.data?.text || ''}
-              onChange={e => updateBlock(idx, {
+              onChange={val => updateBlock(idx, {
                 ...block,
-                data: { ...block.data, text: e.target.value }
+                data: { ...block.data, text: val }
               })}
-              className="input w-full mb-2"
+              className="mb-2"
+              theme="snow"
+              modules={quillModules}
             />
             <input
               type="text"
@@ -450,17 +473,19 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
                   </select>
   
                   {item.type === 'text' ? (
-                    <input
-                      type="text"
-                      placeholder="Text"
-                      value={item.text || ''}
-                      onChange={e => {
-                        const updated = [...(block.data?.items || [])];
-                        updated[itemIdx].text = e.target.value;
-                        updateBlock(idx, { ...block, data: { items: updated } });
-                      }}
-                      className="input flex-1"
-                    />
+                    <div className="flex-1">
+                      <ReactQuill
+                        value={item.text || ''}
+                        onChange={val => {
+                          const updated = [...(block.data?.items || [])];
+                          updated[itemIdx].text = val;
+                          updateBlock(idx, { ...block, data: { items: updated } });
+                        }}
+                        className="mb-2"
+                        theme="snow"
+                        modules={quillModules}
+                      />
+                    </div>
                   ) : (
                     <>
                       <input

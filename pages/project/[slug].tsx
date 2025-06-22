@@ -262,19 +262,28 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {pageProjects.map((p) => (
               <Link key={p.id} href={`/project/${p.slug}`} className="block group">
-                <div className="border-2 border-[#999380] overflow-hidden bg-white">
+                <div className="border-[#999380] flex flex-col items-left justify-center w-full h-auto  m-0">
                   <img
                     src={p.thumbnail}
                     alt={p.title}
-                    className="w-full h-64 object-cover transform transition-transform duration-300 group-hover:scale-105"
+                    className="max-w-full max-h-full object-contain"
+                    style={{ borderRadius: 0, background: 'none' }}
                   />
                 </div>
-                <div className="mt-4">
-                  <div className="text-xs font-bold text-[#222] uppercase tracking-widest mb-1 font-serif">
+                <div className="mt-4 text-left">
+                  <div
+                    className="text-xs font-bold uppercase tracking-widest mb-1"
+                    style={{ fontFamily: 'Gothic A1, sans-serif', letterSpacing: '0.15em' }}
+                  >
                     {p.category}
                   </div>
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-gray-600 text-sm">{p.description}</p>
+                  <h3
+                    className="text-lg font-semibold mb-1"
+                    style={{ fontFamily: 'Gothic A1, sans-serif', fontWeight: 700 }}
+                  >
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 text-sm" style={{ color: '#888888', fontFamily: 'Crimson Pro, serif' }}>{p.description}</p>
                 </div>
               </Link>
             ))}

@@ -109,3 +109,20 @@ html, body {
 .w-2 {
   width: 0rem; /* Customize the width as needed */
 }
+
+/* Quill font size and font family support for Tailwind Typography (prose) */
+.prose .ql-size-small {
+  font-size: 0.75em;
+}
+.prose .ql-size-large {
+  font-size: 1.5em;
+}
+.prose .ql-size-huge {
+  font-size: 8em;
+}
+.prose .ql-font-serif {
+  font-family: serif;
+}
+.prose .ql-font-monospace {
+  font-family: monospace;
+}
