@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "next build && next export",
         "start": "next start",
         "lint": "next lint"
     },
@@ -13,6 +13,7 @@
         "@fontsource/crimson-pro": "^5.2.5",
         "@fontsource/literata": "^5.2.5",
         "@hello-pangea/dnd": "^16.5.0",
+        "@netlify/next": "^1.4.9",
         "@netlify/plugin-nextjs": "^5.11.2",
         "@supabase/supabase-js": "^2.50.0",
         "@tailwindcss/line-clamp": "^0.4.4",
