@@ -1,58 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Post } from '../../types/post';
+import { GetServerSideProps } from 'next';
+import { supabase } from '../../lib/supabaseClient';
 
 interface AdditionalSection {
   title: string;
   paragraph: string;
 }
 
-const PostPage: React.FC = () => {
-  const [post, setPost] = useState<Post | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface PostPageProps {
+  post: Post | null;
+  error?: string;
+}
+
+const PostPage: React.FC<PostPageProps> = ({ post, error }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(true);
-  const router = useRouter();
-  const { slug } = router.query;
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      if (!slug) return;
-
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${slug}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch post');
-        }
-        const data = await response.json();
-        setPost(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPost();
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="pt-20 pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">Loading...</div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   if (error || !post) {
     return (
@@ -225,6 +191,39 @@ const PostPage: React.FC = () => {
       <Footer />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { slug } = context.params!;
+
+  if (!slug) {
+    return { notFound: true };
+  }
+
+  try {
+    const { data: post, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (error || !post) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        post,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        post: null,
+        error: 'Failed to load post.',
+      },
+    };
+  }
 };
 
 export default PostPage;

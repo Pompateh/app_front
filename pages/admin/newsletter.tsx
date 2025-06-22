@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import { withAuth } from '../../components/withAuth'
+import { GetServerSideProps } from 'next'
+import { supabase } from '../../lib/supabaseClient'
 
 interface Subscriber {
   id: string;
@@ -8,31 +10,31 @@ interface Subscriber {
   createdAt: string;
 }
 
-const AdminNewsletter = () => {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([])
+interface AdminNewsletterProps {
+  initialSubscribers: Subscriber[];
+  error?: string;
+}
+
+const AdminNewsletter: React.FC<AdminNewsletterProps> = ({ initialSubscribers, error: initialError }) => {
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers)
   const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string | undefined>(initialError)
 
   const fetchSubscribers = async () => {
     setLoading(true)
-    try {
-      const res = await fetch('/api/newsletter/subscribers')
-      const data = await res.json()
-      setSubscribers(data)
-    } catch (err) {
+    const { data, error } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false })
+    if (error) {
       setError('Failed to load subscribers')
+    } else {
+      setSubscribers(data as Subscriber[])
     }
     setLoading(false)
   }
 
-  useEffect(() => {
-    fetchSubscribers()
-  }, [])
-
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this subscriber?')) return
+    if (!window.confirm('Are you sure you want to delete this subscriber?')) return
     try {
-      await fetch(`/api/newsletter/unsubscribe/${id}`, { method: 'DELETE' })
+      await supabase.from('subscribers').delete().eq('id', id)
       await fetchSubscribers()
     } catch (err) {
       setError('Failed to delete subscriber')
@@ -71,6 +73,22 @@ const AdminNewsletter = () => {
       )}
     </Layout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const { data, error } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false })
+    if (error) {
+      throw new Error('Failed to fetch subscribers')
+    }
+    return {
+      props: { initialSubscribers: data || [] },
+    }
+  } catch (err) {
+    return {
+      props: { initialSubscribers: [], error: 'Failed to fetch subscribers' },
+    }
+  }
 }
 
 export default withAuth(AdminNewsletter)

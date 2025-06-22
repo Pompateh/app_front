@@ -5,6 +5,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import dynamic from 'next/dynamic';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-quill/dist/quill.snow.css';
+import { supabase } from '../../lib/supabaseClient';
+import { GetServerSideProps } from 'next';
 
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
@@ -56,6 +58,11 @@ interface Post {
   quoteAuthor: string;
 }
 
+interface AdminPostsProps {
+  initialPosts: Post[];
+  error?: string;
+}
+
 const defaultFormData: Post = {
   id: '',
   title: '',
@@ -78,60 +85,21 @@ const defaultFormData: Post = {
   quoteAuthor: '',
 };
 
-const AdminPosts = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialError }) => {
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initialError || '');
   const [formData, setFormData] = useState<Post>(defaultFormData);
   const [editId, setEditId] = useState<string | null>(null);
   const [featuredPreview, setFeaturedPreview] = useState('');
   const [referencePreview, setReferencePreview] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchPosts = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      console.error('No token found, user is not authenticated');
-      toast.error('You are not authenticated. Please log in.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/posts`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const errorRes = await res.json();
-        console.error('Failed to fetch posts:', errorRes);
-        toast.error(errorRes.message || 'Failed to fetch posts');
-        return;
-      }
-
-      const data: Post[] = await res.json();
-      // Deserialize additionalContent from JSON string to array
-      const parsedData = data.map(post => ({
-        ...post,
-        additionalContent: Array.isArray(post.additionalContent) ? post.additionalContent : JSON.parse(post.additionalContent || '[]'),
-      }));
-      setPosts(parsedData);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      toast.error('Error fetching posts');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if(initialError) {
+      toast.error(initialError);
+    }
+  }, [initialError]);
 
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -140,30 +108,42 @@ const AdminPosts = () => {
     const file = e.target.files?.[0];
     if (!file) return;
   
-    const formData = new FormData();
-    formData.append('file', file);
-  
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-  
-      const data = await res.json();
-      if (res.ok) {
-        toast.success('Image uploaded');
+      const fileName = `${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(fileName);
+
+      if (!data || !data.publicUrl) {
+        throw new Error('Could not get public URL for the uploaded image.');
+      }
+      
+      const imageUrl = data.publicUrl;
+
         setFormData(prev => ({
           ...prev,
-          [type]: data.url,
+        [type]: imageUrl,
         }));
-        if (type === 'featuredImage') setFeaturedPreview(data.url);
-        if (type === 'referencePicUrl') setReferencePreview(data.url);
-      } else {
-        toast.error(data.message || 'Upload failed');
+
+      if (type === 'featuredImage') {
+        setFeaturedPreview(imageUrl);
+      } else if (type === 'referencePicUrl') {
+        setReferencePreview(imageUrl);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error('Error uploading image');
+      
+      toast.success('Image uploaded successfully.');
+
+    } catch (err: any) {
+      console.error('Error uploading image to Supabase:', err);
+      toast.error(err.message || 'Error uploading image');
     }
   };
 
@@ -183,46 +163,41 @@ const AdminPosts = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-  
+    setLoading(true);
+
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No authentication token found');
-  
-      const method = editId ? 'PUT' : 'POST';
-      const endpoint = editId ? `/api/admin/posts/${editId}` : `/api/admin/posts`;
-      const payload  = sanitizePostPayload(formData);
-  
-      const res = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-  
-      if (!res.ok) {
-        // <-- Replace your throw block with this:
-        const errorData = await res.json().catch(() => ({}));
-        const message =
-          typeof errorData.message === 'string'
-            ? errorData.message
-            : errorData.message
-            ? JSON.stringify(errorData.message)
-            : JSON.stringify(errorData) || 'Unknown error';
-        throw new Error(message);
+      const payload = sanitizePostPayload(formData);
+      let response;
+
+      if (editId) {
+        // Update existing post
+        const { error } = await supabase.from('posts').update(payload).eq('id', editId);
+        if (error) throw error;
+        toast.success('Post updated successfully');
+      } else {
+        // Create new post
+        const { error } = await supabase.from('posts').insert([payload]);
+        if (error) throw error;
+        toast.success('Post created successfully');
+      }
+
+      const { data: updatedPosts, error: fetchError } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+      if(fetchError) {
+        toast.error(fetchError.message);
+      } else {
+        setPosts(updatedPosts as Post[]);
       }
   
-      await fetchPosts();
       setFormData(defaultFormData);
       setEditId(null);
       setIsModalOpen(false);
-      toast.success(editId ? 'Post updated successfully' : 'Post created successfully');
-    } catch (err) {
-      console.error('Error saving post:', err);
-      const errorMessage = err instanceof Error ? err.message : String(err);
+    } catch (err: any) {
+      const errorMessage = err.message || 'An unexpected error occurred';
+      console.error('Error saving post:', errorMessage);
       setError(errorMessage);
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
   
@@ -258,20 +233,26 @@ const AdminPosts = () => {
   };
   
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this post?')) return;
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/posts/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error('Failed to delete post');
-      await fetchPosts();
-    } catch (err) {
-      setError('Failed to delete post');
-      toast.error('Failed to delete post');
+      const { error } = await supabase.from('posts').delete().eq('id', id);
+      if (error) throw error;
+      
+      const { data: updatedPosts, error: fetchError } = await supabase.from('posts').select('*').order('created_at', { ascending: false });
+      if(fetchError) {
+        toast.error(fetchError.message);
+      } else {
+        setPosts(updatedPosts as Post[]);
+      }
+      toast.success('Post deleted successfully');
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to delete post';
+      console.error('Error deleting post:', errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -475,6 +456,32 @@ const AdminPosts = () => {
 )}
     </AdminLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      props: {
+        initialPosts: data || [],
+      },
+    };
+  } catch (err: any) {
+    return {
+      props: {
+        initialPosts: [],
+        error: 'Failed to fetch posts from the server.',
+      },
+    };
+  }
 };
 
 export default withAuth(AdminPosts);

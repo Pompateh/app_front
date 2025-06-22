@@ -47,8 +47,8 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
         return (
           <div key={i} className="border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden">
             <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}${block.src}`}
-              alt={block.alt || ''}
+              src={block.src}
+              alt={block.alt || 'Project image'}
               className="object-cover w-full h-auto"
             />
           </div>
@@ -60,20 +60,20 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
             {isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${block.data.image.src}`}
-                  alt={block.data.image.alt || ''}
+                  src={block.data?.image?.src}
+                  alt={block.data?.image?.alt || 'Project image'}
                   className="w-full h-auto object-cover"
                 />
               </div>
             )}
             <div className="prose lg:prose-lg border-2 border-[#999380] p-4">
-              <div dangerouslySetInnerHTML={{ __html: block.data.text || '' }} />
+              <div dangerouslySetInnerHTML={{ __html: block.data?.text || '' }} />
             </div>
             {!isImageLeft && (
               <div className="border-2 border-[#999380] overflow-hidden">
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${block.data.image.src}`}
-                  alt={block.data.image.alt || ''}
+                  src={block.data?.image?.src}
+                  alt={block.data?.image?.alt || 'Project image'}
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -82,7 +82,7 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
         );
       }
       case 'side_by_side_image': {
-        const imgs = block.data.images;
+        const imgs = block.data?.images || [];
         const left = imgs.find((i: any) => i.layout === 'left');
         const right = imgs.find((i: any) => i.layout === 'right');
         return (
@@ -90,8 +90,8 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
             {left && (
               <div className="border-t-2 border-[#999380] overflow-hidden">
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${left.src}`}
-                  alt={left.alt || ''}
+                  src={left.src}
+                  alt={left.alt || 'Project image'}
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -99,8 +99,8 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
             {right && (
               <div className="border-t-2 border-l-2 border-[#999380] overflow-hidden">
                 <img
-                  src={`${process.env.NEXT_PUBLIC_API_URL}${right.src}`}
-                  alt={right.alt || ''}
+                  src={right.src}
+                  alt={right.alt || 'Project image'}
                   className="w-full h-auto object-cover"
                 />
               </div>
@@ -111,7 +111,7 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
       case 'three_grid_layout':
         return (
           <div key={i} className="grid grid-cols-2 grid-rows-2 gap-0 md:col-span-2">
-            {block.data.items.map((item: any, idx: number) => {
+            {(block.data?.items || []).map((item: any, idx: number) => {
               let cellClass = '';
               let borderClass = 'border-2 border-[#999380] overflow-hidden';
 
@@ -136,8 +136,8 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
                     </div>
                   ) : (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${item.src}`}
-                      alt={item.alt || ''}
+                      src={item.src}
+                      alt={item.alt || 'Project image'}
                       className="w-full h-full object-cover"
                     />
                   )}
@@ -159,15 +159,15 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-        {data.blocks.map((block, i) => renderBlock(block, i))}
+        {(data.blocks || []).map((block, i) => renderBlock(block, i))}
       </div>
 
-      {data.team.length > 0 && (
+      {(data.team || []).length > 0 && (
         <section className="space-y-6">
           <div className="grid grid-cols-2 gap-0 border-b-2 border-[#999380]">
             <div className="border-l-2 border-[#999380]" />
             <div className="pt-20 pr-10 pb-20 pl-8 border-r-2 border-l-2 border-[#999380]">
-              {data.team.map((m, i) => (
+              {(data.team || []).map((m, i) => (
                 <div key={i} className="flex justify-between border-[#999380] py-2">
                   <p className="text-sm text-gray-600">{m.role}</p>
                   <p className="font-semibold">{m.name}</p>

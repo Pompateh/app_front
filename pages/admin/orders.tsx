@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import { withAuth } from '../../components/withAuth'
+import { GetServerSideProps } from 'next'
+import { supabase } from '../../lib/supabaseClient'
 
 interface Order {
   id: string;
@@ -11,31 +13,32 @@ interface Order {
   createdAt: string;
 }
 
-const AdminOrders = () => {
-  const [orders, setOrders] = useState<Order[]>([])
+interface AdminOrdersProps {
+  initialOrders: Order[];
+  error?: string;
+}
+
+const AdminOrders: React.FC<AdminOrdersProps> = ({ initialOrders, error: initialError }) => {
+  const [orders, setOrders] = useState<Order[]>(initialOrders)
   const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string | undefined>(initialError)
 
   const fetchOrders = async () => {
     setLoading(true)
-    try {
-      const res = await fetch('/api/orders')
-      const data = await res.json()
-      setOrders(data)
-    } catch (err) {
+    const { data, error } = await supabase.from('orders').select('*').order('createdAt', { ascending: false })
+    if (error) {
       setError('Failed to load orders')
+    } else {
+      setOrders(data as Order[])
     }
     setLoading(false)
   }
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
-
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this order?')) return
+    if (!window.confirm('Are you sure you want to delete this order?')) return
     try {
-      await fetch(`/api/orders/${id}`, { method: 'DELETE' })
+      const { error } = await supabase.from('orders').delete().eq('id', id)
+      if (error) throw new Error('Failed to delete order')
       await fetchOrders()
     } catch (err) {
       setError('Failed to delete order')
@@ -80,6 +83,22 @@ const AdminOrders = () => {
       )}
     </Layout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const { data, error } = await supabase.from('orders').select('*').order('createdAt', { ascending: false })
+    if (error) {
+      throw new Error('Failed to fetch orders')
+    }
+    return {
+      props: { initialOrders: data || [] },
+    }
+  } catch (err) {
+    return {
+      props: { initialOrders: [], error: 'Failed to fetch orders' },
+    }
+  }
 }
 
 export default withAuth(AdminOrders)

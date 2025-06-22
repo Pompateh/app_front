@@ -3,6 +3,8 @@ import { withAuth } from '../../components/withAuth';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Layout_admin from '../../components/Layout_admin';
+import { GetServerSideProps } from 'next';
+import { supabase } from '../../lib/supabaseClient';
 
 interface NavItem {
   label: string;
@@ -10,27 +12,30 @@ interface NavItem {
 }
 
 interface PortfolioItem {
-  id: string;
+  id?: string;
   title: string;
   image: string;
   type: string;
   year: number;
+  studio_id?: string;
 }
 
 interface FontItem {
-  id: string;
+  id?: string;
   name: string;
   image: string;
   type: string;
   price: number;
+  studio_id?: string;
 }
 
 interface ArtworkItem {
-  id: string;
+  id?: string;
   name: string;
   author: string;
   image: string;
   type: string;
+  studio_id?: string;
 }
 
 interface Studio {
@@ -51,10 +56,15 @@ interface Studio {
   artworks?: ArtworkItem[];
 }
 
-const AdminStudios = () => {
-  const [studios, setStudios] = useState<Studio[]>([]);
+interface AdminStudiosProps {
+  initialStudios: Studio[];
+  error?: string;
+}
+
+const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: initialError }) => {
+  const [studios, setStudios] = useState<Studio[]>(initialStudios);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>(initialError || '');
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
@@ -88,63 +98,49 @@ const AdminStudios = () => {
   });
   const [editId, setEditId] = useState<string | null>(null);
 
+  useEffect(() => {
+    if(initialError) {
+      toast.error(initialError)
+    }
+  }, [initialError])
+
   const fetchStudios = async () => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      console.error('No token found, user is not authenticated');
-      toast.error('You are not authenticated. Please log in.');
-      return;
-    }
-
-    try {
       setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/studios`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorRes = await response.json();
-        console.error('Failed to fetch studios:', errorRes);
-        toast.error(errorRes.message || 'Failed to fetch studios');
-        return;
-      }
-
-      const data = await response.json();
-      console.log('Studios data:', data);
+    const { data, error } = await supabase
+      .from('studios')
+      .select(`*, portfolio:projects(*), fonts(*), artworks(*)`);
+    
+    if (error) {
+      toast.error(error.message);
+      setError(error.message);
+    } else if (data) {
       setStudios(data);
-    } catch (error) {
-      console.error('Error fetching studios:', error);
-      toast.error('Error fetching studios');
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
-  useEffect(() => {
-    fetchStudios();
-  }, []);
+  // No need for useEffect to call fetchStudios on mount, getServerSideProps does that.
 
   const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      });
+      const fileName = `${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('studio-images')
+        .upload(fileName, file);
 
-      if (!response.ok) {
-        throw new Error('Failed to upload image');
+      if (uploadError) {
+        throw uploadError;
       }
 
-      const data = await response.json();
-      return data.url;
+      const { data } = supabase.storage
+        .from('studio-images')
+        .getPublicUrl(fileName);
+
+      if (!data || !data.publicUrl) {
+        throw new Error('Could not get public URL for the uploaded image.');
+      }
+
+      return data.publicUrl;
     } catch (error) {
       console.error('Error uploading image:', error);
       toast.error('Failed to upload image');
@@ -164,76 +160,60 @@ const AdminStudios = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const sanitizedOpenDays = formData.openDays
-        .split(',')
-        .map((day) => day.trim())
-        .filter((day) => day);
+      const { portfolio, fonts, artworks, ...studioData } = formData;
+      const sanitizedOpenDays = studioData.openDays.split(',').map(day => day.trim()).filter(Boolean);
+      const mainPayload = { ...studioData, openDays: sanitizedOpenDays };
 
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
+      let studioId = editId;
+
+      if (editId) {
+        const { error: studioError } = await supabase.from('studios').update(mainPayload).eq('id', editId);
+        if (studioError) throw studioError;
+      } else {
+        const { data: newStudio, error: studioError } = await supabase.from('studios').insert([mainPayload]).select().single();
+        if (studioError) throw studioError;
+        if (!newStudio) throw new Error("Failed to create studio.");
+        studioId = newStudio.id;
       }
 
-      const method = editId ? 'PUT' : 'POST';
-      const endpoint = editId ? `/api/admin/studios/${editId}` : `/api/admin/studios`;
+      if (!studioId) throw new Error("Studio ID is missing.");
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...formData,
-          openDays: sanitizedOpenDays,
-          navigation: formData.navigation,
-        }),
-      });
+      const processItems = async (items: any[], tableName: string) => {
+        if (items.length === 0) return;
+        const itemsToUpsert = items.map(({ id, ...item }) => ({
+            ...(id && { id }), // Only include ID if it exists
+            ...item,
+            studio_id: studioId,
+        }));
 
-      if (!response.ok) {
-        let errorText = 'Failed to save studio';
-        try {
-          const errorData = await response.json();
-          console.error('Server response:', errorData);
-          if (typeof errorData === 'string') {
-            errorText = errorData;
-          } else if (errorData && typeof errorData.message === 'string') {
-            errorText = errorData.message;
-          } else {
-            errorText = JSON.stringify(errorData);
-          }
-        } catch (jsonErr) {
-          errorText = 'Failed to parse error response';
-        }
-        throw new Error(errorText);
-      }
+        const { error } = await supabase.from(tableName).upsert(itemsToUpsert);
+        if (error) throw new Error(`Error saving ${tableName}: ${error.message}`);
+      };
 
+      await processItems(portfolio, 'projects');
+      await processItems(fonts, 'fonts');
+      await processItems(artworks, 'artworks');
+
+      toast.success(`Studio ${editId ? 'updated' : 'created'} successfully`);
+      
       await fetchStudios();
-
       setFormData({
-        name: '',
-        description: '',
-        thumbnail: '',
-        logo: '',
-        author: '',
-        imageTitle: '',
-        imageDescription: '',
-        openDays: '',
-        openHours: '',
-        navigation: [],
-        slogan: '',
-        portfolio: [],
-        fonts: [],
-        artworks: [],
+        name: '', description: '', thumbnail: '', logo: '', author: '',
+        imageTitle: '', imageDescription: '', openDays: '', openHours: '',
+        navigation: [], slogan: '', portfolio: [], fonts: [], artworks: [],
       });
       setEditId(null);
-      toast.success(editId ? 'Studio updated successfully' : 'Studio added successfully');
-    } catch (err) {
-      console.error('Error saving studio:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
-      toast.error(err instanceof Error ? err.message : 'Failed to save studio');
+
+    } catch (err: any) {
+      const errorMessage = err.message || 'An unexpected error occurred';
+      console.error('Error saving studio:', errorMessage);
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -275,27 +255,35 @@ const AdminStudios = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this studio?')) return;
+    if (!id) return; // Should not happen
+    if (!window.confirm('Are you sure you want to delete this studio and all related items?')) return;
+    setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/admin/studios/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error('Failed to delete studio');
-      await fetchStudios();
-    } catch (err) {
-      setError('Failed to delete studio');
-      toast.error('Failed to delete studio');
+      // Deleting the studio will cascade delete related items if your DB is set up correctly.
+      const { error } = await supabase.from('studios').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Studio deleted successfully');
+      fetchStudios();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete studio');
+    } finally {
+      setLoading(false);
     }
   };
 
   const addPortfolioItem = () => {
     setFormData(prev => ({
       ...prev,
-      portfolio: [...prev.portfolio, { id: '', title: '', image: '', type: '', year: new Date().getFullYear() }],
+      portfolio: [
+        ...prev.portfolio,
+        {
+          // id is omitted for new items
+          title: '',
+          image: '',
+          type: '',
+          year: new Date().getFullYear(),
+        },
+      ],
     }));
   };
 
@@ -315,7 +303,10 @@ const AdminStudios = () => {
   const addFontItem = () => {
     setFormData(prev => ({
       ...prev,
-      fonts: [...prev.fonts, { id: '', name: '', image: '', type: '', price: 0 }],
+      fonts: [
+        ...prev.fonts,
+        { name: '', image: '', type: '', price: 0 },
+      ],
     }));
   };
 
@@ -335,7 +326,10 @@ const AdminStudios = () => {
   const addArtworkItem = () => {
     setFormData(prev => ({
       ...prev,
-      artworks: [...prev.artworks, { id: '', name: '', author: '', image: '', type: '' }],
+      artworks: [
+        ...prev.artworks,
+        { name: '', author: '', image: '', type: '' },
+      ],
     }));
   };
 
@@ -758,5 +752,35 @@ const AdminStudios = () => {
     </Layout_admin>
   );
 };
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  try {
+    const { data, error } = await supabase
+      .from('studios')
+      .select(`
+        *,
+        portfolio:projects(*),
+        fonts(*),
+        artworks(*)
+      `);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      props: {
+        initialStudios: data || [],
+      },
+    };
+  } catch (err: any) {
+    return {
+      props: {
+        initialStudios: [],
+        error: 'Failed to fetch studios from the server.',
+      },
+    };
+  }
+}
 
 export default withAuth(AdminStudios);

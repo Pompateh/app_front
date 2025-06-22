@@ -1,50 +1,16 @@
 import { useState, useEffect } from 'react';
 import { withAuth } from '../../components/withAuth';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Layout_admin from '../../components/Layout_admin';
-import axios from 'axios';
-import { useSWR } from 'swr';
 import Modal from '../../components/Modal';
 import dynamic from 'next/dynamic';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import axiosInstance from '../../lib/axiosInstance';
+import { supabase } from '../../lib/supabaseClient';
+import Layout_admin from '../../components/Layout_admin';
+import { GetServerSideProps } from 'next';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com/api';
+
+const API = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
 const ProjectPreview = dynamic(() => import('../../components/ProjectPreview'), { ssr: false });
 
-const fetcher = async (url: string) => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const fullUrl = url.startsWith('http') ? url : `${API}/admin${url}`;
-    const response = await axiosInstance.get(fullUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    if (axios.isAxiosError(error)) {
-      if (error.code === 'ERR_NETWORK') {
-        toast.error('Network error: Unable to connect to the server');
-      } else if (error.response?.status === 401) {
-        toast.error('Authentication error: Please log in again');
-        localStorage.removeItem('token');
-        window.location.href = '/admin/login';
-      } else {
-        toast.error(error.response?.data?.message || 'Error fetching data');
-      }
-    } else {
-      toast.error('An unexpected error occurred');
-    }
-    throw error;
-  }
-};
 
 interface ContentBlockForm {
   id?: string;
@@ -68,8 +34,14 @@ interface ProjectForm {
   team: { name: string; role: string }[];
 }
 
-const AdminProjects: React.FC = () => {
-  const { data: projects, mutate } = useSWR<ProjectForm[]>('/projects', fetcher);
+interface AdminProjectsProps {
+  initialProjects: ProjectForm[];
+  error?: string;
+}
+
+const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: initialError }) => {
+  const [projects, setProjects] = useState<ProjectForm[]>(initialProjects);
+  const [error, setError] = useState<string | undefined>(initialError);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<ProjectForm>({
     title: '', slug: '', type: '', description: '', category: '', thumbnail: '', blocks: [], team: []
@@ -78,7 +50,27 @@ const AdminProjects: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [blockUploadProgress, setBlockUploadProgress] = useState<{ [idx: number]: number }>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialError) {
+      alert(`Error loading projects: ${initialError}`);
+    }
+  }, [initialError]);
+
+  const mutate = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*, blocks(*), team(*)')
+      .order('created_at');
+    if (error) {
+      setError(error.message);
+      alert(`Error fetching projects: ${error.message}`);
+    } else {
+      setProjects(data || []);
+    }
+    setLoading(false);
+  };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -99,14 +91,6 @@ const AdminProjects: React.FC = () => {
 
   const openForm = (project?: ProjectForm) => {
     if (project) {
-      // Normalize "image" blocks to "full_image"
-      const normalizedBlocks = project.blocks.map(block => {
-        if (block.type === 'image') {
-          return { ...block, type: 'full_image' };
-        }
-        return block;
-      });
-  
       setFormData({
         id: project.id,
         title: project.title || '',
@@ -115,14 +99,14 @@ const AdminProjects: React.FC = () => {
         description: project.description || '',
         category: project.category || '',
         thumbnail: project.thumbnail || '',
-        blocks: normalizedBlocks,
+        blocks: project.blocks || [],
         team: project.team || [],
       });
     } else {
       setFormData({
         title: '',
-        slug: '',
-        type: '',
+        slug: '', // Ensure slug is initialized as an empty string
+        type: '', // Ensure type is initialized as an empty string
         description: '',
         category: '',
         thumbnail: '',
@@ -135,107 +119,92 @@ const AdminProjects: React.FC = () => {
   
   const saveProject = async () => {
     console.log('Saving project:', formData);
-  
+    const { id, blocks, team, ...projectData } = formData;
+
+    // Remove id and created_at from blocks before insert/update (ignore TS error)
+    const cleanedBlocks = blocks.map((block) => {
+      const { id, created_at, ...rest } = block as any;
+      return rest;
+    });
+
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
+      if (id) {
+        // Update project
+        const { error: projectError } = await supabase
+          .from('projects')
+          .update(projectData)
+          .match({ id });
+        if (projectError) throw projectError;
+
+        // Easiest way to handle relations is to delete and re-insert
+        await supabase.from('team').delete().match({ project_id: id });
+        await supabase.from('blocks').delete().match({ project_id: id });
+
+        if (team.length > 0) {
+          const teamToInsert = team.map(t => ({ ...t, project_id: id }));
+          const { error: teamError } = await supabase.from('team').insert(teamToInsert);
+          if (teamError) throw teamError;
+        }
+
+        if (cleanedBlocks.length > 0) {
+            const blocksToInsert = cleanedBlocks.map(b => ({ ...b, project_id: id }));
+            const { error: blocksError } = await supabase.from('blocks').insert(blocksToInsert);
+            if (blocksError) throw blocksError;
+        }
+
+      } else {
+        // Create project
+        const { data: newProject, error: projectError } = await supabase
+          .from('projects')
+          .insert(projectData)
+          .select()
+          .single();
+
+        if (projectError) throw projectError;
+        if (!newProject) throw new Error("Project creation failed");
+
+        const newProjectId = newProject.id;
+        
+        if (team.length > 0) {
+            const teamToInsert = team.map(t => ({ ...t, project_id: newProjectId }));
+            const { error: teamError } = await supabase.from('team').insert(teamToInsert);
+            if (teamError) throw teamError;
+        }
+        
+        if (cleanedBlocks.length > 0) {
+            const blocksToInsert = cleanedBlocks.map(b => ({ ...b, project_id: newProjectId }));
+            const { error: blocksError } = await supabase.from('blocks').insert(blocksToInsert);
+            if (blocksError) throw blocksError;
+        }
       }
 
-      // Update valid block types to include 'image' if it's a valid type
-      const validBlockTypes = ['text', 'full_image', 'side_by_side_image', 'text_and_side_image', 'three_grid_layout'];
-      const isValid = formData.blocks.every(block => validBlockTypes.includes(block.type));
-  
-      if (!isValid) {
-        console.error('Invalid block type detected:', formData.blocks);
-        throw new Error('Invalid block type detected. Please ensure all blocks have a valid type.');
-      }
-  
-      if (formData.id) {
-        const { id, slug, type, blocks, team, ...rest } = formData;
-  
-        // Clean blocks
-        const cleanedBlocks = (blocks as any[]).map((block) => {
-          const { id, projectId, ...blockRest } = block;
-          return blockRest;
-        });
-  
-        // Clean team
-        const cleanedTeam = (team as any[]).map((member) => {
-          const { id, projectId, ...teamRest } = member;
-          return teamRest;
-        });
-  
-        // Prepare update data without slug and type
-        const updateData = {
-          ...rest,
-          blocks: cleanedBlocks,
-          team: cleanedTeam,
-        };
-  
-        console.log('Update data:', updateData);
-        await axiosInstance.put(`${API}/admin/projects/${formData.id}`, updateData, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-      } else {
-        // Ensure slug and type are included and are strings
-        const { slug, type, ...newProjectData } = formData;
-        console.log('New project data:', { ...newProjectData, slug: slug || '', type: type || '' });
-        await axiosInstance.post(`${API}/admin/projects`, { ...newProjectData, slug: slug || '', type: type || '' }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          }
-        });
-      }
       await mutate();
       setShowForm(false);
     } catch (error: any) {
-      console.error('Save project failed:', error.response?.data || error.message);
-      if (error.response?.status === 401) {
-        toast.error('Unauthorized: Please check your authentication token.');
-        localStorage.removeItem('token');
-        window.location.href = '/admin/login';
-      } else if (error.response?.status === 400) {
-        console.error('Bad Request:', error.response.data);
-        toast.error(`Save failed: ${error.response.data.message || 'Invalid request data.'}`);
-      } else {
-        toast.error(`Save failed: ${error.response?.data?.message || error.message}`);
-      }
+      console.error('Save project failed:', error.message);
+      alert(`Save failed: ${error.message}`);
     }
   };
   const deleteProject = async (id: string) => {
     const confirmDelete = confirm('Are you sure you want to delete this project?');
-    if (!confirmDelete) return; // stop if user cancels
+    if (!confirmDelete) return;
   
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      console.log('Deleting project with id:', id);
-      await axiosInstance.delete(`${API}/admin/projects/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        }
-      });
-      mutate(); // Refresh list
-    } catch (error: any) {
-      console.error('Delete project failed:', error.response?.data || error.message);
-  
-      if (error.response?.status === 401) {
-        toast.error('Unauthorized: Please check your authentication token.');
-        localStorage.removeItem('token');
-        window.location.href = '/admin/login';
-      } else if (error.response?.status === 404) {
-        toast.error('Project not found or already deleted.');
-      } else {
-        toast.error(`Delete failed: ${error.response?.data?.message || error.message}`);
-      }
+      // First, delete related data if your RLS policies require it or cascades are not set up.
+      // Depending on your DB schema, you may need to delete from 'team' and 'blocks' first.
+      // This is a safeguard. If you have cascading deletes on your foreign keys, this is not strictly necessary.
+      await supabase.from('team').delete().match({ project_id: id });
+      await supabase.from('blocks').delete().match({ project_id: id });
       
-      mutate();
+      // Then delete the project itself
+      const { error } = await supabase.from('projects').delete().match({ id });
+      if (error) throw error;
+      
+      await mutate();
+    } catch (error: any) {
+      console.error('Delete project failed:', error.message);
+      alert(`Delete failed: ${error.message}`);
+      await mutate(); // Re-fetch data even if delete fails to get latest state
     }
   };
   
@@ -253,36 +222,35 @@ const AdminProjects: React.FC = () => {
     setFormData({ ...formData, blocks: formData.blocks.filter((_, i) => i !== idx) });
   };
 
-  
-
   const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('No authentication token found');
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append('file', file);
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `public/${fileName}`;
   
     try {
-      const res = await axios.post(`${API}/admin/upload`, fd, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-          setUploadProgress(percent);
+        const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
+
+        if (uploadError) {
+            throw uploadError;
         }
-      });
-      setFormData(prev => ({ ...prev, thumbnail: res.data.url }));
+
+        const { data: publicUrlData } = supabase.storage
+        .from('projects')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, thumbnail: publicUrlData.publicUrl }));
       setUploadProgress(0); // Reset after success
-    } catch (err) {
-      console.error('Thumbnail upload failed:', err);
-      toast.error('Thumbnail upload failed.');
+    } catch (err: any) {
+      console.error('Thumbnail upload failed:', err.message);
+      alert('Thumbnail upload failed.');
       setUploadProgress(0);
     }
   };
@@ -350,7 +318,14 @@ const AdminProjects: React.FC = () => {
         return (
           <>
             {block.src && <img src={block.src} className="w-full h-auto mb-2" />}
-            {!block.src && <input type="file" onChange={e => handleBlockImageUpload(idx, e)} />}
+            <input
+              type="text"
+              placeholder="Image URL"
+              value={block.src || ''}
+              onChange={e => updateBlock(idx, { ...block, src: e.target.value })}
+              className="input w-full mb-2"
+            />
+            <input type="file" onChange={e => handleBlockImageUpload(idx, e)} />
             <input
               type="text"
               placeholder="Alt text"
@@ -361,63 +336,60 @@ const AdminProjects: React.FC = () => {
           </>
         );
   
-        case 'side_by_side_image':
-          return (
-            <>
-              {(block.data?.images || []).map((img: { src: string; layout: 'left' | 'right'; alt?: string }, imgIdx: number) => (
-                <div key={imgIdx} className="flex items-center space-x-2 mb-2">
-                  {!img.src && (
-                    <input
-                      type="file"
-                      onChange={e => handleBlockImageUpload(idx, e, imgIdx)}
-                      className="input flex-1"
-                    />
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Image URL"
-                    value={img.src}
-                    onChange={e => {
-                      const updated = [...(block.data?.images || [])];
-                      updated[imgIdx].src = e.target.value;
-                      updateBlock(idx, { ...block, data: { images: updated } });
-                    }}
-                    className="input flex-1"
-                  />
-                  <select
-                    value={img.layout}
-                    onChange={e => {
-                      const updated = [...(block.data?.images || [])];
-                      updated[imgIdx].layout = e.target.value as 'left' | 'right';
-                      updateBlock(idx, { ...block, data: { images: updated } });
-                    }}
-                  >
-                    <option value="left">Left</option>
-                    <option value="right">Right</option>
-                  </select>
-                  <button
-                    className="btn-sm btn-red"
-                    onClick={() => {
-                      const updated = (block.data?.images || []).filter((_: any, i: number) => i !== imgIdx);
-                      updateBlock(idx, { ...block, data: { images: updated } });
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                onClick={() => updateBlock(idx, {
-                  ...block,
-                  data: { images: [...(block.data?.images || []), { src: '', layout: 'left' }] }
-                })}
-                className="btn-sm"
-                disabled={(block.data?.images || []).length >= 2} // Assuming a limit of 2 for side-by-side
-              >
-                + Add Image
-              </button>
-            </>
-          );
+      case 'side_by_side_image':
+        return (
+          <>
+            {(block.data?.images || []).map((img: { src: string; layout: 'left' | 'right'; alt?: string }, imgIdx: number) => (
+              <div key={imgIdx} className="flex items-center space-x-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Image URL"
+                  value={img.src}
+                  onChange={e => {
+                    const updated = [...(block.data?.images || [])];
+                    updated[imgIdx].src = e.target.value;
+                    updateBlock(idx, { ...block, data: { images: updated } });
+                  }}
+                  className="input flex-1"
+                />
+                <input
+                  type="file"
+                  onChange={e => handleSideBySideImageUpload(idx, imgIdx, e)}
+                  className="input flex-1"
+                />
+                <select
+                  value={img.layout}
+                  onChange={e => {
+                    const updated = [...(block.data?.images || [])];
+                    updated[imgIdx].layout = e.target.value as 'left' | 'right';
+                    updateBlock(idx, { ...block, data: { images: updated } });
+                  }}
+                >
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+                <button
+                  className="btn-sm btn-red"
+                  onClick={() => {
+                    const updated = (block.data?.images || []).filter((_: any, i: number) => i !== imgIdx);
+                    updateBlock(idx, { ...block, data: { images: updated } });
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={() => updateBlock(idx, {
+                ...block,
+                data: { images: [...(block.data?.images || []), { src: '', layout: 'left' }] }
+              })}
+              className="btn-sm"
+            >
+              + Add Image
+            </button>
+          </>
+        );
   
       case 'text_and_side_image':
         return (
@@ -431,13 +403,6 @@ const AdminProjects: React.FC = () => {
               })}
               className="input w-full mb-2"
             />
-            {!block.data?.image?.src && (
-              <input
-                type="file"
-                onChange={e => handleBlockImageUpload(idx, e)}
-                className="input w-full"
-              />
-            )}
             <input
               type="text"
               placeholder="Image URL"
@@ -446,7 +411,12 @@ const AdminProjects: React.FC = () => {
                 ...block,
                 data: { ...block.data, image: { ...(block.data?.image || {}), src: e.target.value } }
               })}
-              className="input w-full"
+              className="input w-full mb-2"
+            />
+            <input
+              type="file"
+              onChange={e => handleTextAndSideImageUpload(idx, e)}
+              className="input w-full mb-2"
             />
             <select
               value={block.data?.image?.layout || 'left'}
@@ -462,446 +432,442 @@ const AdminProjects: React.FC = () => {
           </>
         );
   
-      case 'three_grid_layout':
-        return (
-          <>
-            {(block.data?.items || []).map((item: { type: 'text' | 'image'; text?: string; src?: string }, itemIdx: number) => (
-              <div key={itemIdx} className="flex items-center space-x-2 mb-2">
-                <select
-                  value={item.type}
-                  onChange={e => {
-                    const updated = [...(block.data?.items || [])];
-                    updated[itemIdx].type = e.target.value as 'text' | 'image';
-                    updateBlock(idx, { ...block, data: { items: updated } });
-                  }}
-                >
-                  <option value="text">Text</option>
-                  <option value="image">Image</option>
-                </select>
-  
-                {item.type === 'text' ? (
-                  <input
-                    type="text"
-                    placeholder="Text"
-                    value={item.text || ''}
+        case 'three_grid_layout':
+          return (
+            <>
+              {(block.data?.items || []).map((item: { type: 'text' | 'image'; text?: string; src?: string }, itemIdx: number) => (
+                <div key={itemIdx} className="flex items-center space-x-2 mb-2">
+                  <select
+                    value={item.type}
                     onChange={e => {
                       const updated = [...(block.data?.items || [])];
-                      updated[itemIdx].text = e.target.value;
+                      updated[itemIdx].type = e.target.value as 'text' | 'image';
                       updateBlock(idx, { ...block, data: { items: updated } });
                     }}
-                    className="input flex-1"
-                  />
-                ) : (
-                  <>
-                    {!item.src && (
-                      <input
-                        type="file"
-                        onChange={e => handleBlockImageUpload(idx, e)}
-                        className="input flex-1"
-                      />
-                    )}
+                  >
+                    <option value="text">Text</option>
+                    <option value="image">Image</option>
+                  </select>
+  
+                  {item.type === 'text' ? (
                     <input
                       type="text"
-                      placeholder="Image URL"
-                      value={item.src || ''}
+                      placeholder="Text"
+                      value={item.text || ''}
                       onChange={e => {
                         const updated = [...(block.data?.items || [])];
-                        updated[itemIdx].src = e.target.value;
+                        updated[itemIdx].text = e.target.value;
                         updateBlock(idx, { ...block, data: { items: updated } });
                       }}
                       className="input flex-1"
                     />
-                  </>
-                )}
-                <button
-                  className="btn-sm btn-red"
-                  onClick={() => {
-                    const updated = (block.data?.items || []).filter((_: any, i: number) => i !== itemIdx);
-                    updateBlock(idx, { ...block, data: { items: updated } });
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <button
-              onClick={() => updateBlock(idx, {
-                ...block,
-                data: { items: [...(block.data?.items || []), { type: 'text', text: '', layout: 'left' }] }
-              })}
-              className="btn-sm"
-              disabled={(block.data?.items || []).length >= 3}
-            >
-              + Add Item
-            </button>
-          </>
-        );
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Image URL"
+                        value={item.src || ''}
+                        onChange={e => {
+                          const updated = [...(block.data?.items || [])];
+                          updated[itemIdx].src = e.target.value;
+                          updateBlock(idx, { ...block, data: { items: updated } });
+                        }}
+                        className="input flex-1"
+                      />
+                      <input
+                        type="file"
+                        onChange={e => handleThreeGridImageUpload(idx, itemIdx, e)}
+                        className="input flex-1"
+                      />
+                    </>
+                  )}
+                  <button
+                    className="btn-sm btn-red"
+                    onClick={() => {
+                      const updated = (block.data?.items || []).filter((_: any, i: number) => i !== itemIdx);
+                      updateBlock(idx, { ...block, data: { items: updated } });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => updateBlock(idx, {
+                  ...block,
+                  data: { items: [...(block.data?.items || []), { type: 'text', text: '', layout: 'left' }] }
+                })}
+                className="btn-sm"
+              >
+                + Add Item
+              </button>
+            </>
+          );
   
       default:
         return <div>Unknown block type</div>;
     }
   };
-  const handleBlockImageUpload = async (blockIdx: number, e: React.ChangeEvent<HTMLInputElement>, imgIdx?: number) => {
+  
+  
+
+  const handleBlockImageUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('No authentication token found');
-      return;
-    }
-
-    const fd = new FormData();
-    fd.append('file', file);
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `public/${fileName}`;
 
     try {
-      const res = await axios.post(`${API}/admin/upload`, fd, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / (progressEvent.total || 1));
-          setBlockUploadProgress(prev => ({ ...prev, [blockIdx]: percent }));
-        }
-      });
+        const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
 
-      const blocks = [...formData.blocks];
-      if (imgIdx !== undefined) {
-        // Update specific image in side_by_side_image or three_grid_layout
-        if (blocks[blockIdx].type === 'side_by_side_image' || blocks[blockIdx].type === 'three_grid_layout') {
-          const images = [...(blocks[blockIdx].data?.images || [])];
-          images[imgIdx] = res.data.url;
-          blocks[blockIdx] = {
-            ...blocks[blockIdx],
-            data: { ...blocks[blockIdx].data, images }
-          };
+        if (uploadError) {
+            throw uploadError;
         }
-      } else {
-        // Update single image
-        blocks[blockIdx] = {
-          ...blocks[blockIdx],
-          src: res.data.url
-        };
-      }
-      setFormData(prev => ({ ...prev, blocks }));
-      setBlockUploadProgress(prev => ({ ...prev, [blockIdx]: 0 }));
-    } catch (err) {
-      console.error('Block image upload failed:', err);
-      toast.error('Block image upload failed.');
-      setBlockUploadProgress(prev => ({ ...prev, [blockIdx]: 0 }));
+
+        const { data: publicUrlData } = supabase.storage
+        .from('projects')
+        .getPublicUrl(filePath);
+
+      updateBlock(idx, { ...formData.blocks[idx], src: publicUrlData.publicUrl });
+      setBlockUploadProgress(prev => ({ ...prev, [idx]: 0 }));
+    } catch (err: any) {
+      console.error('Block image upload failed:', err.message);
+      alert('Block image upload failed.');
+      setBlockUploadProgress(prev => ({ ...prev, [idx]: 0 }));
     }
   };
   
-  const handleTeamMemberChange = (index: number, field: 'name' | 'role', value: string) => {
-    const updatedTeam = [...formData.team];
-    updatedTeam[index] = { ...updatedTeam[index], [field]: value };
-    setFormData(prev => ({ ...prev, team: updatedTeam }));
+  // For side_by_side_image block
+  const handleSideBySideImageUpload = async (blockIdx: number, imgIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `public/${fileName}`;
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
+      if (uploadError) throw uploadError;
+      const { data: publicUrlData } = supabase.storage
+        .from('projects')
+        .getPublicUrl(filePath);
+      const block = formData.blocks[blockIdx];
+      const images = [...(block.data?.images || [])];
+      images[imgIdx].src = publicUrlData.publicUrl;
+      updateBlock(blockIdx, { ...block, data: { ...block.data, images } });
+    } catch (err: any) {
+      alert('Image upload failed.');
+    }
   };
 
-  const addTeamMember = () => {
-    setFormData(prev => ({
-      ...prev,
-      team: [...prev.team, { name: '', role: '' }]
-    }));
+  // For text_and_side_image block
+  const handleTextAndSideImageUpload = async (blockIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `public/${fileName}`;
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
+      if (uploadError) throw uploadError;
+      const { data: publicUrlData } = supabase.storage
+        .from('projects')
+        .getPublicUrl(filePath);
+      const block = formData.blocks[blockIdx];
+      updateBlock(blockIdx, {
+        ...block,
+        data: {
+          ...block.data,
+          image: { ...(block.data?.image || {}), src: publicUrlData.publicUrl },
+        },
+      });
+    } catch (err: any) {
+      alert('Image upload failed.');
+    }
   };
 
-  const removeTeamMember = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      team: prev.team.filter((_, i) => i !== index)
-    }));
+  // For three_grid_layout block
+  const handleThreeGridImageUpload = async (blockIdx: number, itemIdx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fileName = `${Date.now()}-${file.name}`;
+    const filePath = `public/${fileName}`;
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('projects')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type,
+        });
+      if (uploadError) throw uploadError;
+      const { data: publicUrlData } = supabase.storage
+        .from('projects')
+        .getPublicUrl(filePath);
+      const block = formData.blocks[blockIdx];
+      const items = [...(block.data?.items || [])];
+      items[itemIdx].src = publicUrlData.publicUrl;
+      updateBlock(blockIdx, { ...block, data: { ...block.data, items } });
+    } catch (err: any) {
+      alert('Image upload failed.');
+    }
   };
 
   return (
     <Layout_admin>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <button onClick={() => openForm()} className="btn-primary">
-            Add New Project
-          </button>
-        </div>
+      <h1 className="text-2xl font-bold mb-4">Manage Projects</h1>
+      <button onClick={() => openForm()} className="mb-4 btn-blue">+ New Project</button>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">Error: {error}</p>}
+      <table className="w-full table-auto mb-8">
+        <thead><tr className="bg-gray-200"><th className="p-2 border">Title</th><th className="p-2 border">Slug</th><th className="p-2 border">Category</th><th className="p-2 border">Thumbnail</th><th className="p-2 border">Actions</th></tr></thead>
+        <tbody>
+          {projects?.map(p => (
+            <tr key={p.id} className="hover:bg-gray-50">
+              <td className="p-2 border">{p.title}</td>
+              <td className="p-2 border">{p.slug}</td>
+              <td className="p-2 border">{p.category}</td>
+              <td className="p-2 border">{p.thumbnail && <img src={p.thumbnail} className="h-12 w-12 object-cover" />}</td>
+              <td className="p-2 border space-x-2">
+                <button onClick={() => openForm(p)} className="btn-sm">Edit</button>
+                <button onClick={() => deleteProject(p.id!)} className="btn-sm btn-red">Delete</button>
+                <button onClick={() => setPreviewData(p)} className="btn-sm btn-gray">Preview</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-          </div>
-        ) : error ? (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong className="font-bold">Error!</strong>
-            <span className="block sm:inline"> {error}</span>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects?.map((project) => (
-              <div key={project.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="relative h-48">
-                  {project.thumbnail ? (
-                    <img
-                      src={project.thumbnail}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-400">No thumbnail</span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{project.title}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{project.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">{project.category}</span>
-                    <div className="space-x-2">
-                      <button
-                        onClick={() => openForm(project)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deleteProject(project.id!)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      {showForm && (
+        <Modal onClose={() => setShowForm(false)} title={formData.id ? 'Edit Project' : 'New Project'}>
+  <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 max-h-[90vh] overflow-y-auto w-full lg:w-[95vw]">
+    {/* Form Section */}
+    <div className="flex-1 space-y-4 overflow-y-auto">
+      {/* Title */}
+      <input
+        type="text"
+        placeholder="Title"
+        value={formData.title}
+        onChange={e => setFormData({ ...formData, title: e.target.value })}
+        className="input w-full"
+      />
 
-        {showForm && (
-          <Modal
-            onClose={() => setShowForm(false)}
-            title={formData.id ? 'Edit Project' : 'Add New Project'}
-          >
-            <div className="p-6">
-              <form onSubmit={(e) => { e.preventDefault(); saveProject(); }}>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Title</label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
+      {/* Slug */}
+      <input
+        type="text"
+        placeholder="Slug"
+        value={formData.slug}
+        onChange={e => setFormData({ ...formData, slug: e.target.value })}
+        className="input w-full"
+      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Slug</label>
-                    <input
-                      type="text"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
+      {/* Type */}
+      <input
+        type="text"
+        placeholder="Type"
+        value={formData.type}
+        onChange={e => setFormData({ ...formData, type: e.target.value })}
+        className="input w-full"
+      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Type</label>
-                    <input
-                      type="text"
-                      value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
+      {/* Description */}
+      <textarea
+        placeholder="Description"
+        value={formData.description}
+        onChange={e => setFormData({ ...formData, description: e.target.value })}
+        className="input w-full h-24"
+      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      rows={3}
-                      required
-                    />
-                  </div>
+      {/* Category */}
+      <input
+        type="text"
+        placeholder="Category"
+        value={formData.category}
+        onChange={e => setFormData({ ...formData, category: e.target.value })}
+        className="input w-full"
+      />
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Category</label>
-                    <input
-                      type="text"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Thumbnail</label>
-                    <input
-                      type="file"
-                      onChange={handleThumbnailUpload}
-                      className="mt-1 block w-full"
-                      accept="image/*"
-                    />
-                    {uploadProgress > 0 && (
-                      <div className="mt-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div
-                            className="bg-blue-600 h-2.5 rounded-full"
-                            style={{ width: `${uploadProgress}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-                    {formData.thumbnail && (
-                      <div className="mt-2">
-                        <img
-                          src={formData.thumbnail}
-                          alt="Thumbnail preview"
-                          className="w-32 h-32 object-cover rounded"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Team Members</label>
-                    <div className="space-y-2">
-                      {formData.team.map((member, idx) => (
-                        <div key={idx} className="flex gap-2">
-                          <input
-                            type="text"
-                            placeholder="Name"
-                            value={member.name}
-                            onChange={e => handleTeamMemberChange(idx, 'name', e.target.value)}
-                            className="input flex-1"
-                          />
-                          <input
-                            type="text"
-                            placeholder="Role"
-                            value={member.role}
-                            onChange={e => handleTeamMemberChange(idx, 'role', e.target.value)}
-                            className="input flex-1"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeTeamMember(idx)}
-                            className="btn-sm btn-red"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        type="button"
-                        onClick={addTeamMember}
-                        className="btn-sm"
-                      >
-                        + Add Team Member
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Content Blocks</label>
-                    <DragDropContext onDragEnd={onDragEnd}>
-                      <Droppable droppableId="blocks">
-                        {(provided) => (
-                          <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            className="space-y-4"
-                          >
-                            {formData.blocks.map((block, idx) => (
-                              <Draggable key={idx} draggableId={`block-${idx}`} index={idx}>
-                                {(provided) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className="bg-gray-50 p-4 rounded-lg"
-                                  >
-                                    <div className="flex justify-between items-center mb-2">
-                                      <select
-                                        value={block.type}
-                                        onChange={(e) => {
-                                          const blocks = [...formData.blocks];
-                                          blocks[idx] = { ...blocks[idx], type: e.target.value };
-                                          setFormData({ ...formData, blocks });
-                                        }}
-                                        className="input"
-                                      >
-                                        <option value="text">Text</option>
-                                        <option value="full_image">Full Image</option>
-                                        <option value="side_by_side_image">Side by Side Images</option>
-                                        <option value="text_and_side_image">Text and Side Image</option>
-                                        <option value="three_grid_layout">Three Grid Layout</option>
-                                      </select>
-                                      <div className="flex gap-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => removeBlock(idx)}
-                                          className="btn-sm btn-red"
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
-                                    </div>
-                                    {renderBlockFields(idx, block)}
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </DragDropContext>
-                    <button
-                      type="button"
-                      onClick={addBlock}
-                      className="btn-sm mt-2"
-                    >
-                      + Add Block
-                    </button>
-                  </div>
-
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowForm(false)}
-                      className="btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn-primary"
-                    >
-                      {formData.id ? 'Update' : 'Create'}
-                    </button>
-                  </div>
-                </div>
-              </form>
+      {/* Thumbnail upload */}
+      <div>
+        <label className="block mb-2 font-semibold">Thumbnail</label>
+        {formData.thumbnail && <img src={formData.thumbnail} className="h-16 w-16 object-cover mb-2" />}
+        <input
+          type="text"
+          placeholder="Thumbnail URL"
+          value={formData.thumbnail || ''}
+          onChange={e => setFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
+          className="input w-full mb-2"
+        />
+        <input type="file" onChange={handleThumbnailUpload} />
+        {uploadProgress > 0 && (
+          <div className="w-full bg-gray-200 rounded mt-2">
+            <div
+              className="bg-blue-500 text-xs font-bold text-center text-white rounded"
+              style={{ width: `${uploadProgress}%` }}
+            >
+              {uploadProgress}%
             </div>
-          </Modal>
-        )}
-
-        {previewData && (
-          <Modal
-            onClose={() => setPreviewData(null)}
-            title="Project Preview"
-          >
-            <div className="p-6">
-              <ProjectPreview data={previewData} />
-            </div>
-          </Modal>
+          </div>
         )}
       </div>
+
+      {/* Team members */}
+      <div>
+        <label className="block mb-2 font-semibold">Team</label>
+        {formData.team.map((member, idx) => (
+          <div key={idx} className="flex space-x-2 mb-2">
+            <input
+              type="text"
+              placeholder="Name"
+              value={member.name}
+              onChange={e => {
+                const team = [...formData.team];
+                team[idx].name = e.target.value;
+                setFormData({ ...formData, team });
+              }}
+              className="input flex-1"
+            />
+            <input
+              type="text"
+              placeholder="Role"
+              value={member.role}
+              onChange={e => {
+                const team = [...formData.team];
+                team[idx].role = e.target.value;
+                setFormData({ ...formData, team });
+              }}
+              className="input flex-1"
+            />
+            <button onClick={() => setFormData(prev => ({
+              ...prev,
+              team: prev.team.filter((_, i) => i !== idx)
+            }))} className="btn-sm btn-red">Remove</button>
+          </div>
+        ))}
+        <button onClick={() => setFormData(prev => ({
+          ...prev,
+          team: [...prev.team, { name: '', role: '' }]
+        }))} className="btn-sm">+ Add Team Member</button>
+      </div>
+
+      {/* Content Blocks */}
+      <div>
+        <label className="block mb-2 font-semibold">Content Blocks</label>
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="blocks">
+            {(provided) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                {formData.blocks.map((block, idx) => (
+                  <Draggable draggableId={String(idx)} index={idx} key={idx}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="block-editor p-4 mb-4 border rounded bg-gray-100"
+                      >
+                        <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-black mb-2">
+                          🟰 Drag
+                        </div>
+                        <select value={block.type} onChange={e => changeBlockType(idx, e.target.value)} className="input w-full mb-2">
+                          <option value="text">Text</option>
+                          <option value="full_image">Full Image</option>
+                          <option value="side_by_side_image">Side-by-Side Image</option>
+                          <option value="text_and_side_image">Text + Side Image</option>
+                          <option value="three_grid_layout">Three Grid Layout</option>
+                        </select>
+
+                        {blockUploadProgress[idx] > 0 && (
+                          <div className="w-full bg-gray-200 rounded mt-2">
+                            <div
+                              className="bg-green-500 text-xs font-bold text-center text-white rounded"
+                              style={{ width: `${blockUploadProgress[idx]}%` }}
+                            >
+                              {blockUploadProgress[idx]}%
+                            </div>
+                          </div>
+                        )}
+
+                        {renderBlockFields(idx, block)}
+
+                        <button onClick={() => removeBlock(idx)} className="btn-sm btn-red mt-2">🗑 Remove</button>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+        <button onClick={addBlock} className="btn-sm mt-2">+ Add Block</button>
+      </div>
+
+      <button onClick={saveProject} className="btn-blue w-full mt-4">
+        Save Project
+      </button>
+      <button onClick={() => setShowForm(false)} className="btn-red w-full mt-2">
+        Cancel
+      </button>
+    </div>
+
+    {/* Preview Section */}
+    {formData.id && (
+      <div className="flex-1 overflow-y-auto">
+      <h2 className="text-xl font-semibold mb-4">Preview</h2>
+        <ProjectPreview data={formData} />
+      </div>
+    )}
+  </div>
+</Modal>
+)}
+
+
+      {previewData && (
+        <Modal onClose={() => setPreviewData(null)} title="Preview Project">
+          <ProjectPreview data={previewData} />
+        </Modal>
+      )}
     </Layout_admin>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { data: initialProjects, error } = await supabase
+    .from('projects')
+    .select('*, blocks(*), team(*)')
+    .order('created_at');
+
+  if (error) {
+    return {
+      props: {
+        initialProjects: [],
+        error: error.message,
+      },
+    };
+  }
+
+  return {
+    props: {
+      initialProjects: initialProjects || [],
+    },
+  };
 };
 
 export default withAuth(AdminProjects);

@@ -1,38 +1,48 @@
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css'
 import type { AppProps } from 'next/app'
-import ErrorBoundary from '../components/ErrorBoundary'
-import Head from 'next/head'
-import { useEffect } from 'react'
 import { useRouter } from 'next/router'
-import * as gtag from '../lib/gtag'
-import '../styles/globals.css';
-// Removed: import '@fontsource/bebas-neue';
+import { useEffect } from 'react'
+import Head from 'next/head'
+import Script from 'next/script'
+import ErrorBoundary from '../components/ErrorBoundary'
+// import * as gtag from '../lib/gtag'
 // Removed: import '@fontsource/literata';
 import '@fontsource/crimson-pro'; // Example for Crimson Pro
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
+  const router = useRouter()
 
-  // Track page views on route change
   useEffect(() => {
-    const handleRouteChange = (url: string) => {
-      gtag.pageview(url);
+    const handleRouteChange = (url: URL) => {
+      // gtag.pageview(url)
     }
-    router.events.on('routeChangeComplete', handleRouteChange);
+    router.events.on('routeChangeComplete', handleRouteChange)
     return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
+      router.events.off('routeChangeComplete', handleRouteChange)
     }
-  }, [router.events]);
+  }, [router.events])
 
   return (
     <>
       <Head>
         <title>Newstalgia</title>
         <meta name="theme-color" content="#ffffff" />
-        {/* Load GA script asynchronously */}
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}></script>
-        <script
-          // This inline script initializes GA
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png" />
+      </Head>
+      {/* <Script
+        strategy="afterInteractive"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
+      />
+      <Script
+        id="gtag-init"
+        strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -43,15 +53,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               });
             `,
           }}
-        />
-        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png" />
-      </Head>
+        /> */}
       <ErrorBoundary>
         <Component {...pageProps} />
       </ErrorBoundary>

@@ -20,7 +20,6 @@ class MyDocument extends Document {
           />
           {/* SEO Meta Tags */}
           <meta name="description" content="Newstalgia - Creative studios and dynamic design projects." />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
           {/* Open Graph tags for social sharing */}
           <meta property="og:title" content="Newstalgia" />
           <meta property="og:description" content="Explore creative studios and innovative design projects." />

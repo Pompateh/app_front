@@ -1,50 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { Post } from '../../types/post';
+import { supabase } from '../../lib/supabaseClient';
+import { GetServerSideProps } from 'next';
 
-const NewsListing: React.FC = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts');
-        }
-        const data = await response.json();
-        setPosts(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
+interface NewsListingProps {
+  posts: Post[];
+  error?: string;
       }
-    };
 
-    fetchPosts();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <main className="pt-20 pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">Loading...</div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
+const NewsListing: React.FC<NewsListingProps> = ({ posts, error }) => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -105,6 +73,32 @@ const NewsListing: React.FC = () => {
       <Footer />
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      props: {
+        posts: data || [],
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        posts: [],
+        error: err instanceof Error ? err.message : 'An error occurred',
+      },
+    };
+  }
 };
 
 export default NewsListing;

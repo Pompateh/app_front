@@ -51,7 +51,7 @@ const nextConfig = {
   distDir: '.next',
   trailingSlash: false,
   // Set the base URL for the application
-  assetPrefix: 'https://wearenewstalgia.com',
+  // assetPrefix: 'https://wearenewstalgia.com',
   basePath: '',
   // Configure rewrites for all admin routes
   async rewrites() {

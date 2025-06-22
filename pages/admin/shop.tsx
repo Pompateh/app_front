@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import Layout from '../../components/Layout'
 import { withAuth } from '../../components/withAuth'
+import { GetServerSideProps } from 'next'
+import { supabase } from '../../lib/supabaseClient'
 
 interface ShopProduct {
   id: string;
@@ -11,10 +13,15 @@ interface ShopProduct {
   image: string;
 }
 
-const AdminShop = () => {
-  const [products, setProducts] = useState<ShopProduct[]>([])
+interface AdminShopProps {
+  initialProducts: ShopProduct[];
+  error?: string;
+}
+
+const AdminShop: React.FC<AdminShopProps> = ({ initialProducts, error: initialError }) => {
+  const [products, setProducts] = useState<ShopProduct[]>(initialProducts)
   const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string | undefined>(initialError)
   const [formData, setFormData] = useState<{ productId: string; title: string; description: string; price: number; image: string }>({
     productId: '',
     title: '',
@@ -26,12 +33,11 @@ const AdminShop = () => {
 
   const fetchProducts = async () => {
     setLoading(true)
-    try {
-      const res = await fetch('/api/shop/products')
-      const data = await res.json()
-      setProducts(data)
-    } catch (err) {
+    const { data, error } = await supabase.from('products').select('*')
+    if (error) {
       setError('Failed to load products')
+    } else {
+      setProducts(data as ShopProduct[])
     }
     setLoading(false)
   }
@@ -44,14 +50,13 @@ const AdminShop = () => {
     e.preventDefault()
     setError('')
     try {
-      const method = editId ? 'PUT' : 'POST'
-      const endpoint = editId ? `/api/shop/products/${editId}` : '/api/shop/products'
-      const res = await fetch(endpoint, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-      if (!res.ok) throw new Error('Operation failed')
+      if (editId) {
+        const { error } = await supabase.from('products').update(formData).eq('id', editId)
+        if (error) throw new Error('Update failed')
+      } else {
+        const { error } = await supabase.from('products').insert([formData])
+        if (error) throw new Error('Create failed')
+      }
       await fetchProducts()
       setFormData({ productId: '', title: '', description: '', price: 0, image: '' })
       setEditId(null)
@@ -66,9 +71,9 @@ const AdminShop = () => {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product?')) return
+    if (!window.confirm('Are you sure you want to delete this product?')) return
     try {
-      await fetch(`/api/shop/products/${id}`, { method: 'DELETE' })
+      await supabase.from('products').delete().eq('id', id)
       await fetchProducts()
     } catch (err) {
       setError('Failed to delete product')
@@ -159,6 +164,22 @@ const AdminShop = () => {
       )}
     </Layout>
   )
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  try {
+    const { data, error } = await supabase.from('products').select('*')
+    if (error) {
+      throw new Error('Failed to fetch products')
+    }
+    return {
+      props: { initialProducts: data || [] },
+    }
+  } catch (err) {
+    return {
+      props: { initialProducts: [], error: 'Failed to fetch products' },
+    }
+  }
 }
 
 export default withAuth(AdminShop)

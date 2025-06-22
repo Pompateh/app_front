@@ -1,11 +1,12 @@
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
-import useSWR from 'swr';
 import { toast } from 'react-toastify';
 import React from 'react';
 import VerticalLine from '../../components/VerticalLine';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { GetServerSideProps } from 'next';
+import { supabase } from '../../lib/supabaseClient';
 
 interface StudioDetail {
   id: string;
@@ -17,10 +18,10 @@ interface StudioDetail {
   thumbnail?: string;
 }
 
-const fetcher = (url: string) =>
-  fetch(`https://app-back-gc64.onrender.com${url}`, { headers: { 'Content-Type': 'application/json' } }).then(res =>
-    res.json()
-  );
+interface StudioPageProps {
+  studio: StudioDetail | null;
+  error?: string;
+}
 
 const formatSlogan = (slogan: string) => {
   const lines = [
@@ -53,11 +54,8 @@ const formatSlogan = (slogan: string) => {
   );
 };
 
-const StudioHomepage: React.FC = () => {
+const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
   const router = useRouter();
-  const { id } = router.query;
-  const { data, error } = useSWR<StudioDetail>(id ? `/api/studios/${id}` : null, fetcher);
-  const [studio, setStudio] = useState<StudioDetail | null>(null);
   const { scrollYProgress } = useScroll();
 
   // Enhanced transform values for more noticeable parallax
@@ -66,13 +64,10 @@ const StudioHomepage: React.FC = () => {
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.05, 1]);
 
   useEffect(() => {
-    if (data) {
-      setStudio(data);
-    }
     if (error) {
-      toast.error('Failed to load studio details');
+      toast.error(error);
     }
-  }, [data, error]);
+  }, [error]);
 
   if (!studio) {
     return (
@@ -446,7 +441,7 @@ const StudioHomepage: React.FC = () => {
             viewport={{ once: true }}
             className="w-full pt-12 bg-white"
           >
-            <div className="max-w-screen-2xl mx-auto px-4">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.img 
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -772,6 +767,46 @@ const StudioHomepage: React.FC = () => {
       </motion.div>
     </Layout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.params!;
+
+  if (!id) {
+    return { notFound: true };
+  }
+
+  try {
+    const { data: studio, error } = await supabase
+      .from('studios')
+      .select(`
+        *,
+        portfolio:projects(*),
+        fonts(*),
+        artworks(*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !studio) {
+      console.error('Error fetching studio from Supabase:', error);
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        studio,
+      },
+    };
+  } catch (err) {
+    console.error('An unexpected error occurred:', err);
+    return {
+      props: {
+        studio: null,
+        error: 'Failed to load studio data.',
+      },
+    };
+  }
 };
 
 export default StudioHomepage;

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import AdminLayout from '../../components/AdminLayout'
 import { withAuth } from '../../components/withAuth'
 import { toast } from 'react-toastify';
-import { useRouter } from 'next/router';
+import { supabase } from '../../lib/supabaseClient';
+import { GetServerSideProps } from 'next';
 
 interface DashboardStats {
   totalStudios: number;
@@ -13,86 +13,18 @@ interface DashboardStats {
   recentProjects: any[];
 }
 
-const AdminDashboard = () => {
-  const router = useRouter();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          console.log('No token found, redirecting to login');
-          await router.replace('/admin/login');
-          return;
+interface AdminDashboardProps {
+  stats: DashboardStats | null;
+  error?: string;
         }
 
-        console.log('Fetching dashboard data...');
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://app-back-gc64.onrender.com';
-        const response = await fetch(`${apiUrl}/api/admin/dashboard`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/json',
-          },
-          credentials: 'include',
-        });
-
-        console.log('Dashboard response status:', response.status);
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.log('Session expired, redirecting to login');
-            localStorage.removeItem('token');
-            await router.replace('/admin/login');
-            return;
-          }
-          throw new Error('Failed to fetch dashboard data');
-        }
-
-        const data = await response.json();
-        console.log('Dashboard data received:', data);
-        setStats(data);
-      } catch (err: any) {
-        console.error('Error fetching dashboard data:', err);
-        setError(err.message);
-        toast.error(err.message);
-        
-        if (err.message.includes('Session expired')) {
-          localStorage.removeItem('token');
-          await router.replace('/admin/login');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-  }, [router]);
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-        </div>
-      </AdminLayout>
-    );
-  }
-
+const AdminDashboard = ({ stats, error }: AdminDashboardProps) => {
   if (error) {
     return (
       <AdminLayout>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
-          <button 
-            onClick={() => router.replace('/admin/login')}
-            className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Return to Login
-          </button>
         </div>
       </AdminLayout>
     );
@@ -164,6 +96,48 @@ const AdminDashboard = () => {
 
 export default withAuth(AdminDashboard);
 
-export async function getServerSideProps() {
-  return { props: {} }
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  try {
+    // These can run in parallel
+    const [
+      { count: totalStudios },
+      { count: totalProjects },
+      { count: totalOrders },
+      { data: usersData, error: usersError },
+      { data: recentOrders },
+      { data: recentProjects },
+    ] = await Promise.all([
+      supabase.from('studios').select('*', { count: 'exact', head: true }),
+      supabase.from('projects').select('*', { count: 'exact', head: true }),
+      supabase.from('orders').select('*', { count: 'exact', head: true }),
+      supabase.rpc('get_total_users'),
+      supabase.from('orders').select('id, customerName:customer_name, date:created_at').order('created_at', { ascending: false }).limit(5),
+      supabase.from('projects').select('id, name:title, date:created_at').order('created_at', { ascending: false }).limit(5),
+    ]);
+
+    if (usersError) throw usersError;
+
+    const stats: DashboardStats = {
+      totalStudios: totalStudios || 0,
+      totalProjects: totalProjects || 0,
+      totalOrders: totalOrders || 0,
+      totalUsers: usersData || 0,
+      recentOrders: recentOrders || [],
+      recentProjects: recentProjects || [],
+    };
+
+    return {
+      props: {
+        stats,
+      },
+    };
+  } catch (err: any) {
+    console.error('Error fetching dashboard data from Supabase:', err);
+    return {
+      props: {
+        stats: null,
+        error: 'Failed to fetch dashboard data. Please check the connection and table names.',
+      },
+    };
+  }
 }

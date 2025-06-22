@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'react-toastify';
@@ -7,35 +7,6 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://app-back-gc64.onre
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [firstProjectSlug, setFirstProjectSlug] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchFirstProject = async () => {
-      try {
-        const response = await fetch(`${API_BASE}/api/projects`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!response.ok) {
-          console.error('Failed to fetch projects:', response.statusText);
-          return;
-        }
-        const projects = await response.json();
-        console.log('Fetched projects:', projects);
-        if (Array.isArray(projects) && projects.length > 0 && projects[0].slug) {
-          setFirstProjectSlug(projects[0].slug);
-        } else {
-          console.error('No valid project found in response');
-        }
-      } catch (error) {
-        console.error('Error fetching first project:', error);
-      }
-    };
-
-    fetchFirstProject();
-  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
@@ -95,15 +66,10 @@ const Header: React.FC = () => {
             <div className="flex w-full divide-x-2 divide-[#999380]">
               <div className="flex-1 flex items-center justify-center">
                 <Link 
-                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
+                  href="/project"
                   className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                  onClick={(e) => {
-                    if (!firstProjectSlug) {
-                      e.preventDefault();
-                      toast.error('No projects available');
-                    }
-                  }}>
+                  >
                   Ấn-phẩm
                 </Link>
               </div>
@@ -184,16 +150,10 @@ const Header: React.FC = () => {
             <div className="flex flex-col divide-y-2 divide-[#999380]">
               <div className="px-6 py-3">
                 <Link 
-                  href={firstProjectSlug ? `/project/${firstProjectSlug}` : '/project'} 
+                  href="/project"
                   className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                  onClick={(e) => {
-                    if (!firstProjectSlug) {
-                      e.preventDefault();
-                      toast.error('No projects available');
-                    }
-                    setIsMenuOpen(false);
-                  }}>
+                  onClick={() => setIsMenuOpen(false)}>
                   Ấn-phẩm
                 </Link>
               </div>
