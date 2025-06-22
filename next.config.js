@@ -47,7 +47,7 @@ const nextConfig = {
   },
   // Disable static export map to enable proper dynamic SSR
   // output: 'standalone' is fine
-  output: 'standalone',
+  // output: 'export',
   distDir: '.next',
   trailingSlash: false,
   // Set the base URL for the application

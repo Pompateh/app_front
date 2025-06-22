@@ -9,6 +9,9 @@
   NPM_FLAGS = "--legacy-peer-deps"
   NEXT_PUBLIC_API_BASE = "https://app-back-gc64.onrender.com"
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  # Add your Supabase keys here if needed:
+  # NEXT_PUBLIC_SUPABASE_URL = "..."
+  # NEXT_PUBLIC_SUPABASE_ANON_KEY = "..."
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -49,4 +52,4 @@
 [[headers]]
   for = "/_next/image/*"
   [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate" 
+    Cache-Control = "no-cache, no-store, must-revalidate"
