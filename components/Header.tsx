@@ -106,7 +106,7 @@ const Header: React.FC = () => {
                   onClick={goToFirstProject}
                   className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                >
+                  >
                   Ấn-phẩm
                 </a>
               </div>

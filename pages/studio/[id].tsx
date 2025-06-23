@@ -89,10 +89,10 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
         transition={{ duration: 0.8 }}
         className="w-full"
       >
-        <section className="w-full py-28 bg-black text-white">
+        <section className="w-full py-12 md:py-20 lg:py-28 bg-black text-white">
           <motion.div 
             style={{ y: y1, scale }}
-            className="max-w-screen-2xl mx-auto px-4"
+            className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8"
           >
             <div className="flex flex-col items-center">
               <motion.img 
@@ -110,7 +110,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 }}
                 src="/assets/Layer 11.png" 
                 alt="Studio Doodle" 
-                className="w-40 h-25 object-cover mb-4" 
+                className="w-24 md:w-32 lg:w-40 h-auto object-contain mb-4" 
               />
               <motion.p 
                 initial={{ opacity: 0, y: 30 }}
@@ -122,7 +122,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 whileHover={{ scale: 1.05 }}
-                className="text-lg text-center mb-4" 
+                className="text-base md:text-lg text-center mb-4 px-4" 
                 style={{
                   fontFamily: '"Gothic A1", sans-serif',
                   fontWeight: 800
@@ -130,7 +130,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
               >
                 Xin chào! Chúng tôi là {studio.name}
               </motion.p>
-              <motion.h1 
+              <motion.div 
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ 
@@ -139,10 +139,24 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   type: "spring",
                   stiffness: 100
                 }}
-                className="text-center mb-6 leading-tight tracking-wide w-full custom-heading"
+                className="text-center mb-6 px-4 sm:px-6 md:px-8"
               >
-                {formatSlogan(studio.slogan)}
-              </motion.h1>
+                <div className="max-w-[90vw] md:max-w-[80vw] lg:max-w-[1200px] mx-auto">
+                  {studio.slogan.split('\n').map((line, index) => (
+                    <span 
+                      key={index} 
+                      className="block leading-tight tracking-wide w-full text-center font-crimson-pro" 
+                      style={{ 
+                        fontSize: 'clamp(2rem, 5vw, 5.3rem)',
+                        fontWeight: 200,
+                        fontStyle: 'italic'
+                      }}
+                    >
+                      {line}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
               <motion.p 
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -153,12 +167,12 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 whileHover={{ scale: 1.05 }}
-                className="text-center" 
+                className="text-center px-4" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 400,
                   fontStyle: 'italic',
-                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
+                  fontSize: 'clamp(1.5rem, 3vw, 4rem)',
                   lineHeight: '1.1',
                   letterSpacing: '-0.02em'
                 }}
@@ -171,9 +185,9 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
 
         {/* Work Portfolio Section */}
         {studio.portfolio && (
-          <section className="w-full pt-10 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-4">
-              <div className="space-y-12">
+          <section className="w-full pt-6 md:pt-8 lg:pt-10 bg-black text-white">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="space-y-8 md:space-y-12">
                 {studio.portfolio.map((item, index) => (
                   <motion.div
                     key={item.id}
@@ -187,7 +201,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                       damping: 20
                     }}
                     viewport={{ once: true, margin: "-10%" }}
-                    className="overflow-hidden"
+                    className="overflow-hidden rounded-lg"
                   >
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
@@ -199,73 +213,24 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                           ease: "easeOut"
                         }
                       }}
-                      transition={{
-                        duration: 0.4,
-                        delay: index * 0.15 + 0.1
-                      }}
-                      className="transform transition-transform relative overflow-hidden"
+                      className="relative aspect-video w-full overflow-hidden"
                     >
-                      <motion.img
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        whileHover={{ 
-                          scale: 1.05,
-                          transition: { 
-                            duration: 0.3,
-                            ease: "easeOut"
-                          }
-                        }}
-                        transition={{
-                          duration: 0.4,
-                          delay: index * 0.15 + 0.2
-                        }}
+                      <img
                         src={item.image}
                         alt={item.title}
-                        className="w-full h-auto max-h-custom object-cover"
+                        className="w-full h-full object-cover"
                       />
-                    </motion.div>
-                    
-                    <div className="py-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <div
-                          className="text-gray-300"
-                          style={{
-                            fontFamily: '"Gothic A1", sans-serif',
-                            fontWeight: 700
-                          }}
-                        >
-                          {item.type}
-                        </div>
-                        <div
-                          className="text-gray-300"
-                          style={{
-                            fontFamily: '"Gothic A1", sans-serif',
-                            fontWeight: 700
-                          }}
-                        >
-                          {item.year}
-                        </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+                        <h3 className="text-lg md:text-xl lg:text-2xl font-crimson-pro mb-2">{item.title}</h3>
+                        <p className="text-sm md:text-base font-gothic-a1">
+                          {item.type} • {item.year}
+                        </p>
                       </div>
-                      <h3
-                        className="text-xl font-bold"
-                        style={{
-                          fontFamily: '"Crimson Pro", serif',
-                          fontWeight: 400
-                        }}
-                      >
-                        {item.title}
-                      </h3>
-                    </div>
+                    </motion.div>
                   </motion.div>
                 ))}
               </div>
             </div>
-            <div className="border-wrapper">
-  <button
-    className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
-    xem tất cả dự án 
-  </button>
-</div>
           </section>
         )}
 

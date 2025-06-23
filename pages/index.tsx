@@ -34,6 +34,24 @@ interface MasterHomepageProps {
 
 const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
   const [showPreloader, setShowPreloader] = useState(false);
+  const [isNightTime, setIsNightTime] = useState(false);
+
+  useEffect(() => {
+    // Check if it's night time (after 9 PM)
+    const checkTime = () => {
+      const currentHour = new Date().getHours();
+      setIsNightTime(currentHour >= 21 || currentHour < 6);
+    };
+
+    // Check immediately
+    checkTime();
+
+    // Check every minute
+    const interval = setInterval(checkTime, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const seen = localStorage.getItem('hasSeenPreloader');
@@ -157,9 +175,19 @@ className="relative border border-[#999380] bg-black text-white"
 style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5rem' }}
 >
                   {/* Doodle Stickers Around the Studio Box */}
-                  <img src="/assets/inv_sticker10.png" alt="Doodle Behind Box" style={{ position: 'absolute', top: '-60px', left: '-80px', width: '90px', height: '90px', zIndex: 0, transform: 'rotate(-8deg)' }} />
-                  <img src="/assets/inv_sticker11.png" alt="Doodle Far Right" style={{ position: 'absolute', top: '60px', right: '-110px', width: '90px', height: '90px', zIndex: 10, transform: 'rotate(12deg)' }} />
-                  <img src="/assets/Layer 6.png" alt="Doodle Far Bottom Left" style={{ position: 'absolute', bottom: '-100px', left: '-40px', width: '90px', height: '90px', zIndex: 10, transform: 'rotate(-6deg)' }} />
+                  <img 
+                    src={isNightTime ? "/assets/sleepy.png" : "/assets/Layer_12.png"} 
+                    alt={isNightTime ? "Sleepy Doodle" : "Doodle Far Bottom Left"} 
+                    style={{ 
+                      position: 'absolute', 
+                      bottom: '-40px', 
+                      right: '-90px', 
+                      width: '100px', 
+                      height: '100px', 
+                      zIndex: 10,
+                      transition: 'opacity 0.3s ease-in-out'
+                    }} 
+                  />
                   <div className="p-4">
                     <div className="w-full">
                       {studio.logo ? (
@@ -183,7 +211,7 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
                           {studio.name}
                         </h2>
                       )}
-                      <hr className="border-t-2 border-[#999380] mt-2 w-full" />
+                      <hr className="border-t border-[#999380] mt-2 w-full" />
                     </div>
                   </div>
                   <p
@@ -211,7 +239,7 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
                       >
                         Giờ Mở Cửa
                       </p>
-                      <hr className="border-t-2 border-[#999380] mt-2 w-full" />
+                      <hr className="border-t border-[#999380] mt-2 w-full" />
                     </div>
                     <div className="flex justify-between p-4">
                       <span 
@@ -263,7 +291,7 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
                 </div>
               </div>
               {/* Full-Width Navigation Bar */}
-              <div className="w-full border border-[#999380]">
+              <div className="w-full border-[#999380]">
                 <NavigationProvider key={studio.id}>
                   <StudioNavigation navItems={studio.navigation || [
                     { label: 'Overview', href: `/studio/${studio.id}/overview` },

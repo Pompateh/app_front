@@ -60,6 +60,18 @@ const quillModules = {
   toolbar: quillToolbarOptions,
 };
 
+// Utility to slugify a string
+function slugify(str: string) {
+  return str
+    .toString()
+    .normalize('NFKD')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove invalid chars
+    .replace(/\s+/g, '-')         // Replace whitespace with -
+    .replace(/-+/g, '-');          // Collapse dashes
+}
+
 const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: initialError }) => {
   const [projects, setProjects] = useState<ProjectForm[]>(initialProjects);
   const [error, setError] = useState<string | undefined>(initialError);
@@ -701,6 +713,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
         placeholder="Slug"
         value={formData.slug}
         onChange={e => setFormData({ ...formData, slug: e.target.value })}
+        onBlur={e => setFormData({ ...formData, slug: slugify(e.target.value) })}
         className="input w-full"
       />
 

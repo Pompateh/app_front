@@ -105,7 +105,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
     );
   }
 
-  const { title, blocks = [], team = [] } = project as ProjectDetail;
+  const { title, description, blocks = [], team = [] } = project as ProjectDetail;
 
   const renderBlock = (block: ContentBlock, idx: number) => {
     if (!block) return null;
@@ -317,8 +317,12 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
       <VerticalLine />
       <div className="container mx-auto py-12 px-4 mt-20">
         <div className="max-w-8xl mx-auto">
-          <h1 className="text-8xl md:text-5xl font-bold text-center mb-12">{title}</h1>
-
+          <h1 className="text-8xl md:text-5xl font-bold text-center mb-6">{title}</h1>
+          {description && (
+            <div className="prose lg:prose-lg mx-auto mb-12 text-center" style={{ maxWidth: '800px' }}>
+              <div dangerouslySetInnerHTML={{ __html: description }} />
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {(blocks || []).map(renderBlock)}
           </div>
