@@ -40,7 +40,7 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
     // Check if it's night time (after 9 PM)
     const checkTime = () => {
       const currentHour = new Date().getHours();
-      setIsNightTime(currentHour >= 21 || currentHour < 6);
+      setIsNightTime(currentHour >= 19 || currentHour < 6);
     };
 
     // Check immediately

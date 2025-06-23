@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { supabase } from '../lib/supabaseClient';
 
 const Header_admin: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const router = useRouter();
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('token');
+    router.push('/admin/login');
   };
 
   return (
@@ -22,17 +31,25 @@ const Header_admin: React.FC = () => {
           </Link>
         </div>
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex gap-6 items-center h-16">
-          <Link href="/admin/projects" legacyBehavior>
-            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Projects</a>
-          </Link>
-          <Link href="/admin/posts" legacyBehavior>
-            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Posts</a>
-          </Link>
-          <Link href="/admin/studios" legacyBehavior>
-            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Studios</a>
-          </Link>
-        </nav>
+        <div className="hidden md:flex gap-6 items-center h-16">
+          <nav className="flex gap-6 items-center h-16">
+            <Link href="/admin/projects" legacyBehavior>
+              <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Projects</a>
+            </Link>
+            <Link href="/admin/posts" legacyBehavior>
+              <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Posts</a>
+            </Link>
+            <Link href="/admin/studios" legacyBehavior>
+              <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Studios</a>
+            </Link>
+          </nav>
+          <button
+            onClick={handleLogout}
+            className="ml-6 px-4 py-2 rounded bg-red-100 text-red-600 font-semibold hover:bg-red-200 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
         {/* Mobile Hamburger */}
         <button
           onClick={toggleMenu}
@@ -72,6 +89,12 @@ const Header_admin: React.FC = () => {
             <Link href="/admin/shop" legacyBehavior>
               <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Shop</a>
             </Link>
+            <button
+              onClick={() => { setIsMenuOpen(false); handleLogout(); }}
+              className="px-6 py-4 text-left text-red-600 font-medium hover:bg-red-50 w-full"
+            >
+              Logout
+            </button>
           </div>
         </nav>
       )}

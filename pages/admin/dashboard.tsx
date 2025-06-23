@@ -1,4 +1,4 @@
-import AdminLayout from '../../components/AdminLayout'
+import Layout_admin from '../../components/Layout_admin'
 import { withAuth } from '../../components/withAuth'
 import { toast } from 'react-toastify';
 import { supabase } from '../../lib/supabaseClient';
@@ -21,17 +21,17 @@ interface AdminDashboardProps {
 const AdminDashboard = ({ stats, error }: AdminDashboardProps) => {
   if (error) {
     return (
-      <AdminLayout>
+      <Layout_admin>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
           <strong className="font-bold">Error!</strong>
           <span className="block sm:inline"> {error}</span>
         </div>
-      </AdminLayout>
+      </Layout_admin>
     );
   }
 
   return (
-    <AdminLayout>
+    <Layout_admin>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         
@@ -90,7 +90,7 @@ const AdminDashboard = ({ stats, error }: AdminDashboardProps) => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </Layout_admin>
   );
 };
 

@@ -7,6 +7,7 @@ interface LayoutProps {
 }
 
 const sidebarLinks = [
+  { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/projects', label: 'Projects' },
   { href: '/admin/studios', label: 'Studios' },
   { href: '/admin/posts', label: 'Posts' },

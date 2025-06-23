@@ -19,7 +19,7 @@ const StudioNavigation: React.FC<StudioNavigationProps> = ({ navItems }) => {
         {navItems.map((item, idx) => (
           <li
             key={item.href}
-            className={`flex-1 text-center border-t-2 border-b-2 border-l-2 border-[#999380] ${idx === navItems.length - 1 ? 'border-r-2' : 'border-r-0'}`}
+            className={`flex-1 text-center border-t border-b border-l border-[#999380] ${idx === navItems.length - 1 ? 'border-r' : 'border-r-0'}`}
           >
             <a
               href={item.href}
