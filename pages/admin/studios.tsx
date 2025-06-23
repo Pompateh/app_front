@@ -11,15 +11,6 @@ interface NavItem {
   href: string;
 }
 
-interface PortfolioItem {
-  id?: string;
-  title: string;
-  image: string;
-  type: string;
-  year: number;
-  studio_id?: string;
-}
-
 interface FontItem {
   id?: string;
   name: string;
@@ -51,7 +42,6 @@ interface Studio {
   openHours?: string;
   navigation?: NavItem[];
   slogan?: string;
-  portfolio?: PortfolioItem[];
   fonts?: FontItem[];
   artworks?: ArtworkItem[];
 }
@@ -77,7 +67,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
     openHours: string;
     navigation: NavItem[];
     slogan: string;
-    portfolio: PortfolioItem[];
     fonts: FontItem[];
     artworks: ArtworkItem[];
   }>({
@@ -92,7 +81,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
     openHours: '',
     navigation: [],
     slogan: '',
-    portfolio: [],
     fonts: [],
     artworks: [],
   });
@@ -105,10 +93,10 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
   }, [initialError])
 
   const fetchStudios = async () => {
-      setLoading(true);
+    setLoading(true);
     const { data, error } = await supabase
       .from('studios')
-      .select(`*, portfolio:projects(*), fonts(*), artworks(*)`);
+      .select(`*, fonts(*), artworks(*)`);
     
     if (error) {
       toast.error(error.message);
@@ -163,7 +151,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
     setLoading(true);
 
     try {
-      const { portfolio, fonts, artworks, ...studioData } = formData;
+      const { fonts, artworks, ...studioData } = formData;
       const sanitizedOpenDays = studioData.openDays.split(',').map(day => day.trim()).filter(Boolean);
       const mainPayload = { ...studioData, openDays: sanitizedOpenDays };
 
@@ -193,7 +181,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
         if (error) throw new Error(`Error saving ${tableName}: ${error.message}`);
       };
 
-      await processItems(portfolio, 'projects');
       await processItems(fonts, 'fonts');
       await processItems(artworks, 'artworks');
 
@@ -203,7 +190,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
       setFormData({
         name: '', description: '', thumbnail: '', logo: '', author: '',
         imageTitle: '', imageDescription: '', openDays: '', openHours: '',
-        navigation: [], slogan: '', portfolio: [], fonts: [], artworks: [],
+        navigation: [], slogan: '', fonts: [], artworks: [],
       });
       setEditId(null);
 
@@ -220,7 +207,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
   const handleItemImageChange = async (
   e: React.ChangeEvent<HTMLInputElement>,
   index: number,
-  itemType: 'portfolio' | 'fonts' | 'artworks'
+  itemType: 'fonts' | 'artworks'
 ) => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -247,7 +234,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
       openHours: studio.openHours || '',
       navigation: Array.isArray(studio.navigation) ? studio.navigation : [],
       slogan: studio.slogan || '',
-      portfolio: studio.portfolio || [],
       fonts: studio.fonts || [],
       artworks: studio.artworks || [],
     });
@@ -269,35 +255,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
     } finally {
       setLoading(false);
     }
-  };
-
-  const addPortfolioItem = () => {
-    setFormData(prev => ({
-      ...prev,
-      portfolio: [
-        ...prev.portfolio,
-        {
-          // id is omitted for new items
-          title: '',
-          image: '',
-          type: '',
-          year: new Date().getFullYear(),
-        },
-      ],
-    }));
-  };
-
-  const updatePortfolioItem = (index: number, field: keyof PortfolioItem, value: string | number) => {
-    const updatedPortfolio = [...formData.portfolio];
-    updatedPortfolio[index][field] = value as never; // Use type assertion
-    setFormData(prev => ({ ...prev, portfolio: updatedPortfolio }));
-  };
-
-  const removePortfolioItem = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      portfolio: prev.portfolio.filter((_, i) => i !== index),
-    }));
   };
 
   const addFontItem = () => {
@@ -362,7 +319,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
                 <th className="py-2 px-4 border-b">Thumbnail</th>
                 <th className="py-2 px-4 border-b">Author</th>
                 <th className="py-2 px-4 border-b">Slogan</th>
-                <th className="py-2 px-4 border-b">Portfolio</th>
                 <th className="py-2 px-4 border-b">Fonts</th>
                 <th className="py-2 px-4 border-b">Artworks</th>
                 <th className="py-2 px-4 border-b">Actions</th>
@@ -388,7 +344,6 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
                       : 'N/A'}
                   </td>
                   <td className="py-2 px-4 border-b">{studio.slogan || 'N/A'}</td>
-                  <td className="py-2 px-4 border-b">{studio.portfolio ? studio.portfolio.length : 0} items</td>
                   <td className="py-2 px-4 border-b">{studio.fonts ? studio.fonts.length : 0} items</td>
                   <td className="py-2 px-4 border-b">{studio.artworks ? studio.artworks.length : 0} items</td>
                   <td className="py-2 px-4 border-b">
@@ -494,6 +449,13 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
                 />
                 <input
                   type="text"
+                  placeholder="Slogan"
+                  value={formData.slogan}
+                  onChange={(e) => setFormData({ ...formData, slogan: e.target.value })}
+                  className="border p-2 w-full rounded mt-2"
+                />
+                <input
+                  type="text"
                   placeholder="Image Title"
                   value={formData.imageTitle}
                   onChange={(e) => setFormData({ ...formData, imageTitle: e.target.value })}
@@ -522,230 +484,180 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
               </div>
             </div>
 
-// Portfolio Items
-<div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-  <h3 className="text-lg font-semibold mb-4">Portfolio Items</h3>
-  <div className="space-y-4">
-    {formData.portfolio.map((item, index) => (
-      <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
-        <input
-          type="text"
-          placeholder="Title"
-          value={item.title}
-          onChange={(e) => updatePortfolioItem(index, 'title', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={item.image}
-          onChange={(e) => updatePortfolioItem(index, 'image', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="file"
-          onChange={(e) => handleItemImageChange(e, index, 'portfolio')}
-          className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
-        />
-        <input
-          type="text"
-          placeholder="Type"
-          value={item.type}
-          onChange={(e) => updatePortfolioItem(index, 'type', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="number"
-          placeholder="Year"
-          value={item.year}
-          onChange={(e) => updatePortfolioItem(index, 'year', Number(e.target.value))}
-          className="border border-gray-300 p-2 rounded w-24 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <button
-          onClick={() => removePortfolioItem(index)}
-          className="text-red-600 hover:text-red-800 font-medium"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
-  </div>
-  <button
-    onClick={(e) => { e.preventDefault(); addPortfolioItem(); }}
-    className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
-  >
-    + Add Portfolio Item
-  </button>
-</div>
+            {/* Font Items */}
+            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Font Items</h3>
+              <div className="space-y-4">
+                {formData.fonts.map((item, index) => (
+                  <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={item.name}
+                      onChange={(e) => updateFontItem(index, 'name', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Image URL"
+                      value={item.image}
+                      onChange={(e) => updateFontItem(index, 'image', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="file"
+                      onChange={(e) => handleItemImageChange(e, index, 'fonts')}
+                      className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Type"
+                      value={item.type}
+                      onChange={(e) => updateFontItem(index, 'type', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={item.price}
+                      onChange={(e) => updateFontItem(index, 'price', Number(e.target.value))}
+                      className="border border-gray-300 p-2 rounded w-24 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <button
+                      onClick={() => removeFontItem(index)}
+                      className="text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={(e) => { e.preventDefault(); addFontItem(); }}
+                className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
+              >
+                + Add Font Item
+              </button>
+            </div>
 
-// Font Items
-<div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-  <h3 className="text-lg font-semibold mb-4">Font Items</h3>
-  <div className="space-y-4">
-    {formData.fonts.map((item, index) => (
-      <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
-        <input
-          type="text"
-          placeholder="Name"
-          value={item.name}
-          onChange={(e) => updateFontItem(index, 'name', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={item.image}
-          onChange={(e) => updateFontItem(index, 'image', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="file"
-          onChange={(e) => handleItemImageChange(e, index, 'fonts')}
-          className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
-        />
-        <input
-          type="text"
-          placeholder="Type"
-          value={item.type}
-          onChange={(e) => updateFontItem(index, 'type', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value={item.price}
-          onChange={(e) => updateFontItem(index, 'price', Number(e.target.value))}
-          className="border border-gray-300 p-2 rounded w-24 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <button
-          onClick={() => removeFontItem(index)}
-          className="text-red-600 hover:text-red-800 font-medium"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
-  </div>
-  <button
-    onClick={(e) => { e.preventDefault(); addFontItem(); }}
-    className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
-  >
-    + Add Font Item
-  </button>
-</div>
+            {/* Artwork Items */}
+            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Artwork Items</h3>
+              <div className="space-y-4">
+                {formData.artworks.map((item, index) => (
+                  <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      value={item.name}
+                      onChange={(e) => updateArtworkItem(index, 'name', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Author"
+                      value={item.author}
+                      onChange={(e) => updateArtworkItem(index, 'author', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Image URL"
+                      value={item.image}
+                      onChange={(e) => updateArtworkItem(index, 'image', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <input
+                      type="file"
+                      onChange={(e) => handleItemImageChange(e, index, 'artworks')}
+                      className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Type"
+                      value={item.type}
+                      onChange={(e) => updateArtworkItem(index, 'type', e.target.value)}
+                      className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    />
+                    <button
+                      onClick={() => removeArtworkItem(index)}
+                      className="text-red-600 hover:text-red-800 font-medium"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={(e) => { e.preventDefault(); addArtworkItem(); }}
+                className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
+              >
+                + Add Artwork Item
+              </button>
+            </div>
 
-// Artwork Items
-<div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-  <h3 className="text-lg font-semibold mb-4">Artwork Items</h3>
-  <div className="space-y-4">
-    {formData.artworks.map((item, index) => (
-      <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
-        <input
-          type="text"
-          placeholder="Name"
-          value={item.name}
-          onChange={(e) => updateArtworkItem(index, 'name', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Author"
-          value={item.author}
-          onChange={(e) => updateArtworkItem(index, 'author', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={item.image}
-          onChange={(e) => updateArtworkItem(index, 'image', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <input
-          type="file"
-          onChange={(e) => handleItemImageChange(e, index, 'artworks')}
-          className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
-        />
-        <input
-          type="text"
-          placeholder="Type"
-          value={item.type}
-          onChange={(e) => updateArtworkItem(index, 'type', e.target.value)}
-          className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-        />
-        <button
-          onClick={() => removeArtworkItem(index)}
-          className="text-red-600 hover:text-red-800 font-medium"
-        >
-          Remove
-        </button>
-      </div>
-    ))}
-  </div>
-  <button
-    onClick={(e) => { e.preventDefault(); addArtworkItem(); }}
-    className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
-  >
-    + Add Artwork Item
-  </button>
-</div>
+            {/* Navigation Items */}
+            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">Navigation Items</h3>
+              {formData.navigation.map((item, idx) => (
+                <div key={idx} className="flex gap-2 mb-2">
+                  <input
+                    type="text"
+                    placeholder="Label"
+                    value={item.label}
+                    onChange={e => {
+                      const updated = [...formData.navigation];
+                      updated[idx].label = e.target.value;
+                      setFormData(prev => ({ ...prev, navigation: updated }));
+                    }}
+                    className="border p-2 rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Href"
+                    value={item.href}
+                    onChange={e => {
+                      const updated = [...formData.navigation];
+                      updated[idx].href = e.target.value;
+                      setFormData(prev => ({ ...prev, navigation: updated }));
+                    }}
+                    className="border p-2 rounded"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        navigation: prev.navigation.filter((_, i) => i !== idx)
+                      }));
+                    }}
+                    className="text-red-500"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({
+                  ...prev,
+                  navigation: [...prev.navigation, { label: '', href: '' }]
+                }))}
+                className="text-blue-500"
+              >
+                + Add Navigation Item
+              </button>
+            </div>
 
-// Navigation Items
-<div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-  <h3 className="text-lg font-semibold mb-4">Navigation Items</h3>
-  {formData.navigation.map((item, idx) => (
-    <div key={idx} className="flex gap-2 mb-2">
-      <input
-        type="text"
-        placeholder="Label"
-        value={item.label}
-        onChange={e => {
-          const updated = [...formData.navigation];
-          updated[idx].label = e.target.value;
-          setFormData(prev => ({ ...prev, navigation: updated }));
-        }}
-        className="border p-2 rounded"
-      />
-      <input
-        type="text"
-        placeholder="Href"
-        value={item.href}
-        onChange={e => {
-          const updated = [...formData.navigation];
-          updated[idx].href = e.target.value;
-          setFormData(prev => ({ ...prev, navigation: updated }));
-        }}
-        className="border p-2 rounded"
-      />
-      <button
-        type="button"
-        onClick={() => {
-          setFormData(prev => ({
-            ...prev,
-            navigation: prev.navigation.filter((_, i) => i !== idx)
-          }));
-        }}
-        className="text-red-500"
-      >
-        Remove
-      </button>
-    </div>
-  ))}
-  <button
-    type="button"
-    onClick={() => setFormData(prev => ({
-      ...prev,
-      navigation: [...prev.navigation, { label: '', href: '' }]
-    }))}
-    className="text-blue-500"
-  >
-    + Add Navigation Item
-  </button>
-</div>
-
-            <button type="submit" className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
-              {editId ? 'Update Studio' : 'Add Studio'}
-            </button>
+            <div className="mt-6 flex justify-end space-x-4">
+              <button
+                type="submit"
+                disabled={loading}
+                className={`bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {loading ? 'Saving...' : editId ? 'Update Studio' : 'Create Studio'}
+              </button>
+            </div>
           </form>
         </>
       )}
@@ -755,32 +667,27 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    const { data, error } = await supabase
+    const { data: studios, error } = await supabase
       .from('studios')
-      .select(`
-        *,
-        portfolio:projects(*),
-        fonts(*),
-        artworks(*)
-      `);
+      .select(`*, fonts(*), artworks(*)`);
 
     if (error) {
-      throw new Error(error.message);
+      throw error;
     }
 
     return {
       props: {
-        initialStudios: data || [],
+        initialStudios: studios || [],
       },
     };
-  } catch (err: any) {
+  } catch (error: any) {
     return {
       props: {
         initialStudios: [],
-        error: 'Failed to fetch studios from the server.',
+        error: error.message,
       },
     };
   }
-}
+};
 
 export default withAuth(AdminStudios);

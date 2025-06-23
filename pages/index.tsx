@@ -115,7 +115,7 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
                       className="w-full h-full object-cover transform transition-transform duration-1000 ease-in-out hover:scale-105 opacity-0 animate-fadeIn"
                     />
                   )}
-                  <div className="absolute inset-0 bg-black opacity-20" style={{ transform: 'translateY(0px)' }} />
+                  <div className="absolute inset-0 opacity-20" style={{ transform: 'translateY(0px)' }} />
                   {(studio.imageTitle || studio.imageDescription || studio.author) && (
                     <div
                       className="absolute bottom-0 left-8 right-4 flex items-center justify-between bg-white animate-fadeIn"

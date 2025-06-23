@@ -24,6 +24,9 @@ interface ContentBlockForm {
   data?: any;
 }
 
+// Set this to the studio id you want all projects to belong to:
+const DEFAULT_STUDIO_ID = 'ef20a016-c821-43a1-817b-c00eba6e0504'; // <-- Replace with your actual studio id
+
 interface ProjectForm {
   id?: string;
   title: string;
@@ -34,6 +37,8 @@ interface ProjectForm {
   thumbnail?: string;
   blocks: ContentBlockForm[];
   team: { name: string; role: string }[];
+  studio_id: string;
+  year: number;
 }
 
 interface AdminProjectsProps {
@@ -77,7 +82,9 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
   const [error, setError] = useState<string | undefined>(initialError);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState<ProjectForm>({
-    title: '', slug: '', type: '', description: '', category: '', thumbnail: '', blocks: [], team: []
+    title: '', slug: '', type: '', description: '', category: '', thumbnail: '', blocks: [], team: [],
+    studio_id: DEFAULT_STUDIO_ID,
+    year: new Date().getFullYear(),
   });
   const [previewData, setPreviewData] = useState<ProjectForm | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -134,17 +141,21 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
         thumbnail: project.thumbnail || '',
         blocks: project.blocks || [],
         team: project.team || [],
+        studio_id: project.studio_id || DEFAULT_STUDIO_ID,
+        year: project.year || new Date().getFullYear(),
       });
     } else {
       setFormData({
         title: '',
-        slug: '', // Ensure slug is initialized as an empty string
-        type: '', // Ensure type is initialized as an empty string
+        slug: '',
+        type: '',
         description: '',
         category: '',
         thumbnail: '',
         blocks: [],
         team: [],
+        studio_id: DEFAULT_STUDIO_ID,
+        year: new Date().getFullYear(),
       });
     }
     setShowForm(true);
@@ -153,6 +164,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
   const saveProject = async () => {
     console.log('Saving project:', formData);
     const { id, blocks, team, ...projectData } = formData;
+    projectData.studio_id = DEFAULT_STUDIO_ID; // Always set to default studio
 
     // Remove id and created_at from blocks before insert/update (ignore TS error)
     const cleanedBlocks = blocks.map((block) => {
@@ -741,6 +753,15 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
         value={formData.category}
         onChange={e => setFormData({ ...formData, category: e.target.value })}
         className="input w-full"
+      />
+
+      {/* Year */}
+      <input
+        type="number"
+        placeholder="Year"
+        value={formData.year}
+        onChange={e => setFormData(prev => ({ ...prev, year: Number(e.target.value) }))}
+        className="input w-full mb-2"
       />
 
       {/* Thumbnail upload */}

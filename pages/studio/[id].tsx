@@ -7,12 +7,13 @@ import VerticalLine from '../../components/VerticalLine';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { GetServerSideProps } from 'next';
 import { supabase } from '../../lib/supabaseClient';
+import Link from 'next/link';
 
 interface StudioDetail {
   id: string;
   name: string;
   slogan: string;
-  portfolio?: { id: string; title: string; image: string; type: string; year: number }[];
+  projects?: { id: string; title: string; image?: string; thumbnail?: string; slug?: string; category: string; year: number }[];
   fonts?: { id: string; name: string; image: string; type: string; price: number }[];
   artworks?: { id: string; name: string; author: string; image: string; type: string; }[];
   thumbnail?: string;
@@ -108,7 +109,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   rotate: 5,
                   transition: { duration: 0.3 }
                 }}
-                src="/assets/Layer 11.png" 
+                src="/assets/head1.png" 
                 alt="Studio Doodle" 
                 className="w-24 md:w-32 lg:w-40 h-auto object-contain mb-4" 
               />
@@ -183,52 +184,101 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
           </motion.div>
         </section>
 
-        {/* Work Portfolio Section */}
-        {studio.portfolio && (
-          <section className="w-full pt-6 md:pt-8 lg:pt-10 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="space-y-8 md:space-y-12">
-                {studio.portfolio.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.6,
-                      delay: index * 0.15,
-                      type: "spring",
-                      stiffness: 50,
-                      damping: 20
-                    }}
-                    viewport={{ once: true, margin: "-10%" }}
-                    className="overflow-hidden rounded-lg"
-                  >
+        {/* Work Portfolio Section (restored old design, but using projects) */}
+        {studio.projects && (
+          <section className="w-full pt-10 bg-black text-white">
+            <div className="max-w-screen-2xl mx-auto px-4">
+              <div className="space-y-12">
+                {studio.projects.map((item, index) => {
+                  const projectUrl = item.slug ? `/project/${item.slug}` : `/project/${item.id}`;
+                  return (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      whileHover={{ 
-                        scale: 1.02,
-                        transition: { 
-                          duration: 0.3,
-                          ease: "easeOut"
-                        }
+                      key={item.id}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.6,
+                        delay: index * 0.15,
+                        type: "spring",
+                        stiffness: 50,
+                        damping: 20
                       }}
-                      className="relative aspect-video w-full overflow-hidden"
+                      viewport={{ once: true, margin: "-10%" }}
+                      className="overflow-hidden"
                     >
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
-                        <h3 className="text-lg md:text-xl lg:text-2xl font-crimson-pro mb-2">{item.title}</h3>
-                        <p className="text-sm md:text-base font-gothic-a1">
-                          {item.type} • {item.year}
-                        </p>
-                      </div>
+                      <Link href={projectUrl} legacyBehavior>
+                        <a className="block group">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            whileHover={{ 
+                              scale: 1.02,
+                              transition: { 
+                                duration: 0.3,
+                                ease: "easeOut"
+                              }
+                            }}
+                            transition={{
+                              duration: 0.4,
+                              delay: index * 0.15 + 0.1
+                            }}
+                            className="transform transition-transform relative overflow-hidden"
+                          >
+                            <motion.img
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              whileInView={{ opacity: 1, scale: 1 }}
+                              whileHover={{ 
+                                scale: 1.05,
+                                transition: { 
+                                  duration: 0.3,
+                                  ease: "easeOut"
+                                }
+                              }}
+                              transition={{
+                                duration: 0.4,
+                                delay: index * 0.15 + 0.2
+                              }}
+                              src={item.thumbnail || item.image}
+                              alt={item.title}
+                              className="w-full h-auto max-h-custom object-cover group-hover:opacity-90 transition"
+                            />
+                          </motion.div>
+                          <div className="py-4">
+                            <div className="flex justify-between items-center mb-2">
+                              <div
+                                className="text-gray-300"
+                                style={{
+                                  fontFamily: '"Gothic A1", sans-serif',
+                                  fontWeight: 700
+                                }}
+                              >
+                                {item.category}
+                              </div>
+                              <div
+                                className="text-gray-300"
+                                style={{
+                                  fontFamily: '"Gothic A1", sans-serif',
+                                  fontWeight: 700
+                                }}
+                              >
+                                {item.year}
+                              </div>
+                            </div>
+                            <h3
+                              className="text-xl font-bold group-hover:underline"
+                              style={{
+                                fontFamily: '"Crimson Pro", serif',
+                                fontWeight: 400
+                              }}
+                            >
+                              {item.title}
+                            </h3>
+                          </div>
+                        </a>
+                      </Link>
                     </motion.div>
-                  </motion.div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -258,7 +308,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                src="/assets/Layer 2.png" 
+                src="/assets/drawing.png" 
                 alt="Fonts Doodle" 
                 className="w-64 h-64 object-contain mx-auto" 
               />
@@ -417,7 +467,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 }}
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                src="/assets/Layer 15.png" 
+                src="/assets/head.png" 
                 alt="Arts Doodle" 
                 className="w-64 h-64 object-contain mx-auto mb-8" 
               />
@@ -746,7 +796,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       .from('studios')
       .select(`
         *,
-        portfolio:projects(*),
+        projects(*),
         fonts(*),
         artworks(*)
       `)
