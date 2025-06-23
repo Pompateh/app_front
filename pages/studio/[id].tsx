@@ -245,15 +245,15 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                           </motion.div>
                           <div className="py-4">
                             <div className="flex justify-between items-center mb-2">
-                              <div
-                                className="text-gray-300"
-                                style={{
-                                  fontFamily: '"Gothic A1", sans-serif',
-                                  fontWeight: 700
-                                }}
-                              >
-                                {item.category}
-                              </div>
+                              <h3
+                              className="text-xl font-bold group-hover:underline"
+                              style={{
+                                fontFamily: '"Crimson Pro", serif',
+                                fontWeight: 400
+                              }}
+                            >
+                              {item.title}
+                            </h3>
                               <div
                                 className="text-gray-300"
                                 style={{
@@ -264,15 +264,15 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                                 {item.year}
                               </div>
                             </div>
-                            <h3
-                              className="text-xl font-bold group-hover:underline"
-                              style={{
-                                fontFamily: '"Crimson Pro", serif',
-                                fontWeight: 400
-                              }}
-                            >
-                              {item.title}
-                            </h3>
+                            <div
+                                className="text-gray-300"
+                                style={{
+                                  fontFamily: '"Gothic A1", sans-serif',
+                                  fontWeight: 700
+                                }}
+                              >
+                                {item.category}
+                              </div>
                           </div>
                         </a>
                       </Link>
