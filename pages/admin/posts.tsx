@@ -16,22 +16,22 @@ function sanitizePostPayload(data: Partial<Post>) {
     title: data.title || '',
     slug: data.slug || '',
     summary: data.summary || '',
-    featuredImage: data.featuredImage || '',
+    featured_image: data.featured_image || '',
     published: data.published ?? false,
-    publishedAt: data.published ? new Date().toISOString() : null,
+    published_at: data.published ? new Date().toISOString() : null,
     content: data.content || '',
-    referencePicUrl: data.referencePicUrl || '',
-    referencePicName: data.referencePicName || '',
-    authorName: data.authorName || '',
-    authorJobTitle: data.authorJobTitle || '',
-    postDate: data.postDate ? new Date(data.postDate).toISOString() : null,
-    readingTime: data.readingTime || '',
-    contentSources: Array.isArray(data.contentSources)
-      ? data.contentSources
+    reference_pic_url: data.reference_pic_url || '',
+    reference_pic_name: data.reference_pic_name || '',
+    author_name: data.author_name || '',
+    author_job_title: data.author_job_title || '',
+    post_date: data.post_date ? new Date(data.post_date).toISOString() : null,
+    reading_time: data.reading_time || '',
+    content_sources: Array.isArray(data.content_sources)
+      ? data.content_sources
       : [],
-    additionalContent: JSON.stringify(data.additionalContent ?? []), // Serialize to JSON string
+    additional_content: JSON.stringify(data.additional_content ?? []), // Serialize to JSON string
     quote: data.quote || '',
-    quoteAuthor: data.quoteAuthor || '',
+    quote_author: data.quote_author || '',
     type: data.type || '',
   };
 }
@@ -41,21 +41,22 @@ interface Post {
   title: string;
   slug: string;
   summary: string;
-  featuredImage: string;
+  featured_image: string;
   published: boolean;
-  publishedAt: string;
+  published_at: string;
   type: string;
-  authorName: string;
-  authorJobTitle: string;
-  postDate: string;
-  readingTime: string;
+  author_name: string;
+  author_job_title: string;
+  post_date: string;
+  reading_time: string;
   content: string;
-  contentSources: string[];
-  referencePicUrl: string;
-  referencePicName: string;
-  additionalContent: { title: string; paragraph: string }[];
+  content_sources: string[];
+  reference_pic_url: string;
+  reference_pic_name: string;
+  additional_content: { title: string; paragraph: string }[];
   quote: string;
-  quoteAuthor: string;
+  quote_author: string;
+  created_at: string;
 }
 
 interface AdminPostsProps {
@@ -68,21 +69,22 @@ const defaultFormData: Post = {
   title: '',
   slug: '',
   summary: '',
-  featuredImage: '',
+  featured_image: '',
   published: false,
-  publishedAt: '',
+  published_at: '',
   type: '',
-  authorName: '',
-  authorJobTitle: '',
-  postDate: '',
-  readingTime: '',
+  author_name: '',
+  author_job_title: '',
+  post_date: '',
+  reading_time: '',
   content: '',
-  contentSources: [],
-  referencePicUrl: '',
-  referencePicName: '',
-  additionalContent: [],
+  content_sources: [],
+  reference_pic_url: '',
+  reference_pic_name: '',
+  additional_content: [],
   quote: '',
-  quoteAuthor: '',
+  quote_author: '',
+  created_at: '',
 };
 
 const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialError }) => {
@@ -103,7 +105,7 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
 
   const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: 'featuredImage' | 'referencePicUrl'
+    type: 'featured_image' | 'reference_pic_url'
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -133,9 +135,9 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
         [type]: imageUrl,
         }));
 
-      if (type === 'featuredImage') {
+      if (type === 'featured_image') {
         setFeaturedPreview(imageUrl);
-      } else if (type === 'referencePicUrl') {
+      } else if (type === 'reference_pic_url') {
         setReferencePreview(imageUrl);
       }
       
@@ -150,14 +152,14 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
   const handleAddSection = () => {
     setFormData(prev => ({
       ...prev,
-      additionalContent: [...prev.additionalContent, { title: '', paragraph: '' }],
+      additional_content: [...prev.additional_content, { title: '', paragraph: '' }],
     }));
   };
   
   const handleSectionChange = (index: number, field: 'title' | 'paragraph', value: string) => {
-    const updatedSections = [...formData.additionalContent];
+    const updatedSections = [...formData.additional_content];
     updatedSections[index][field] = value;
-    setFormData(prev => ({ ...prev, additionalContent: updatedSections }));
+    setFormData(prev => ({ ...prev, additional_content: updatedSections }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -208,25 +210,26 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
       title: post.title,
       slug: post.slug,
       summary: post.summary,
-      featuredImage: post.featuredImage || '',
+      featured_image: post.featured_image || '',
       published: post.published ?? false,
-      publishedAt: post.publishedAt || '',
+      published_at: post.published_at || '',
       type: post.type || '',
       content: post.content || '',
-      referencePicUrl: post.referencePicUrl || '',
-      referencePicName: post.referencePicName || '',
-      authorName: post.authorName || '',
-      authorJobTitle: post.authorJobTitle || '',
-      postDate: post.postDate || '',
-      readingTime: post.readingTime || '',
-      contentSources: post.contentSources,
-      additionalContent: Array.isArray(post.additionalContent) ? post.additionalContent : JSON.parse(post.additionalContent || '[]'), // Parse JSON string
+      reference_pic_url: post.reference_pic_url || '',
+      reference_pic_name: post.reference_pic_name || '',
+      author_name: post.author_name || '',
+      author_job_title: post.author_job_title || '',
+      post_date: post.post_date ? new Date(post.post_date).toISOString().split('T')[0] : '',
+      reading_time: post.reading_time || '',
+      content_sources: post.content_sources,
+      additional_content: Array.isArray(post.additional_content) ? post.additional_content : JSON.parse(post.additional_content || '[]'), // Parse JSON string
       quote: post.quote || '',
-      quoteAuthor: post.quoteAuthor || '',
+      quote_author: post.quote_author || '',
+      created_at: post.created_at || '',
     });
   
-    setFeaturedPreview(post.featuredImage || '');
-    setReferencePreview(post.referencePicUrl || '');
+    setFeaturedPreview(post.featured_image || '');
+    setReferencePreview(post.reference_pic_url || '');
   
     setEditId(post.id);
     setIsModalOpen(true);
@@ -278,8 +281,8 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
         <td className="py-2 px-4 border-b">{post.title}</td>
         <td className="py-2 px-4 border-b">{post.published ? 'Yes' : 'No'}</td>
         <td className="py-2 px-4 border-b">
-          {post.publishedAt
-            ? new Date(post.publishedAt).toLocaleString()
+          {post.published_at
+            ? new Date(post.published_at).toLocaleString()
             : '—'}
         </td>
         <td className="py-2 px-4 border-b">
@@ -338,7 +341,7 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
         </div>
         <div className="space-y-2">
           <label className="block font-medium">Featured Image</label>
-          <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'featuredImage')} className="border p-2 w-full rounded" />
+          <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'featured_image')} className="border p-2 w-full rounded" />
           {featuredPreview && (
             <img src={featuredPreview} alt="Featured Preview" className="max-h-40 object-cover rounded" />
           )}
@@ -354,30 +357,30 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
           <input
             type="text"
             placeholder="Author Name"
-            value={formData.authorName}
-            onChange={e => setFormData({ ...formData, authorName: e.target.value })}
+            value={formData.author_name}
+            onChange={e => setFormData({ ...formData, author_name: e.target.value })}
             className="border p-2 w-full rounded"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" placeholder="Author Job Title" value={formData.authorJobTitle} onChange={e => setFormData({ ...formData, authorJobTitle: e.target.value })} className="border p-2 w-full rounded" />
-          <input type="date" placeholder="Post Date" value={formData.postDate} onChange={e => setFormData({ ...formData, postDate: e.target.value })} className="border p-2 w-full rounded" />
+          <input type="text" placeholder="Author Job Title" value={formData.author_job_title} onChange={e => setFormData({ ...formData, author_job_title: e.target.value })} className="border p-2 w-full rounded" />
+          <input type="date" placeholder="Post Date" value={formData.post_date} onChange={e => setFormData({ ...formData, post_date: e.target.value })} className="border p-2 w-full rounded" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input type="text" placeholder="Reading Time" value={formData.readingTime} onChange={e => setFormData({ ...formData, readingTime: e.target.value })} className="border p-2 w-full rounded" />
+          <input type="text" placeholder="Reading Time" value={formData.reading_time} onChange={e => setFormData({ ...formData, reading_time: e.target.value })} className="border p-2 w-full rounded" />
           <input type="text" placeholder="Quote" value={formData.quote} onChange={e => setFormData({ ...formData, quote: e.target.value })} className="border p-2 w-full rounded" />
         </div>
-        <input type="text" placeholder="Quote Author" value={formData.quoteAuthor} onChange={e => setFormData({ ...formData, quoteAuthor: e.target.value })} className="border p-2 w-full rounded" />
+        <input type="text" placeholder="Quote Author" value={formData.quote_author} onChange={e => setFormData({ ...formData, quote_author: e.target.value })} className="border p-2 w-full rounded" />
         <div className="space-y-2">
           <label className="block font-medium">Reference Image</label>
-          <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'referencePicUrl')} className="border p-2 w-full rounded" />
+          <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'reference_pic_url')} className="border p-2 w-full rounded" />
           {referencePreview && (
             <img src={referencePreview} alt="Reference Preview" className="max-h-40 object-cover rounded" />
           )}
         </div>
         <div className="space-y-2">
           <label className="block font-medium">Additional Content Sections</label>
-          {formData.additionalContent.map((section, index) => (
+          {formData.additional_content.map((section, index) => (
             <div key={index} className="space-y-2">
               <input
                 type="text"
@@ -400,24 +403,24 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
         </div>
         <div className="space-y-2">
   <label className="block font-medium">Content Sources</label>
-  {formData.contentSources.map((source, index) => (
+  {formData.content_sources.map((source, index) => (
     <div key={index} className="flex items-center space-x-2">
       <input
         type="text"
         placeholder="Source URL"
         value={source}
         onChange={e => {
-          const updatedSources = [...formData.contentSources];
+          const updatedSources = [...formData.content_sources];
           updatedSources[index] = e.target.value;
-          setFormData(prev => ({ ...prev, contentSources: updatedSources }));
+          setFormData(prev => ({ ...prev, content_sources: updatedSources }));
         }}
         className="border p-2 w-full rounded"
       />
       <button
         type="button"
         onClick={() => {
-          const updatedSources = formData.contentSources.filter((_, i) => i !== index);
-          setFormData(prev => ({ ...prev, contentSources: updatedSources }));
+          const updatedSources = formData.content_sources.filter((_, i) => i !== index);
+          setFormData(prev => ({ ...prev, content_sources: updatedSources }));
         }}
         className="text-red-500 hover:underline"
       >
@@ -427,7 +430,7 @@ const AdminPosts: React.FC<AdminPostsProps> = ({ initialPosts, error: initialErr
   ))}
   <button
     type="button"
-    onClick={() => setFormData(prev => ({ ...prev, contentSources: [...prev.contentSources, ''] }))}
+    onClick={() => setFormData(prev => ({ ...prev, content_sources: [...prev.content_sources, ''] }))}
     className="text-blue-500 hover:underline"
   >
     Add Source

@@ -17,7 +17,7 @@ const Header: React.FC = () => {
 
   // Helper to check if nav is disabled
   const isComingSoon = (href: string) => {
-    return href === '/step' || href === '/new';
+    return href === '/step';
   };
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -59,6 +59,22 @@ const Header: React.FC = () => {
     }
   };
 
+  const goToFirstPost = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    const { data, error } = await supabase
+      .from('posts')
+      .select('slug')
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .single();
+
+    if (data && data.slug) {
+      router.push(`/new/${data.slug}`);
+    } else {
+      toast.error('No posts found!');
+    }
+  };
+
   return (
     <header className="bg-white fixed top-0 w-full z-50 border-b-2 border-[#999380] px-4">
       <div className="absolute left-0 top-0 h-full w-2 bg-[#999380] z-40" style={{ height: '100vh' }}></div>
@@ -97,19 +113,21 @@ const Header: React.FC = () => {
               <div className="flex-1 flex items-center justify-center">
                 <Link href="/step" onClick={e => handleNavClick(e, '/step')}
                   className="w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c25d' }}
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
                   aria-disabled="true"
                   tabIndex={-1}>
                   Quy-trình
                 </Link>
               </div>
               <div className="flex-1 flex items-center justify-center">
-                <Link href="/new/" className="w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
+                <a
+                  href="#"
+                  onClick={goToFirstPost}
+                  className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
+                >
                   Bảng-tin
-                </Link>
+                </a>
               </div>
               <div className="flex-[2] flex items-center justify-center">
                 <Link href="/shop/" className="w-full h-full flex items-center justify-center transition-all bg-yellow-400 text-gray-800 font-bold px-4 whitespace-nowrap opacity-60 cursor-not-allowed pointer-events-auto"
@@ -182,19 +200,21 @@ const Header: React.FC = () => {
               <div className="px-6 py-3">
                 <Link href="/step" onClick={e => { handleNavClick(e, '/step'); setIsMenuOpen(false); }}
                   className="block w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c25d' }}
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
                   aria-disabled="true"
                   tabIndex={-1}>
                   Quy-trình
                 </Link>
               </div>
               <div className="px-6 py-3">
-                <Link href="/new/" className="block w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
+                <a
+                  href="#"
+                  onClick={async (e) => { await goToFirstPost(e); setIsMenuOpen(false); }}
+                  className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
+                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
+                >
                   Bảng-tin
-                </Link>
+                </a>
               </div>
               <div className="px-6 py-3">
                 <Link href="/shop/" className="block w-full text-center bg-yellow-400 text-gray-800 font-bold py-2 px-4 transition-colors whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
