@@ -314,27 +314,32 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
   };
 
   const renderBlockFields = (idx: number, block: ContentBlockForm) => {
+    const commonFields = (
+      <div className="flex items-center space-x-2">
+        <select
+          value={block.layout || 'left'}
+          onChange={e => updateBlock(idx, { ...block, layout: e.target.value as 'left' | 'right' })}
+          className="input w-full mb-2"
+        >
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+        <ReactQuill
+          value={block.text || ''}
+          onChange={val => updateBlock(idx, { ...block, text: val })}
+          className="mb-2"
+          theme="snow"
+          modules={quillModules}
+        />
+        <button onClick={() => moveBlockUp(idx)} disabled={idx === 0}>Up</button>
+        <button onClick={() => moveBlockDown(idx)} disabled={idx === formData.blocks.length - 1}>Down</button>
+        <button onClick={() => removeBlock(idx)} className="text-red-500">Remove</button>
+      </div>
+    );
+
     switch (block.type) {
       case 'text':
-        return (
-          <>
-            <select
-              value={block.layout || 'left'}
-              onChange={e => updateBlock(idx, { ...block, layout: e.target.value as 'left' | 'right' })}
-              className="input w-full mb-2"
-            >
-              <option value="left">Left</option>
-              <option value="right">Right</option>
-            </select>
-            <ReactQuill
-              value={block.text || ''}
-              onChange={val => updateBlock(idx, { ...block, text: val })}
-              className="mb-2"
-              theme="snow"
-              modules={quillModules}
-            />
-          </>
-        );
+        return commonFields;
   
       case 'full_image':
         return (
@@ -414,18 +419,12 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
         );
   
       case 'text_and_side_image':
+        if (!block.data) {
+          block.data = { text: '', src: '', alt: '', layout: 'left' };
+        }
         return (
-          <>
-            <ReactQuill
-              value={block.data?.text || ''}
-              onChange={val => updateBlock(idx, {
-                ...block,
-                data: { ...block.data, text: val }
-              })}
-              className="mb-2"
-              theme="snow"
-              modules={quillModules}
-            />
+          <div key={idx}>
+            {commonFields}
             <input
               type="text"
               placeholder="Image URL"
@@ -452,12 +451,15 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
               <option value="left">Left</option>
               <option value="right">Right</option>
             </select>
-          </>
+          </div>
         );
   
         case 'three_grid_layout':
+          if (!block.data?.items) {
+            block.data = { items: [{ src: '', alt: '' }, { src: '', alt: '' }, { src: '' }] };
+          }
           return (
-            <>
+            <div key={idx}>
               {(block.data?.items || []).map((item: { type: 'text' | 'image'; text?: string; src?: string }, itemIdx: number) => (
                 <div key={itemIdx} className="flex items-center space-x-2 mb-2">
                   <select
@@ -526,7 +528,7 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
               >
                 + Add Item
               </button>
-            </>
+            </div>
           );
   
       default:
@@ -830,8 +832,6 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
                         )}
 
                         {renderBlockFields(idx, block)}
-
-                        <button onClick={() => removeBlock(idx)} className="btn-sm btn-red mt-2">🗑 Remove</button>
                       </div>
                     )}
                   </Draggable>

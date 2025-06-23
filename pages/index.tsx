@@ -6,6 +6,7 @@ import StudioNavigation from '../components/StudioNavigation';
 import VerticalLineBlack from '../components/VerticalLine_black';
 import Preloader from '../components/Preloader';
 import { supabase } from '../lib/supabaseClient';
+import React, { useState, useEffect } from 'react';
 
 interface NavItem {
   label: string;
@@ -32,6 +33,25 @@ interface MasterHomepageProps {
 }
 
 const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
+  const [showPreloader, setShowPreloader] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const seen = localStorage.getItem('hasSeenPreloader');
+      if (!seen) {
+        setShowPreloader(true);
+      }
+    }
+  }, []);
+
+  const handlePreloaderEnd = () => {
+    localStorage.setItem('hasSeenPreloader', 'true');
+    setShowPreloader(false);
+  };
+
+  if (showPreloader) {
+    return <Preloader onEnded={handlePreloaderEnd} />;
+  }
+
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen text-red-500">

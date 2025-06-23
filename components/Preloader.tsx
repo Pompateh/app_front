@@ -1,25 +1,27 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 interface PreloaderProps {
   onEnded?: () => void;
 }
 
 const Preloader: React.FC<PreloaderProps> = ({ onEnded }) => {
-  // Call onEnded after the GIF duration
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      onEnded?.();
-    }, 6000); // 3 seconds to match GIF duration
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-    return () => clearTimeout(timer);
-  }, [onEnded]);
+  const handleEnded = () => {
+    if (onEnded) onEnded();
+  };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-black">
-      <img
-        src="/assets/preloader.gif"
-        alt="Loading..."
+    <div className="h-screen w-screen flex items-center justify-center bg-black fixed top-0 left-0 z-50">
+      <video
+        ref={videoRef}
+        src="/assets/0611.mp4"
         className="w-full h-full object-cover"
+        autoPlay
+        muted
+        playsInline
+        controls={false}
+        onEnded={handleEnded}
         style={{ display: 'block' }}
       />
     </div>

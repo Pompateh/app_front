@@ -192,7 +192,8 @@ const PostPage: React.FC<PostPageProps> = ({ post, error }) => {
                 <div className="mt-72">
                   <div
                     className="w-full p-4 flex flex-col items-center border-t border-b border-gray-500"
-                    style={{ backgroundColor: '#eeebdd' }}
+                    style={{ backgroundColor: '#eeebdd', opacity: 0.3, pointerEvents: 'none' }}
+                    aria-disabled="true"
                   >
                     <div className="flex justify-between items-center w-full ">
                       <div className="flex flex-col items-start">
