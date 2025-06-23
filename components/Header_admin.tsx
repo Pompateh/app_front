@@ -10,136 +10,72 @@ const Header_admin: React.FC = () => {
   };
 
   return (
-<header className="bg-white fixed top-0 w-full z-50 border-b-2 border-[#999380]"> {/* Increased border thickness */}
-  {/* Vertical Divider */}
-  <div className="absolute left-0 top-0 h-full w-2 bg-[#999380] z-40" style={{ height: '100vh' }}></div> {/* Increased width */}
-  
-  {/* Added px-6 for consistent horizontal padding */}
-  <div className="max-w-[1500px] mx-auto relative">
-    {/* Desktop Header */}
-    <div className="hidden md:flex items-stretch" style={{ height: '50px' }}>
-      {/* Left half - Logo/Name */}
-      <div className="flex-1 flex items-center justify-start">
-        <Link href="/" legacyBehavior>
-          <a className="whitespace-nowrap">
-            <img src="/assets/logo-01.png" alt="NEWStalgia Logo" className="h-10" />
-          </a>
-        </Link>
+    <header className="bg-white fixed top-0 w-full z-50 border-b shadow-sm h-16 flex items-center">
+      <div className="max-w-[1500px] mx-auto w-full flex items-center justify-between px-6">
+        {/* Logo */}
+        <div className="flex items-center h-16">
+          <Link href="/" legacyBehavior>
+            <a className="flex items-center gap-2">
+              <img src="/assets/Vector.png" alt="NEWStalgia Logo" className="h-10 w-auto" />
+              <span className="hidden md:inline text-[2rem] font-bold text-gray-800 tracking-tight">Admin Panel</span>
+            </a>
+          </Link>
+        </div>
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-6 items-center h-16">
+          <Link href="/admin/projects" legacyBehavior>
+            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Projects</a>
+          </Link>
+          <Link href="/admin/posts" legacyBehavior>
+            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Posts</a>
+          </Link>
+          <Link href="/admin/studios" legacyBehavior>
+            <a className="text-gray-700 hover:text-blue-700 font-medium transition-colors">Studios</a>
+          </Link>
+        </nav>
+        {/* Mobile Hamburger */}
+        <button
+          onClick={toggleMenu}
+          className="md:hidden focus:outline-none"
+          aria-label="Toggle navigation menu"
+        >
+          {isMenuOpen ? (
+            <svg className="w-7 h-7 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-7 h-7 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+            </svg>
+          )}
+        </button>
       </div>
-
-      {/* Right half - Navigation with a vertical divider */}
-      <div className="flex-1 relative flex items-stretch justify-start ">
-        <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div> {/* Increased width */}
-        <div className="flex w-full divide-x-2 divide-[#999380]"> {/* Increased divide thickness */}
-          <div className="flex-1 flex items-center justify-center">
+      {/* Mobile Navigation Menu */}
+      {isMenuOpen && (
+        <nav className="md:hidden absolute top-16 left-0 w-full bg-white border-b shadow-lg animate-fadeIn">
+          <div className="flex flex-col divide-y">
             <Link href="/admin/projects" legacyBehavior>
-              <a className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap">
-                Project
-              </a>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Projects</a>
             </Link>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
             <Link href="/admin/posts" legacyBehavior>
-              <a className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap">
-                Post
-              </a>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Posts</a>
             </Link>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
             <Link href="/admin/studios" legacyBehavior>
-              <a className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap">
-                Studios
-              </a>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Studios</a>
+            </Link>
+            <Link href="/admin/orders" legacyBehavior>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Orders</a>
+            </Link>
+            <Link href="/admin/newsletter" legacyBehavior>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Newsletter</a>
+            </Link>
+            <Link href="/admin/shop" legacyBehavior>
+              <a className="px-6 py-4 text-gray-700 hover:bg-blue-50 font-medium" onClick={() => setIsMenuOpen(false)}>Shop</a>
             </Link>
           </div>
-        </div>
-      </div>
-    </div>
-    {/* Mobile Header */}
-    <div className="md:hidden flex justify-between items-center py-4">
-      <div className="flex-shrink-0">
-        <Link href="/" legacyBehavior>
-          <a className="text-3xl font-extrabold text-gray-800 whitespace-nowrap">
-            NEWStalgia
-          </a>
-        </Link>
-      </div>
-      <button
-        onClick={toggleMenu}
-        className="focus:outline-none"
-        aria-label="Toggle navigation menu"
-      >
-        {isMenuOpen ? (
-          <svg
-            className="w-6 h-6 text-gray-800"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        ) : (
-          <svg
-            className="w-6 h-6 text-gray-800"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
-        )}
-      </button>
-    </div>
-
-    {/* Mobile Navigation Menu */}
-    {isMenuOpen && (
-      <nav className="md:hidden bg-white border-t-4 border-[#999380]"> {/* Increased border thickness */}
-        <div className="flex flex-col divide-y-2 divide-[#999380]"> {/* Increased divide thickness */}
-          <div className="px-6 py-3">
-            <Link href="/product" legacyBehavior>
-              <a
-                className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Ấn-phẩm
-              </a>
-            </Link>
-          </div>
-          <div className="px-6 py-3">
-            <Link href="/step" legacyBehavior>
-              <a
-                className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Quy-trình
-              </a>
-            </Link>
-          </div>
-          <div className="px-6 py-3">
-            <Link href="/new" legacyBehavior>
-              <a
-                className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Bảng-tin
-              </a>
-            </Link>
-          </div>
-          <div className="px-6 py-3">
-            <Link href="/shop" legacyBehavior>
-              <a
-                className="block w-full text-center bg-yellow-400 text-gray-800 font-bold py-2 px-4 hover:bg-yellow-500 transition-colors whitespace-nowrap"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Tiệm Hoài-niệm-mới
-              </a>
-            </Link>
-          </div>
-        </div>
-      </nav>
-    )}
-  </div>
-</header>
+        </nav>
+      )}
+    </header>
   );
 };
 

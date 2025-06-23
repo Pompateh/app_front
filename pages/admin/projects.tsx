@@ -682,225 +682,128 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
 
   return (
     <Layout_admin>
-      <h1 className="text-2xl font-bold mb-4">Manage Projects</h1>
-      <button onClick={() => openForm()} className="mb-4 btn-blue">+ New Project</button>
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
-      <table className="w-full table-auto mb-8">
-        <thead><tr className="bg-gray-200"><th className="p-2 border">Title</th><th className="p-2 border">Slug</th><th className="p-2 border">Category</th><th className="p-2 border">Thumbnail</th><th className="p-2 border">Actions</th></tr></thead>
-        <tbody>
-          {projects?.map(p => (
-            <tr key={p.id} className="hover:bg-gray-50">
-              <td className="p-2 border">{p.title}</td>
-              <td className="p-2 border">{p.slug}</td>
-              <td className="p-2 border">{p.category}</td>
-              <td className="p-2 border">{p.thumbnail && <img src={p.thumbnail} className="h-12 w-12 object-cover" />}</td>
-              <td className="p-2 border space-x-2">
-                <button onClick={() => openForm(p)} className="btn-sm">Edit</button>
-                <button onClick={() => deleteProject(p.id!)} className="btn-sm btn-red">Delete</button>
-                <button onClick={() => setPreviewData(p)} className="btn-sm btn-gray">Preview</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {showForm && (
-        <Modal onClose={() => setShowForm(false)} title={formData.id ? 'Edit Project' : 'New Project'}>
-  <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 max-h-[90vh] overflow-y-auto w-full lg:w-[95vw]">
-    {/* Form Section */}
-    <div className="flex-1 space-y-4 overflow-y-auto">
-      {/* Title */}
-      <input
-        type="text"
-        placeholder="Title"
-        value={formData.title}
-        onChange={e => setFormData({ ...formData, title: e.target.value })}
-        className="input w-full"
-      />
-
-      {/* Slug */}
-      <input
-        type="text"
-        placeholder="Slug"
-        value={formData.slug}
-        onChange={e => setFormData({ ...formData, slug: e.target.value })}
-        onBlur={e => setFormData({ ...formData, slug: slugify(e.target.value) })}
-        className="input w-full"
-      />
-
-      {/* Type */}
-      <input
-        type="text"
-        placeholder="Type"
-        value={formData.type}
-        onChange={e => setFormData({ ...formData, type: e.target.value })}
-        className="input w-full"
-      />
-
-      {/* Description */}
-      <textarea
-        placeholder="Description"
-        value={formData.description}
-        onChange={e => setFormData({ ...formData, description: e.target.value })}
-        className="input w-full h-24"
-      />
-
-      {/* Category */}
-      <input
-        type="text"
-        placeholder="Category"
-        value={formData.category}
-        onChange={e => setFormData({ ...formData, category: e.target.value })}
-        className="input w-full"
-      />
-
-      {/* Year */}
-      <input
-        type="number"
-        placeholder="Year"
-        value={formData.year}
-        onChange={e => setFormData(prev => ({ ...prev, year: Number(e.target.value) }))}
-        className="input w-full mb-2"
-      />
-
-      {/* Thumbnail upload */}
-      <div>
-        <label className="block mb-2 font-semibold">Thumbnail</label>
-        {formData.thumbnail && <img src={formData.thumbnail} className="h-16 w-16 object-cover mb-2" />}
-        <input
-          type="text"
-          placeholder="Thumbnail URL"
-          value={formData.thumbnail || ''}
-          onChange={e => setFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
-          className="input w-full mb-2"
-        />
-        <input type="file" onChange={handleThumbnailUpload} />
-        {uploadProgress > 0 && (
-          <div className="w-full bg-gray-200 rounded mt-2">
-            <div
-              className="bg-blue-500 text-xs font-bold text-center text-white rounded"
-              style={{ width: `${uploadProgress}%` }}
-            >
-              {uploadProgress}%
+      <div className="space-y-10">
+        <h1 className="text-3xl font-extrabold mb-6 text-gray-800">Manage Projects</h1>
+        <button onClick={() => openForm()} className="mb-6 bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition-colors">+ New Project</button>
+        {loading && <p>Loading...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
+        <div className="bg-white rounded-xl shadow p-6 mb-8">
+          <table className="w-full table-auto rounded-xl overflow-hidden">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-3 border-b text-left font-semibold text-gray-700">Title</th>
+                <th className="p-3 border-b text-left font-semibold text-gray-700">Slug</th>
+                <th className="p-3 border-b text-left font-semibold text-gray-700">Category</th>
+                <th className="p-3 border-b text-left font-semibold text-gray-700">Thumbnail</th>
+                <th className="p-3 border-b text-left font-semibold text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projects?.map(p => (
+                <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="p-2 border-b">{p.title}</td>
+                  <td className="p-2 border-b">{p.slug}</td>
+                  <td className="p-2 border-b">{p.category}</td>
+                  <td className="p-2 border-b">{p.thumbnail && <img src={p.thumbnail} className="h-12 w-12 object-cover rounded" />}</td>
+                  <td className="p-2 border-b space-x-2">
+                    <button onClick={() => openForm(p)} className="btn-sm text-blue-600 hover:underline font-semibold">Edit</button>
+                    <button onClick={() => deleteProject(p.id!)} className="btn-sm text-red-600 hover:underline font-semibold">Delete</button>
+                    <button onClick={() => setPreviewData(p)} className="btn-sm text-gray-600 hover:underline font-semibold">Preview</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {/* Modal for Add/Edit Project */}
+        {showForm && (
+          <Modal onClose={() => setShowForm(false)} title={formData.id ? 'Edit Project' : 'New Project'}>
+            <div className="flex flex-col lg:flex-row space-y-8 lg:space-y-0 lg:space-x-8 max-h-[90vh] overflow-y-auto w-full lg:w-[95vw]">
+              {/* Form Section */}
+              <div className="flex-1 space-y-6 overflow-y-auto">
+                <input type="text" placeholder="Title" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="input w-full mb-2" />
+                <input type="text" placeholder="Slug" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} onBlur={e => setFormData({ ...formData, slug: slugify(e.target.value) })} className="input w-full mb-2" />
+                <input type="text" placeholder="Type" value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })} className="input w-full mb-2" />
+                <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="input w-full h-24 mb-2" />
+                <input type="text" placeholder="Category" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="input w-full mb-2" />
+                <input type="number" placeholder="Year" value={formData.year} onChange={e => setFormData(prev => ({ ...prev, year: Number(e.target.value) }))} className="input w-full mb-2" />
+                <div className="mb-2">
+                  <label className="block mb-2 font-semibold">Thumbnail</label>
+                  {formData.thumbnail && <img src={formData.thumbnail} className="h-16 w-16 object-cover mb-2 rounded" />}
+                  <input type="text" placeholder="Thumbnail URL" value={formData.thumbnail || ''} onChange={e => setFormData(prev => ({ ...prev, thumbnail: e.target.value }))} className="input w-full mb-2" />
+                  <input type="file" onChange={handleThumbnailUpload} />
+                  {uploadProgress > 0 && (
+                    <div className="w-full bg-gray-200 rounded mt-2">
+                      <div className="bg-blue-500 text-xs font-bold text-center text-white rounded" style={{ width: `${uploadProgress}%` }}>{uploadProgress}%</div>
+                    </div>
+                  )}
+                </div>
+                {/* Team members */}
+                <div className="mb-2">
+                  <label className="block mb-2 font-semibold">Team</label>
+                  {formData.team.map((member, idx) => (
+                    <div key={idx} className="flex space-x-2 mb-2">
+                      <input type="text" placeholder="Name" value={member.name} onChange={e => { const team = [...formData.team]; team[idx].name = e.target.value; setFormData({ ...formData, team }); }} className="input flex-1" />
+                      <input type="text" placeholder="Role" value={member.role} onChange={e => { const team = [...formData.team]; team[idx].role = e.target.value; setFormData({ ...formData, team }); }} className="input flex-1" />
+                      <button onClick={() => setFormData(prev => ({ ...prev, team: prev.team.filter((_, i) => i !== idx) }))} className="btn-sm btn-red">Remove</button>
+                    </div>
+                  ))}
+                  <button onClick={() => setFormData(prev => ({ ...prev, team: [...prev.team, { name: '', role: '' }] }))} className="btn-sm">+ Add Team Member</button>
+                </div>
+                {/* Content Blocks */}
+                <div className="mb-2">
+                  <label className="block mb-2 font-semibold">Content Blocks</label>
+                  <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="blocks">
+                      {(provided) => (
+                        <div ref={provided.innerRef} {...provided.droppableProps}>
+                          {formData.blocks.map((block, idx) => (
+                            <Draggable draggableId={String(idx)} index={idx} key={idx}>
+                              {(provided) => (
+                                <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className="block-editor p-4 mb-4 border rounded bg-gray-100">
+                                  <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-black mb-2">🏰 Drag</div>
+                                  <select value={block.type} onChange={e => changeBlockType(idx, e.target.value)} className="input w-full mb-2">
+                                    <option value="text">Text</option>
+                                    <option value="full_image">Full Image</option>
+                                    <option value="side_by_side_image">Side-by-Side Image</option>
+                                    <option value="text_and_side_image">Text + Side Image</option>
+                                    <option value="three_grid_layout">Three Grid Layout</option>
+                                  </select>
+                                  {blockUploadProgress[idx] > 0 && (
+                                    <div className="w-full bg-gray-200 rounded mt-2">
+                                      <div className="bg-green-500 text-xs font-bold text-center text-white rounded" style={{ width: `${blockUploadProgress[idx]}%` }}>{blockUploadProgress[idx]}%</div>
+                                    </div>
+                                  )}
+                                  {renderBlockFields(idx, block)}
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                  <button onClick={addBlock} className="btn-sm mt-2">+ Add Block</button>
+                </div>
+                <button onClick={saveProject} className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold shadow hover:bg-blue-700 w-full mt-4">Save Project</button>
+                <button onClick={() => setShowForm(false)} className="bg-red-500 text-white px-8 py-3 rounded-lg text-lg font-semibold shadow hover:bg-red-600 w-full mt-2">Cancel</button>
+              </div>
+              {/* Preview Section */}
+              <div className="flex-1 overflow-y-auto bg-gray-50 rounded-xl p-6">
+                <h2 className="text-xl font-semibold mb-4">Preview</h2>
+                <ProjectPreview data={formData} />
+              </div>
             </div>
-          </div>
+          </Modal>
+        )}
+        {/* Preview Modal */}
+        {previewData && (
+          <Modal onClose={() => setPreviewData(null)} title="Preview Project">
+            <ProjectPreview data={previewData} />
+          </Modal>
         )}
       </div>
-
-      {/* Team members */}
-      <div>
-        <label className="block mb-2 font-semibold">Team</label>
-        {formData.team.map((member, idx) => (
-          <div key={idx} className="flex space-x-2 mb-2">
-            <input
-              type="text"
-              placeholder="Name"
-              value={member.name}
-              onChange={e => {
-                const team = [...formData.team];
-                team[idx].name = e.target.value;
-                setFormData({ ...formData, team });
-              }}
-              className="input flex-1"
-            />
-            <input
-              type="text"
-              placeholder="Role"
-              value={member.role}
-              onChange={e => {
-                const team = [...formData.team];
-                team[idx].role = e.target.value;
-                setFormData({ ...formData, team });
-              }}
-              className="input flex-1"
-            />
-            <button onClick={() => setFormData(prev => ({
-              ...prev,
-              team: prev.team.filter((_, i) => i !== idx)
-            }))} className="btn-sm btn-red">Remove</button>
-          </div>
-        ))}
-        <button onClick={() => setFormData(prev => ({
-          ...prev,
-          team: [...prev.team, { name: '', role: '' }]
-        }))} className="btn-sm">+ Add Team Member</button>
-      </div>
-
-      {/* Content Blocks */}
-      <div>
-        <label className="block mb-2 font-semibold">Content Blocks</label>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="blocks">
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                {formData.blocks.map((block, idx) => (
-                  <Draggable draggableId={String(idx)} index={idx} key={idx}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className="block-editor p-4 mb-4 border rounded bg-gray-100"
-                      >
-                        <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-black mb-2">
-                          🟰 Drag
-                        </div>
-                        <select value={block.type} onChange={e => changeBlockType(idx, e.target.value)} className="input w-full mb-2">
-                          <option value="text">Text</option>
-                          <option value="full_image">Full Image</option>
-                          <option value="side_by_side_image">Side-by-Side Image</option>
-                          <option value="text_and_side_image">Text + Side Image</option>
-                          <option value="three_grid_layout">Three Grid Layout</option>
-                        </select>
-
-                        {blockUploadProgress[idx] > 0 && (
-                          <div className="w-full bg-gray-200 rounded mt-2">
-                            <div
-                              className="bg-green-500 text-xs font-bold text-center text-white rounded"
-                              style={{ width: `${blockUploadProgress[idx]}%` }}
-                            >
-                              {blockUploadProgress[idx]}%
-                            </div>
-                          </div>
-                        )}
-
-                        {renderBlockFields(idx, block)}
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-        <button onClick={addBlock} className="btn-sm mt-2">+ Add Block</button>
-      </div>
-
-      <button onClick={saveProject} className="btn-blue w-full mt-4">
-        Save Project
-      </button>
-      <button onClick={() => setShowForm(false)} className="btn-red w-full mt-2">
-        Cancel
-      </button>
-    </div>
-
-    {/* Preview Section */}
-    <div className="flex-1 overflow-y-auto">
-      <h2 className="text-xl font-semibold mb-4">Preview</h2>
-      <ProjectPreview data={formData} />
-    </div>
-  </div>
-</Modal>
-)}
-
-
-      {previewData && (
-        <Modal onClose={() => setPreviewData(null)} title="Preview Project">
-          <ProjectPreview data={previewData} />
-        </Modal>
-      )}
     </Layout_admin>
   );
 };

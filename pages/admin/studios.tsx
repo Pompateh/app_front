@@ -85,6 +85,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
     artworks: [],
   });
   const [editId, setEditId] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState<boolean>(false);
 
   useEffect(() => {
     if(initialError) {
@@ -111,29 +112,83 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
 
   const handleUpload = async (file: File) => {
     try {
-      const fileName = `${Date.now()}_${file.name}`;
+      // Validate file type
+      const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedVideoTypes = ['video/mp4', 'video/webm'];
+      
+      if (!allowedImageTypes.includes(file.type) && !allowedVideoTypes.includes(file.type)) {
+        toast.error('Please upload an image (JPG, PNG, GIF, WebP) or video (MP4, WebM) file');
+        return null;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size should be less than 10MB');
+        return null;
+      }
+
+      const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      
+      toast.info('Uploading file...');
+      
       const { error: uploadError } = await supabase.storage
         .from('studio-images')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
       if (uploadError) {
         throw uploadError;
       }
 
-      const { data } = supabase.storage
+      const { data: urlData } = supabase.storage
         .from('studio-images')
         .getPublicUrl(fileName);
 
-      if (!data || !data.publicUrl) {
-        throw new Error('Could not get public URL for the uploaded image.');
+      if (!urlData || !urlData.publicUrl) {
+        throw new Error('Could not get public URL for the uploaded file.');
       }
 
-      return data.publicUrl;
+      toast.success('File uploaded successfully!');
+      return urlData.publicUrl;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
       return null;
     }
+  };
+
+  const MediaPreview = ({ url }: { url: string }) => {
+    const isVideo = url.match(/\.(mp4|webm)$/i);
+    
+    if (isVideo) {
+      return (
+        <div className="relative h-20 w-20 bg-gray-100 rounded-md overflow-hidden">
+          <video 
+            src={url}
+            className="h-full w-full object-cover"
+            muted
+            loop
+            autoPlay
+            playsInline
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+              Video
+            </span>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <img
+        src={url}
+        alt="Media preview"
+        className="h-20 w-20 object-cover rounded-md"
+      />
+    );
   };
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
@@ -193,6 +248,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
         navigation: [], slogan: '', fonts: [], artworks: [],
       });
       setEditId(null);
+      setShowForm(false);
 
     } catch (err: any) {
       const errorMessage = err.message || 'An unexpected error occurred';
@@ -238,6 +294,7 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
       artworks: studio.artworks || [],
     });
     setEditId(studio.id);
+    setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -305,362 +362,219 @@ const AdminStudios: React.FC<AdminStudiosProps> = ({ initialStudios, error: init
 
   return (
     <Layout_admin>
-      <h1 className="text-2xl font-bold mb-4">Manage Studios</h1>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          <table className="min-w-full bg-white border">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b">Name</th>
-                <th className="py-2 px-4 border-b">Description</th>
-                <th className="py-2 px-4 border-b">Thumbnail</th>
-                <th className="py-2 px-4 border-b">Author</th>
-                <th className="py-2 px-4 border-b">Slogan</th>
-                <th className="py-2 px-4 border-b">Fonts</th>
-                <th className="py-2 px-4 border-b">Artworks</th>
-                <th className="py-2 px-4 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {studios.map((studio) => (
-                <tr key={studio.id}>
-                  <td className="py-2 px-4 border-b">{studio.name}</td>
-                  <td className="py-2 px-4 border-b">{studio.description}</td>
-                  <td className="py-2 px-4 border-b">
-                    {studio.thumbnail ? (
-                      <img src={`${process.env.NEXT_PUBLIC_API_URL}${studio.thumbnail}`} alt={studio.name} className="w-16 h-16 object-cover rounded" />
-                    ) : (
-                      'No Thumbnail'
-                    )}
-                  </td>
-                  <td className="py-2 px-4 border-b">
-                    {studio.author
-                      ? studio.author.split('/').map((line, idx) => (
-                          <div key={idx}>{line.trim()}</div>
-                        ))
-                      : 'N/A'}
-                  </td>
-                  <td className="py-2 px-4 border-b">{studio.slogan || 'N/A'}</td>
-                  <td className="py-2 px-4 border-b">{studio.fonts ? studio.fonts.length : 0} items</td>
-                  <td className="py-2 px-4 border-b">{studio.artworks ? studio.artworks.length : 0} items</td>
-                  <td className="py-2 px-4 border-b">
-                    <button onClick={() => handleEdit(studio)} className="mr-2 text-blue-500">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(studio.id)} className="text-red-500">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <h2 className="mt-8 text-xl font-semibold">{editId ? 'Edit Studio' : 'Add New Studio'}</h2>
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="border p-2 w-full rounded"
-                  required
-                />
-                <textarea
-                  placeholder="Description"
-                  value={formData.description}
-                  onChange={e => setFormData({ ...formData, description: e.target.value.replace(/\//g, '\n') })}
-                  className="border p-2 w-full rounded mt-2"
-                  required
-                />
-                <input
-                  type="text"
-                  placeholder="Thumbnail URL (image, gif, or mp4)"
-                  value={formData.thumbnail}
-                  onChange={e => setFormData(prev => ({ ...prev, thumbnail: e.target.value }))}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <div className="flex gap-2 mt-2">
-                  <input
-                    type="file"
-                    accept="image/*,video/mp4"
-                    onChange={(e) => handleImageChange(e, 'thumbnail')}
-                    className="border p-2 w-full rounded"
-                  />
-                </div>
-                {formData.thumbnail && (
-                  formData.thumbnail.match(/\.mp4$/i) ? (
-                    <video
-                      src={formData.thumbnail}
-                      className="w-32 h-32 object-cover mt-2"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                    />
-                  ) : (
-                    <img
-                      src={formData.thumbnail}
-                      alt="Thumbnail"
-                      className="w-32 h-32 object-cover mt-2"
-                    />
-                  )
-                )}
-                <input
-                  type="text"
-                  placeholder="Logo URL (image only)"
-                  value={formData.logo}
-                  onChange={e => setFormData(prev => ({ ...prev, logo: e.target.value }))}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <div className="flex gap-2 mt-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const url = await handleUpload(file);
-                      if (url) setFormData(prev => ({ ...prev, logo: url }));
-                    }}
-                    className="border p-2 w-full rounded"
-                  />
-                </div>
-                {formData.logo && (
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${formData.logo}`}
-                    alt="Logo Preview"
-                    className="w-24 h-24 object-contain bg-white mt-2 border"
-                  />
-                )}
-              </div>
-              <div>
-                <input
-                  type="text"
-                  placeholder="Author"
-                  value={formData.author}
-                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                  className="border p-2 w-full rounded"
-                />
-                <input
-                  type="text"
-                  placeholder="Slogan"
-                  value={formData.slogan}
-                  onChange={(e) => setFormData({ ...formData, slogan: e.target.value })}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Image Title"
-                  value={formData.imageTitle}
-                  onChange={(e) => setFormData({ ...formData, imageTitle: e.target.value })}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <textarea
-                  placeholder="Image Description"
-                  value={formData.imageDescription}
-                  onChange={(e) => setFormData({ ...formData, imageDescription: e.target.value })}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Open Days (e.g. Mon,Tue,Wed)"
-                  value={formData.openDays}
-                  onChange={e => setFormData({ ...formData, openDays: e.target.value })}
-                  className="border p-2 w-full rounded mt-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Open Hours (e.g. 9:00-17:00)"
-                  value={formData.openHours}
-                  onChange={e => setFormData({ ...formData, openHours: e.target.value })}
-                  className="border p-2 w-full rounded mt-2"
-                />
-              </div>
+      <div className="space-y-10">
+        <h1 className="text-3xl font-extrabold mb-6 text-gray-800">Manage Studios</h1>
+        {!showForm && !editId && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="mb-6 px-6 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 transition"
+          >
+            + Add New Studio
+          </button>
+        )}
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <>
+            <div className="bg-white rounded-xl shadow p-6 mb-8">
+              <table className="min-w-full bg-white border rounded-xl overflow-hidden">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Name</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Description</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Thumbnail</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Author</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Slogan</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Fonts</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Artworks</th>
+                    <th className="py-3 px-4 border-b text-left font-semibold text-gray-700">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {studios.map((studio) => (
+                    <tr key={studio.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-2 px-4 border-b">{studio.name}</td>
+                      <td className="py-2 px-4 border-b">{studio.description}</td>
+                      <td className="py-2 px-4 border-b">
+                        {studio.thumbnail && (
+                          <MediaPreview url={studio.thumbnail} />
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border-b">
+                        {studio.author
+                          ? studio.author.split('/').map((line, idx) => (
+                              <div key={idx}>{line.trim()}</div>
+                            ))
+                          : 'N/A'}
+                      </td>
+                      <td className="py-2 px-4 border-b">{studio.slogan || 'N/A'}</td>
+                      <td className="py-2 px-4 border-b">{studio.fonts ? studio.fonts.length : 0} items</td>
+                      <td className="py-2 px-4 border-b">{studio.artworks ? studio.artworks.length : 0} items</td>
+                      <td className="py-2 px-4 border-b">
+                        <button onClick={() => handleEdit(studio)} className="mr-2 text-blue-600 hover:underline font-semibold">Edit</button>
+                        <button onClick={() => handleDelete(studio.id)} className="text-red-600 hover:underline font-semibold">Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-
-            {/* Font Items */}
-            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Font Items</h3>
-              <div className="space-y-4">
-                {formData.fonts.map((item, index) => (
-                  <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={item.name}
-                      onChange={(e) => updateFontItem(index, 'name', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Image URL"
-                      value={item.image}
-                      onChange={(e) => updateFontItem(index, 'image', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="file"
-                      onChange={(e) => handleItemImageChange(e, index, 'fonts')}
-                      className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Type"
-                      value={item.type}
-                      onChange={(e) => updateFontItem(index, 'type', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Price"
-                      value={item.price}
-                      onChange={(e) => updateFontItem(index, 'price', Number(e.target.value))}
-                      className="border border-gray-300 p-2 rounded w-24 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
+            {(showForm || editId) && (
+              <div className="bg-white rounded-xl shadow p-8">
+                <h2 className="text-2xl font-bold mb-6 text-gray-700">{editId ? 'Edit Studio' : 'Add New Studio'}</h2>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Left column */}
+                    <div className="space-y-4">
+                      <input type="text" placeholder="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-200" required />
+                      <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value.replace(/\//g, '\n') })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" required />
+                      <div>
+                        <label htmlFor="thumbnail" className="block text-sm font-medium text-gray-700">
+                          Thumbnail Image/Video
+                        </label>
+                        <div className="mt-1 flex items-center space-x-4">
+                          <input
+                            type="file"
+                            id="thumbnail"
+                            accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm"
+                            onChange={(e) => handleImageChange(e, 'thumbnail')}
+                            className="hidden"
+                          />
+                          <label
+                            htmlFor="thumbnail"
+                            className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            Choose File
+                          </label>
+                          {formData.thumbnail && (
+                            <div className="relative">
+                              <MediaPreview url={formData.thumbnail} />
+                              <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, thumbnail: '' })}
+                                className="absolute -top-2 -right-2 rounded-full bg-red-500 text-white p-1 hover:bg-red-600 focus:outline-none"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        {formData.thumbnail && (
+                          <p className="mt-2 text-sm text-gray-500">
+                            Current file: {formData.thumbnail.split('/').pop()}
+                          </p>
+                        )}
+                      </div>
+                      <input type="text" placeholder="Logo URL (image only)" value={formData.logo} onChange={e => setFormData(prev => ({ ...prev, logo: e.target.value }))} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                      <div className="flex gap-2 mt-2">
+                        <input type="file" accept="image/*" onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const url = await handleUpload(file);
+                          if (url) setFormData(prev => ({ ...prev, logo: url }));
+                        }} className="border p-2 w-full rounded-lg" />
+                      </div>
+                      {formData.logo && (
+                        <img src={formData.logo} alt="Logo Preview" className="w-24 h-24 object-contain bg-white mt-2 border rounded-lg" />
+                      )}
+                    </div>
+                    {/* Right column */}
+                    <div className="space-y-4">
+                      <input type="text" placeholder="Author" value={formData.author} onChange={(e) => setFormData({ ...formData, author: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-200" />
+                      <input type="text" placeholder="Slogan" value={formData.slogan} onChange={(e) => setFormData({ ...formData, slogan: e.target.value })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                      <input type="text" placeholder="Image Title" value={formData.imageTitle} onChange={(e) => setFormData({ ...formData, imageTitle: e.target.value })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                      <textarea placeholder="Image Description" value={formData.imageDescription} onChange={(e) => setFormData({ ...formData, imageDescription: e.target.value })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                      <input type="text" placeholder="Open Days (e.g. Mon,Tue,Wed)" value={formData.openDays} onChange={e => setFormData({ ...formData, openDays: e.target.value })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                      <input type="text" placeholder="Open Hours (e.g. 9:00-17:00)" value={formData.openHours} onChange={e => setFormData({ ...formData, openHours: e.target.value })} className="border p-3 w-full rounded-lg mt-2 focus:ring-2 focus:ring-blue-200" />
+                    </div>
+                  </div>
+                  {/* Font Items */}
+                  <div className="mt-6 bg-gray-50 shadow-inner rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Font Items</h3>
+                    <div className="space-y-4">
+                      {formData.fonts.map((item, index) => (
+                        <div key={index} className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-md border border-gray-200">
+                          <input type="text" placeholder="Name" value={item.name} onChange={(e) => updateFontItem(index, 'name', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="text" placeholder="Image URL" value={item.image} onChange={(e) => updateFontItem(index, 'image', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="file" onChange={(e) => handleItemImageChange(e, index, 'fonts')} className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200" />
+                          <input type="text" placeholder="Type" value={item.type} onChange={(e) => updateFontItem(index, 'type', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="number" placeholder="Price" value={item.price} onChange={(e) => updateFontItem(index, 'price', Number(e.target.value))} className="border border-gray-300 p-2 rounded w-24 focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <button onClick={() => removeFontItem(index)} className="text-red-600 hover:text-red-800 font-medium">Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={(e) => { e.preventDefault(); addFontItem(); }} className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium">+ Add Font Item</button>
+                  </div>
+                  {/* Artwork Items */}
+                  <div className="mt-6 bg-gray-50 shadow-inner rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Artwork Items</h3>
+                    <div className="space-y-4">
+                      {formData.artworks.map((item, index) => (
+                        <div key={index} className="flex flex-wrap gap-4 items-center bg-white p-4 rounded-md border border-gray-200">
+                          <input type="text" placeholder="Name" value={item.name} onChange={(e) => updateArtworkItem(index, 'name', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="text" placeholder="Author" value={item.author} onChange={(e) => updateArtworkItem(index, 'author', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="text" placeholder="Image URL" value={item.image} onChange={(e) => updateArtworkItem(index, 'image', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <input type="file" onChange={(e) => handleItemImageChange(e, index, 'artworks')} className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200" />
+                          <input type="text" placeholder="Type" value={item.type} onChange={(e) => updateArtworkItem(index, 'type', e.target.value)} className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500" />
+                          <button onClick={() => removeArtworkItem(index)} className="text-red-600 hover:text-red-800 font-medium">Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={(e) => { e.preventDefault(); addArtworkItem(); }} className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium">+ Add Artwork Item</button>
+                  </div>
+                  {/* Navigation Items */}
+                  <div className="mt-6 bg-gray-50 shadow-inner rounded-lg p-6">
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Navigation Items</h3>
+                    {formData.navigation.map((item, idx) => (
+                      <div key={idx} className="flex gap-2 mb-2">
+                        <input type="text" placeholder="Label" value={item.label} onChange={e => {
+                          const updated = [...formData.navigation];
+                          updated[idx].label = e.target.value;
+                          setFormData(prev => ({ ...prev, navigation: updated }));
+                        }} className="border p-2 rounded" />
+                        <input type="text" placeholder="Href" value={item.href} onChange={e => {
+                          const updated = [...formData.navigation];
+                          updated[idx].href = e.target.value;
+                          setFormData(prev => ({ ...prev, navigation: updated }));
+                        }} className="border p-2 rounded" />
+                        <button type="button" onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            navigation: prev.navigation.filter((_, i) => i !== idx)
+                          }));
+                        }} className="text-red-500">Remove</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setFormData(prev => ({
+                      ...prev,
+                      navigation: [...prev.navigation, { label: '', href: '' }]
+                    }))} className="text-blue-500">+ Add Navigation Item</button>
+                  </div>
+                  <div className="flex justify-end gap-2">
                     <button
-                      onClick={() => removeFontItem(index)}
-                      className="text-red-600 hover:text-red-800 font-medium"
+                      type="button"
+                      onClick={() => { setShowForm(false); setEditId(null); setFormData({ name: '', description: '', thumbnail: '', logo: '', author: '', imageTitle: '', imageDescription: '', openDays: '', openHours: '', navigation: [], slogan: '', fonts: [], artworks: [], }); }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
                     >
-                      Remove
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                      disabled={loading}
+                    >
+                      {editId ? 'Update Studio' : 'Create Studio'}
                     </button>
                   </div>
-                ))}
+                </form>
               </div>
-              <button
-                onClick={(e) => { e.preventDefault(); addFontItem(); }}
-                className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
-              >
-                + Add Font Item
-              </button>
-            </div>
-
-            {/* Artwork Items */}
-            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Artwork Items</h3>
-              <div className="space-y-4">
-                {formData.artworks.map((item, index) => (
-                  <div key={index} className="flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-md">
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      value={item.name}
-                      onChange={(e) => updateArtworkItem(index, 'name', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Author"
-                      value={item.author}
-                      onChange={(e) => updateArtworkItem(index, 'author', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Image URL"
-                      value={item.image}
-                      onChange={(e) => updateArtworkItem(index, 'image', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[120px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <input
-                      type="file"
-                      onChange={(e) => handleItemImageChange(e, index, 'artworks')}
-                      className="border border-gray-300 p-2 rounded focus:ring-2 focus:ring-blue-200"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Type"
-                      value={item.type}
-                      onChange={(e) => updateArtworkItem(index, 'type', e.target.value)}
-                      className="border border-gray-300 p-2 rounded flex-1 min-w-[100px] focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                    />
-                    <button
-                      onClick={() => removeArtworkItem(index)}
-                      className="text-red-600 hover:text-red-800 font-medium"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={(e) => { e.preventDefault(); addArtworkItem(); }}
-                className="mt-4 inline-block text-blue-600 hover:text-blue-800 font-medium"
-              >
-                + Add Artwork Item
-              </button>
-            </div>
-
-            {/* Navigation Items */}
-            <div className="mt-6 bg-white shadow-lg rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-4">Navigation Items</h3>
-              {formData.navigation.map((item, idx) => (
-                <div key={idx} className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    placeholder="Label"
-                    value={item.label}
-                    onChange={e => {
-                      const updated = [...formData.navigation];
-                      updated[idx].label = e.target.value;
-                      setFormData(prev => ({ ...prev, navigation: updated }));
-                    }}
-                    className="border p-2 rounded"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Href"
-                    value={item.href}
-                    onChange={e => {
-                      const updated = [...formData.navigation];
-                      updated[idx].href = e.target.value;
-                      setFormData(prev => ({ ...prev, navigation: updated }));
-                    }}
-                    className="border p-2 rounded"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData(prev => ({
-                        ...prev,
-                        navigation: prev.navigation.filter((_, i) => i !== idx)
-                      }));
-                    }}
-                    className="text-red-500"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => setFormData(prev => ({
-                  ...prev,
-                  navigation: [...prev.navigation, { label: '', href: '' }]
-                }))}
-                className="text-blue-500"
-              >
-                + Add Navigation Item
-              </button>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-4">
-              <button
-                type="submit"
-                disabled={loading}
-                className={`bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {loading ? 'Saving...' : editId ? 'Update Studio' : 'Create Studio'}
-              </button>
-            </div>
-          </form>
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
     </Layout_admin>
   );
 };

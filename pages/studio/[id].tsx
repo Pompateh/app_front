@@ -187,7 +187,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
         {/* Work Portfolio Section (restored old design, but using projects) */}
         {studio.projects && (
           <section className="w-full pt-8 sm:pt-10 md:pt-12 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 md:px-2 lg:px-6">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+
               <div className="space-y-8 sm:space-y-10 md:space-y-12">
                 {studio.projects.map((item, index) => {
                   const projectUrl = item.slug ? `/project/${item.slug}` : `/project/${item.id}`;
