@@ -119,6 +119,8 @@ const Header: React.FC = () => {
                   Quy-trình
                 </Link>
               </div>
+              {/* News (Bảng-tin) - Disabled for now */}
+              {/*
               <div className="flex-1 flex items-center justify-center">
                 <a
                   href="#"
@@ -129,6 +131,7 @@ const Header: React.FC = () => {
                   Bảng-tin
                 </a>
               </div>
+              */}
               <div className="flex-[2] flex items-center justify-center">
                 <Link href="/shop/" className="w-full h-full flex items-center justify-center transition-all bg-yellow-400 text-gray-800 font-bold px-4 whitespace-nowrap opacity-60 cursor-not-allowed pointer-events-auto"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
@@ -206,6 +209,8 @@ const Header: React.FC = () => {
                   Quy-trình
                 </Link>
               </div>
+              {/* News (Bảng-tin) - Disabled for now */}
+              {/*
               <div className="px-6 py-3">
                 <a
                   href="#"
@@ -216,6 +221,7 @@ const Header: React.FC = () => {
                   Bảng-tin
                 </a>
               </div>
+              */}
               <div className="px-6 py-3">
                 <Link href="/shop/" className="block w-full text-center bg-yellow-400 text-gray-800 font-bold py-2 px-4 transition-colors whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
                   style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
