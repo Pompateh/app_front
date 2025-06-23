@@ -186,9 +186,9 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
 
         {/* Work Portfolio Section (restored old design, but using projects) */}
         {studio.projects && (
-          <section className="w-full pt-10 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-4">
-              <div className="space-y-12">
+          <section className="w-full pt-8 sm:pt-10 md:pt-12 bg-black text-white">
+            <div className="max-w-screen-2xl mx-auto px-2 sm:px-4 md:px-2 lg:px-6">
+              <div className="space-y-8 sm:space-y-10 md:space-y-12">
                 {studio.projects.map((item, index) => {
                   const projectUrl = item.slug ? `/project/${item.slug}` : `/project/${item.id}`;
                   return (
@@ -204,75 +204,46 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                         damping: 20
                       }}
                       viewport={{ once: true, margin: "-10%" }}
-                      className="overflow-hidden"
+                      className="overflow-hidden flex flex-col items-center"
                     >
                       <Link href={projectUrl} legacyBehavior>
-                        <a className="block group">
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            whileHover={{ 
-                              scale: 1.02,
-                              transition: { 
-                                duration: 0.3,
-                                ease: "easeOut"
-                              }
-                            }}
-                            transition={{
-                              duration: 0.4,
-                              delay: index * 0.15 + 0.1
-                            }}
-                            className="transform transition-transform relative overflow-hidden"
-                          >
+                        <a className="block group w-full max-w-[2000px]">
+                          <motion.div className="relative overflow-hidden w-full">
                             <motion.img
                               initial={{ opacity: 0, scale: 0.95 }}
                               whileInView={{ opacity: 1, scale: 1 }}
                               whileHover={{ 
                                 scale: 1.05,
-                                transition: { 
-                                  duration: 0.3,
-                                  ease: "easeOut"
-                                }
+                                transition: { duration: 0.3, ease: "easeOut" }
                               }}
-                              transition={{
-                                duration: 0.4,
-                                delay: index * 0.15 + 0.2
-                              }}
+                              transition={{ duration: 0.4, delay: index * 0.15 + 0.2 }}
                               src={item.thumbnail || item.image}
                               alt={item.title}
-                              className="w-full h-auto max-h-custom object-cover group-hover:opacity-90 transition"
+                              className="w-full h-auto object-cover group-hover:opacity-90 transition"
+                              style={{ maxHeight: 700 }}
                             />
                           </motion.div>
-                          <div className="py-4">
+                          <div className="py-3 sm:py-4 w-full">
                             <div className="flex justify-between items-center mb-2">
                               <h3
-                              className="text-xl font-bold group-hover:underline"
-                              style={{
-                                fontFamily: '"Crimson Pro", serif',
-                                fontWeight: 400
-                              }}
-                            >
-                              {item.title}
-                            </h3>
+                                className="text-lg sm:text-xl font-bold group-hover:underline"
+                                style={{ fontFamily: '"Crimson Pro", serif', fontWeight: 400 }}
+                              >
+                                {item.title}
+                              </h3>
                               <div
-                                className="text-gray-300"
-                                style={{
-                                  fontFamily: '"Gothic A1", sans-serif',
-                                  fontWeight: 700
-                                }}
+                                className="text-gray-300 text-sm sm:text-base"
+                                style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
                               >
                                 {item.year}
                               </div>
                             </div>
                             <div
-                                className="text-gray-300"
-                                style={{
-                                  fontFamily: '"Gothic A1", sans-serif',
-                                  fontWeight: 700
-                                }}
-                              >
-                                {item.category}
-                              </div>
+                              className="text-gray-300 text-sm sm:text-base"
+                              style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                            >
+                              {item.category}
+                            </div>
                           </div>
                         </a>
                       </Link>

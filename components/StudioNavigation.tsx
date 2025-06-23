@@ -16,13 +16,15 @@ const StudioNavigation: React.FC<StudioNavigationProps> = ({ navItems }) => {
   return (
     <nav className="bg-[#1A1916]">
       <ul className="flex m-0 p-0 list-none">
-        {navItems.map((item) => (
-          <li key={item.href} className="flex-1 text-center">
+        {navItems.map((item, idx) => (
+          <li
+            key={item.href}
+            className={`flex-1 text-center border-t-2 border-b-2 border-l-2 border-[#999380] ${idx === navItems.length - 1 ? 'border-r-2' : 'border-r-0'}`}
+          >
             <a
               href={item.href}
               onClick={() => setActiveLink(item.href)}
-              className={`block no-underline py-3 px-4 border border-[#999380]  
-                ${activeLink === item.href ? 'text-[#EEE]' : 'text-[#CCC]'}`}
+              className={`block no-underline py-3 px-4  ${activeLink === item.href ? 'text-[#EEE]' : 'text-[#CCC]'}`}
               style={{
                 fontFamily: '"Gothic A1", sans-serif',
                 fontWeight: 800
