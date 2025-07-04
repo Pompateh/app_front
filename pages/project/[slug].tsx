@@ -173,7 +173,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
         return (
           <div key={idx} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
-              <div className=" border-l-2 border-[#999380] overflow-hidden flex">
+              <div className=" border-l-2 border-[#999380] border-b-2 overflow-hidden flex">
                 <img src={left.src} alt={left.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
