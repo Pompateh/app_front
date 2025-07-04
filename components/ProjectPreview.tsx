@@ -30,81 +30,71 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
         return (
           <>
             {block.layout === 'right' && (
-              <div className={`${topBorder} border-l-2 border-b-2 border-[#999380] md:col-start-1 md:col-span-1`}></div>
+              <div className="border-t-2 border-l-2 border-b-2 border-[#999380] md:col-start-1 md:col-span-1"></div>
             )}
             <div
-              key={i}
-              className={`${topBorder} border-r-2 border-l-2 border-b-2 border-[#999380] p-4 prose lg:prose-lg ${
+              className={`border-t-2  border-l-2 border-b-2 border-[#999380] p-4 prose lg:prose-lg ${
                 block.layout === 'left' ? 'md:col-start-1 md:col-span-1' : 'md:col-start-2 md:col-span-1'
               }`}
             >
               <div dangerouslySetInnerHTML={{ __html: block.text || '' }} />
             </div>
             {block.layout === 'left' && (
-              <div className={`border-2 border-[#999380] md:col-start-2 md:col-span-1`}></div>
+              <div className="border-t-2 border-b-2 border-l-2 border-r-2 border-[#999380] md:col-start-2 md:col-span-1"></div>
             )}
           </>
         );
-      case 'full_image':
+      case 'full_image': {
+        const style: React.CSSProperties = {
+          width:  '100%',
+          height:  'auto',
+        };
         return (
-          <div key={i} className={`${topBorder} border-1 border-b-1 border-[#999380] md:col-span-2 overflow-hidden`}>
+          <div key={i} className="border-b-2 border-[#999380] md:col-span-2 overflow-hidden">
             <img
               src={block.src}
-              alt={block.alt || 'Project image'}
-              className="object-cover w-full h-auto"
+              alt={block.alt || data.title}
+              className="object-cover"
+              style={style}
             />
           </div>
         );
+      }
       case 'text_and_side_image': {
-        const isImageLeft = block.data?.image?.layout === 'left';
+        const { text, image } = block.data;
+        const isImageLeft = image.layout === 'left';
         return (
-          <div key={i} className={`grid grid-cols-2 md:col-span-2 ${topBorder}`}>
+          <div key={i} className="grid grid-cols-2 md:col-span-2">
             {isImageLeft && (
-              <div className={`border-l-2 border-b-2 border-[#999380] overflow-hidden`}>
-                <img
-                  src={block.data?.image?.src}
-                  alt={block.data?.image?.alt || 'Project image'}
-                  className="w-full h-auto object-cover"
-                />
+              <div className="border-l-2 border-b-2 border-[#999380] overflow-hidden">
+                <img src={image.src} alt={image.alt || data.title} className="w-full h-auto object-cover" />
               </div>
             )}
-            <div className="prose lg:prose-lg border-2 border-[#999380] p-4">
-              <div dangerouslySetInnerHTML={{ __html: block.data?.text || '' }} />
+            <div className="p-4 prose lg:prose-lg border-l-2 border-b-2 border-[#999380]">
+              <div dangerouslySetInnerHTML={{ __html: text }} />
             </div>
             {!isImageLeft && (
-              <div className={`border-2 border-[#999380] overflow-hidden`}>
-                <img
-                  src={block.data?.image?.src}
-                  alt={block.data?.image?.alt || 'Project image'}
-                  className="w-full h-auto object-cover"
-                />
+              <div className="border-l-2 border-b-2 border-r-2 border-[#999380] overflow-hidden">
+                <img src={image.src} alt={image.alt || data.title} className="w-full h-auto object-cover" />
               </div>
             )}
           </div>
         );
       }
       case 'side_by_side_image': {
-        const imgs = block.data?.images || [];
+        const imgs = block.data.images;
         const left = imgs.find((i: any) => i.layout === 'left');
         const right = imgs.find((i: any) => i.layout === 'right');
         return (
-          <div key={i} className={`grid grid-cols-2 gap-0 md:col-span-2 ${topBorder}`}>
+          <div key={i} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
-              <div className={`border-[#999380] overflow-hidden flex`}>
-                <img
-                  src={left.src}
-                  alt={left.alt || 'Project image'}
-                  className="w-full h-auto object-cover"
-                />
+              <div className=" border-l-2 border-[#999380] border-b-2 overflow-hidden flex">
+                <img src={left.src} alt={left.alt || data.title} className="w-full h-auto object-cover" />
               </div>
             )}
             {right && (
-              <div className={`border-l-2 border-b-0 border-[#999380] overflow-hidden flex`}>
-                <img
-                  src={right.src}
-                  alt={right.alt || 'Project image'}
-                  className="w-full h-auto object-cover"
-                />
+              <div className=" border-r-2 border-l-2 border-b-2 border-[#999380] overflow-hidden flex">
+                <img src={right.src} alt={right.alt || data.title} className="w-full h-auto object-cover" />
               </div>
             )}
           </div>
@@ -112,22 +102,21 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
       }
       case 'three_grid_layout':
         return (
-          <div key={i} className={`grid grid-cols-2 grid-rows-2 gap-0 md:col-span-2 ${topBorder}`}>
+          <div key={i} className="grid grid-cols-2 grid-rows-2 gap-0 md:col-span-2">
             {(block.data?.items || []).map((item: any, idx: number) => {
               let cellClass = '';
-              let borderClass = 'border-2 border-[#999380] overflow-hidden';
+              let borderClass = 'border-[#999380] overflow-hidden';
 
               if (idx === 0) {
                 cellClass = 'row-start-1 col-start-1';
-                borderClass = 'border-l-2 border-[#999380] overflow-hidden';
+                borderClass = ' border-l-2 border-[#999380] overflow-hidden';
               }
               if (idx === 1) {
                 cellClass = 'row-start-2 col-start-1';
-                borderClass = 'border-b-2 border-[#999380] overflow-hidden border-l-2';
+                borderClass = 'border-[#999380] overflow-hidden border-l-2 border-b-2 border-t-2';
               }
               if (idx === 2) {
-                cellClass = 'row-start-1 row-span-2 col-start-2';
-                borderClass = 'border-t-2 border-r-2 border-l-2 border-[#999380] overflow-hidden';
+                cellClass = 'row-span-2 border-l-2 border-r-2 border-b-2 row-start-1 col-start-2';
               }
 
               return (
@@ -137,11 +126,7 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
                       <div dangerouslySetInnerHTML={{ __html: item.text }} />
                     </div>
                   ) : (
-                    <img
-                      src={item.src}
-                      alt={item.alt || 'Project image'}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={item.src} alt={item.alt || data.title} className="w-full h-full object-cover" />
                   )}
                 </div>
               );

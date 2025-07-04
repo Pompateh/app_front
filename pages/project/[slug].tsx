@@ -190,7 +190,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
           <div key={idx} className="grid grid-cols-2 grid-rows-2 gap-0 md:col-span-2">
             {block.data.items.map((item, i) => {
               let cellClass = '';
-              let borderClass = 'border-2 border-[#999380] overflow-hidden';
+              let borderClass = 'border-[#999380] overflow-hidden';
       
               if (i === 0) {
                 cellClass = 'row-start-1 col-start-1';
@@ -201,7 +201,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
                 borderClass = 'border-[#999380] overflow-hidden border-l-2 border-b-2 border-t-2';
               }
               if (i === 2) {
-                cellClass = 'row-span-2 border-r-2 row-start-1 col-start-2';
+                cellClass = 'row-span-2 border-l-2 border-r-2 border-b-2 row-start-1 col-start-2';
               }
       
               return (
