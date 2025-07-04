@@ -60,13 +60,25 @@ const ProjectPreview: React.FC<PreviewProps> = ({ data }) => {
         return (
           <div key={i} className={`grid grid-cols-2 md:col-span-2 ${topBorder}`}>
             {isImageLeft && (
-              <div className={`border-l-2 border-b-2 border-[#999380] overflow-hidden`}></div>
+              <div className={`border-l-2 border-b-2 border-[#999380] overflow-hidden`}>
+                <img
+                  src={block.data?.image?.src}
+                  alt={block.data?.image?.alt || 'Project image'}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
             )}
             <div className="prose lg:prose-lg border-2 border-[#999380] p-4">
               <div dangerouslySetInnerHTML={{ __html: block.data?.text || '' }} />
             </div>
             {!isImageLeft && (
-              <div className={`border-2 border-[#999380] overflow-hidden`}></div>
+              <div className={`border-2 border-[#999380] overflow-hidden`}>
+                <img
+                  src={block.data?.image?.src}
+                  alt={block.data?.image?.alt || 'Project image'}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
             )}
           </div>
         );

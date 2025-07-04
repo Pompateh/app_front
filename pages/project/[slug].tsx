@@ -155,11 +155,11 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
                 <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
-            <div className="p-4 prose lg:prose-lg border-l-2 border-b-2 border-r-2 border-[#999380]">
+            <div className="p-4 prose lg:prose-lg border-l-2 border-b-2 border-[#999380]">
               <div dangerouslySetInnerHTML={{ __html: text }} />
             </div>
             {!isImageLeft && (
-              <div className="border-l-2 border-b-2 border-[#999380] overflow-hidden">
+              <div className="border-l-2 border-b-2 border-r-2 border-[#999380] overflow-hidden">
                 <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
@@ -173,7 +173,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
         return (
           <div key={idx} className="grid grid-cols-2 gap-0 md:col-span-2">
             {left && (
-              <div className=" border-l-2 border-b-2 border-[#999380] overflow-hidden flex">
+              <div className=" border-l-2 border-[#999380] overflow-hidden flex">
                 <img src={left.src} alt={left.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}
