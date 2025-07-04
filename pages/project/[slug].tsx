@@ -198,7 +198,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
               }
               if (i === 1) {
                 cellClass = 'row-start-2 col-start-1';
-                borderClass = 'border-[#999380] overflow-hidden border-l-2 border-b-2';
+                borderClass = 'border-[#999380] overflow-hidden border-l-2 border-b-2 border-t-2';
               }
               if (i === 2) {
                 cellClass = 'row-span-2 border-r-2 row-start-1 col-start-2';
