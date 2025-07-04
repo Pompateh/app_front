@@ -159,7 +159,7 @@ const ProjectPage: NextPage<Props> = ({ project, related, error: initialError })
               <div dangerouslySetInnerHTML={{ __html: text }} />
             </div>
             {!isImageLeft && (
-              <div className="border-l-2 border-b-2 border-r-2 border-[#999380] overflow-hidden">
+              <div className="border-l-2 border-b-2 border-[#999380] overflow-hidden">
                 <img src={image.src} alt={image.alt || title} className="w-full h-auto object-cover" />
               </div>
             )}

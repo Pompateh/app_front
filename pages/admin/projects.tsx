@@ -444,11 +444,36 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
   
       case 'text_and_side_image':
         if (!block.data) {
-          block.data = { text: '', src: '', alt: '', layout: 'left' };
+          block.data = { text: '', image: { src: '', alt: '', layout: 'left' } };
         }
         return (
           <div key={idx}>
-            {commonFields}
+            <div className="flex items-center space-x-2">
+              <select
+                value={block.data?.image?.layout || 'left'}
+                onChange={e => updateBlock(idx, {
+                  ...block,
+                  data: { ...block.data, image: { ...(block.data?.image || {}), layout: e.target.value as 'left' | 'right' } }
+                })}
+                className="input w-full mb-2"
+              >
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+              <ReactQuill
+                value={block.data?.text || ''}
+                onChange={val => updateBlock(idx, {
+                  ...block,
+                  data: { ...block.data, text: val }
+                })}
+                className="mb-2"
+                theme="snow"
+                modules={quillModules}
+              />
+              <button onClick={() => moveBlockUp(idx)} disabled={idx === 0}>Up</button>
+              <button onClick={() => moveBlockDown(idx)} disabled={idx === formData.blocks.length - 1}>Down</button>
+              <button onClick={() => removeBlock(idx)} className="text-red-500">Remove</button>
+            </div>
             <input
               type="text"
               placeholder="Image URL"
@@ -464,17 +489,6 @@ const AdminProjects: React.FC<AdminProjectsProps> = ({ initialProjects, error: i
               onChange={e => handleTextAndSideImageUpload(idx, e)}
               className="input w-full mb-2"
             />
-            <select
-              value={block.data?.image?.layout || 'left'}
-              onChange={e => updateBlock(idx, {
-                ...block,
-                data: { ...block.data, image: { ...(block.data?.image || {}), layout: e.target.value as 'left' | 'right' } }
-              })}
-              className="input w-full mt-2"
-            >
-              <option value="left">Left</option>
-              <option value="right">Right</option>
-            </select>
           </div>
         );
   

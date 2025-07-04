@@ -296,6 +296,7 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
                     { label: 'Overview', href: `/studio/${studio.id}/overview` },
                     { label: 'Exhibits', href: `/studio/${studio.id}/exhibits` },
                     { label: 'Events', href: `/studio/${studio.id}/events` },
+                    
                   ]} />
                 </NavigationProvider>
               </div>
