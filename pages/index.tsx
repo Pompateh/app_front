@@ -153,7 +153,7 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
                         )}
                       </div>
                       {studio.author && (
-                        <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
+                        <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px 5px 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
                           {studio.author.split('/').map(line => line.trim()).join('\n')}
                         </div>
                       )}
