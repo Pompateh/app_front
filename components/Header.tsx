@@ -98,49 +98,7 @@ const Header: React.FC = () => {
 
           {/* Right half - Navigation */}
           <div className="flex-1 relative flex items-stretch justify-start">
-            <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#999380]"></div>
-            <div className="flex w-full divide-x-2 divide-[#999380]">
-              <div className="flex-1 flex items-center justify-center">
-                <a
-                  href="#"
-                  onClick={goToFirstProject}
-                  className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                  >
-                  Ấn-phẩm
-                </a>
-              </div>
-              <div className="flex-1 flex items-center justify-center">
-                <Link href="/step" onClick={e => handleNavClick(e, '/step')}
-                  className="w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
-                  Quy-trình
-                </Link>
-              </div>
-              {/* News (Bảng-tin) - Disabled for now */}
-              {/*
-              <div className="flex-1 flex items-center justify-center">
-                <a
-                  href="#"
-                  onClick={goToFirstPost}
-                  className="w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                >
-                  Bảng-tin
-                </a>
-              </div>
-              */}
-              <div className="flex-[2] flex items-center justify-center">
-                <Link href="/shop/" className="w-full h-full flex items-center justify-center transition-all bg-yellow-400 text-gray-800 font-bold px-4 whitespace-nowrap opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
-                  Tiệm Hoài-niệm-mới ↗
-                </Link>
-              </div>
-            </div>
+            {/* Navigation hidden as requested */}
           </div>
         </div>
 
@@ -189,48 +147,7 @@ const Header: React.FC = () => {
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
           <nav className="md:hidden bg-white border-t-4 border-[#999380]">
-            <div className="flex flex-col divide-y-2 divide-[#999380]">
-              <div className="px-6 py-3">
-                <a
-                  href="#"
-                  onClick={async (e) => { await goToFirstProject(e); setIsMenuOpen(false); }}
-                  className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                >
-                  Ấn-phẩm
-                </a>
-              </div>
-              <div className="px-6 py-3">
-                <Link href="/step" onClick={e => { handleNavClick(e, '/step'); setIsMenuOpen(false); }}
-                  className="block w-full text-center transition-all whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, color: '#b0a99f', background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
-                  Quy-trình
-                </Link>
-              </div>
-              {/* News (Bảng-tin) - Disabled for now */}
-              {/*
-              <div className="px-6 py-3">
-                <a
-                  href="#"
-                  onClick={async (e) => { await goToFirstPost(e); setIsMenuOpen(false); }}
-                  className="block w-full text-center text-gray-800 hover:underline transition-all whitespace-nowrap flex items-center justify-center h-full"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800 }}
-                >
-                  Bảng-tin
-                </a>
-              </div>
-              */}
-              <div className="px-6 py-3">
-                <Link href="/shop/" className="block w-full text-center bg-yellow-400 text-gray-800 font-bold py-2 px-4 transition-colors whitespace-nowrap flex items-center justify-center h-full opacity-60 cursor-not-allowed pointer-events-auto"
-                  style={{ fontFamily: 'Crimson Pro, serif', fontWeight: 800, background: 'linear-gradient(90deg, #fffbe6 0%, #f1c75d22 100%)', color: '#b0a99f', borderColor: '#f1c75d' }}
-                  aria-disabled="true"
-                  tabIndex={-1}>
-                  Tiệm Hoài-niệm-mới
-                </Link>
-              </div>
-            </div>
+            {/* Navigation hidden as requested */}
           </nav>
         )}
       </div>

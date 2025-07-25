@@ -35,6 +35,10 @@ interface MasterHomepageProps {
 const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
   const [showPreloader, setShowPreloader] = useState(false);
   const [isNightTime, setIsNightTime] = useState(false);
+  const munchiesImages = [
+    "/assets/Munchies/Munchies/13.jpg",
+  ];
+  // Remove all slideshow/animation state and effects
 
   useEffect(() => {
     // Check if it's night time (after 9 PM)
@@ -61,6 +65,7 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
     }
   }, []);
 
+  // In the image area, only render the static image
   const handlePreloaderEnd = () => {
     localStorage.setItem('hasSeenPreloader', 'true');
     setShowPreloader(false);
@@ -94,77 +99,52 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
           <section key={studio.id} className="relative h-screen snap-start flex flex-col md:flex-row bg-indigo-900 text-white overflow-hidden">
             {/* Left: Image content */}
             <div className="relative flex-1 overflow-hidden">
-              {studio.thumbnail ? (
-                <div className="w-full h-full relative">
-                  {studio.thumbnail.match(/\.mp4$/i) ? (
-                    <video
-                       src={studio.thumbnail} 
-                      className="w-full h-full object-cover animate-fadeIn"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                      style={{ display: 'block' }}
-                    />
-                  ) : (
-                    <img
-                      src={studio.thumbnail}
-                      alt={studio.name}
-                      className="w-full h-full object-cover transform transition-transform duration-1000 ease-in-out hover:scale-105 opacity-0 animate-fadeIn"
-                    />
-                  )}
-                  <div className="absolute inset-0 opacity-20" style={{ transform: 'translateY(0px)' }} />
-                  {(studio.imageTitle || studio.imageDescription || studio.author) && (
-                    <div
-                      className="absolute bottom-0 left-8 right-4 flex items-center justify-between bg-white animate-fadeIn"
-                      style={{ height: '130px', boxSizing: 'border-box' }}
+              <div className="w-full h-full relative">
+                <img
+                  src={munchiesImages[0]}
+                  alt="Munchies 13"
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlays (title, description, author) remain unchanged */}
+                <div
+                  className="absolute bottom-0 left-8 right-4 flex items-center justify-between bg-white animate-fadeIn"
+                  style={{ height: '130px', boxSizing: 'border-box' }}
+                >
+                  <div className="flex flex-col" style={{ maxWidth: '70%', lineHeight: '1.2', padding: '14px 14px' }}>
+                    <h2
+                      style={{
+                        fontFamily: '"Crimson Pro", serif',
+                        letterSpacing: '0.05em',
+                        margin: '0 0 0.5em 0',
+                        fontWeight: 400,
+                        fontStyle: 'italic',
+                        fontSize: '2rem',
+                      }}
+                      className="text-black"
                     >
-                      <div className="flex flex-col" style={{ maxWidth: '70%', lineHeight: '1.2', padding: '14px 14px' }}>
-                        {studio.imageTitle && (
-                          <h2
-                            style={{
-                              fontFamily: '"Crimson Pro", serif',
-                              letterSpacing: '0.05em',
-                              margin: '0 0 0.5em 0',
-                              fontWeight: 400,
-                              fontStyle: 'italic',
-                              fontSize: '2rem',
-                            }}
-                            className="text-black"
-                          >
-                            {studio.imageTitle}
-                          </h2>
-                        )}
-                        {studio.imageDescription && (
-                          <p
-                            style={{ 
-                              fontSize: '1.125rem', 
-                              lineHeight: '1.3', 
-                              margin: 0,
-                              fontFamily: '"Crimson Pro", serif',
-                              fontWeight: 400,
-                              fontStyle: 'normal'
-                            }}
-                            className="text-black"
-                          >
-                            {studio.imageDescription}
-                          </p>
-                        )}
-                      </div>
-                      {studio.author && (
-                        <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px 5px 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
-                          {studio.author.split('/').map(line => line.trim()).join('\n')}
-                        </div>
-                      )}
+                      Munchies Package Box
+                    </h2>
+                    <p
+                      style={{ 
+                        fontSize: '1.125rem', 
+                        lineHeight: '1.3', 
+                        margin: 0,
+                        fontFamily: '"Crimson Pro", serif',
+                        fontWeight: 400,
+                        fontStyle: 'normal'
+                      }}
+                      className="text-black"
+                    >
+                      "The spirit of joy , color & friendship"
+                    </p>
+                  </div>
+                  {studio.author && (
+                    <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px 5px 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
+                      {studio.author.split('/').map(line => line.trim()).join('\n')}
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                  <span className="text-gray-300 font-gothic-a1">No Image Available</span>
-                </div>
-              )}
+              </div>
             </div>
             {/* Right: Studio details and Navigation */}
             <div className="flex-1 flex flex-col bg-[#1a1916] relative">
@@ -313,15 +293,25 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
           0% { opacity: 0; }
           100% { opacity: 1; }
         }
-                  .micro-divider {
-content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-
-  /* Apply the custom dashed pattern using borderImage */
-  border-image: repeating-linear-gradient(to right, #999380, #999380 67px, transparent 67px, transparent 72px) 1;
-  pointer-events: none;
+        .fade-image {
+          opacity: 1;
+          transition: opacity 1s;
+        }
+        .fade-in {
+          opacity: 1 !important;
+        }
+        .fade-out {
+          opacity: 0 !important;
+          z-index: 1;
+        }
+        .micro-divider {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          border-image: repeating-linear-gradient(to right, #999380, #999380 67px, transparent 67px, transparent 72px) 1;
+          pointer-events: none;
+        }
       `}</style>
     </div>
   );

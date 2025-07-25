@@ -13,7 +13,7 @@ interface StudioDetail {
   id: string;
   name: string;
   slogan: string;
-  projects?: { id: string; title: string; image?: string; thumbnail?: string; slug?: string; category: string; year: number }[];
+  projects?: { id: string; title: string; image?: string; thumbnail?: string; slug?: string; category: string; year: number; behanceUrl?: string; }[];
   fonts?: { id: string; name: string; image: string; type: string; price: number }[];
   artworks?: { id: string; name: string; author: string; image: string; type: string; }[];
   thumbnail?: string;
@@ -80,6 +80,37 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
       </Layout>
     );
   }
+
+  // Now safe to access studio.projects
+  const projects = studio.projects && studio.projects.length > 0 ? studio.projects : [
+    {
+      id: 'munchies',
+      title: 'Munchies Project',
+      image: '/assets/Munchies/Munchies/10.jpg',
+      slug: 'munchies-project',
+      category: 'Branding',
+      year: 2024,
+      behanceUrl: 'https://www.behance.net/gallery/135884519/MUNCHIES'
+    },
+    {
+      id: 'nuoc',
+      title: 'Nuoc Project',
+      image: '/assets/Nuoc/Nuoc/cd268e114371313.6039d4b567b34.jpg',
+      slug: 'nuoc-project',
+      category: 'Packaging',
+      year: 2023,
+      behanceUrl: 'https://www.behance.net/gallery/114371313/NUOC-BRANDING'
+    },
+    {
+      id: 'slender',
+      title: 'Slender Typeface',
+      image: '/assets/Slender Typeface/Slender Typeface/b2e8f2156766269.63826b47e7b88.jpg',
+      slug: 'slender-typeface',
+      category: 'Typeface',
+      year: 2022,
+      behanceUrl: 'https://www.behance.net/gallery/156766269/SLENDER'
+    }
+  ];
 
   return (
     <Layout>
@@ -185,13 +216,14 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
         </section>
 
         {/* Work Portfolio Section (restored old design, but using projects) */}
-        {studio.projects && (
+        {projects && (
           <section className="w-full pt-8 sm:pt-10 md:pt-12 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+            <div className="max-w-screen-2xl mx-auto px-4">
 
               <div className="space-y-8 sm:space-y-10 md:space-y-12">
-                {studio.projects.map((item, index) => {
-                  const projectUrl = item.slug ? `/project/${item.slug}` : `/project/${item.id}`;
+                {projects.map((item, index) => {
+                  const projectUrl = item.behanceUrl || (item.slug ? `/project/${item.slug}` : `/project/${item.id}`);
+                  const isExternal = Boolean(item.behanceUrl);
                   return (
                     <motion.div
                       key={item.id}
@@ -207,8 +239,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                       viewport={{ once: true, margin: "-10%" }}
                       className="overflow-hidden flex flex-col items-center"
                     >
-                      <Link href={projectUrl} legacyBehavior>
-                        <a className="block group w-full max-w-[2000px]">
+                      {isExternal ? (
+                        <a href={projectUrl} target="_blank" rel="noopener noreferrer" className="block group w-full max-w-[2000px]">
                           <motion.div className="relative overflow-hidden w-full">
                             <motion.img
                               initial={{ opacity: 0, scale: 0.95 }}
@@ -247,7 +279,49 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                             </div>
                           </div>
                         </a>
-                      </Link>
+                      ) : (
+                        <Link href={projectUrl} legacyBehavior>
+                          <a className="block group w-full max-w-[2000px]">
+                            <motion.div className="relative overflow-hidden w-full">
+                              <motion.img
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                whileHover={{ 
+                                  scale: 1.05,
+                                  transition: { duration: 0.3, ease: "easeOut" }
+                                }}
+                                transition={{ duration: 0.4, delay: index * 0.15 + 0.2 }}
+                                src={item.thumbnail || item.image}
+                                alt={item.title}
+                                className="w-full h-auto object-cover group-hover:opacity-90 transition"
+                                style={{ maxHeight: 700 }}
+                              />
+                            </motion.div>
+                            <div className="py-3 sm:py-4 w-full">
+                              <div className="flex justify-between items-center mb-2">
+                                <h3
+                                  className="text-lg sm:text-xl font-bold group-hover:underline"
+                                  style={{ fontFamily: '"Crimson Pro", serif', fontWeight: 400 }}
+                                >
+                                  {item.title}
+                                </h3>
+                                <div
+                                  className="text-gray-300 text-sm sm:text-base"
+                                  style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                                >
+                                  {item.year}
+                                </div>
+                              </div>
+                              <div
+                                className="text-gray-300 text-sm sm:text-base"
+                                style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                              >
+                                {item.category}
+                              </div>
+                            </div>
+                          </a>
+                        </Link>
+                      )}
                     </motion.div>
                   );
                 })}
@@ -396,9 +470,9 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                           <h3 className="text-2xl font-bold mb-2">
                             {item.name}
                           </h3>
-                          <div className="text-gray-700">
+                          {/* <div className="text-gray-700">
                             từ {item.price}đ
-                          </div>
+                          </div> */}
                         </div>
                       </motion.div>
                     );
@@ -406,12 +480,14 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 </div>
               </div>
             </div>
+            {/*
             <div className="border-wrapper">
-  <button
-    className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
-    xem tất cả phông-chữ
-  </button>
-</div>
+              <button
+                className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
+                xem tất cả phông-chữ
+              </button>
+            </div>
+            */}
           </motion.section>
         )}
 
@@ -595,12 +671,14 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 </div>
               </div>
             </div>
+            {/*
             <div className="border-wrapper">
-  <button
-    className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
-    xem tất cả tranh-vẽ
-  </button>
-</div>
+              <button
+                className="w-full py-3 bg-yellow-400 text-black font-bold font-crimson text-lg hover:bg-yellow-500 transition-colors artworks-button">
+                xem tất cả tranh-vẽ
+              </button>
+            </div>
+            */}
           </motion.section>
         )}
 
@@ -757,43 +835,70 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { id } = context.params!;
-
-  if (!id) {
-    return { notFound: true };
-  }
-
-  try {
-    const { data: studio, error } = await supabase
-      .from('studios')
-      .select(`
-        *,
-        projects(*),
-        fonts(*),
-        artworks(*)
-      `)
-      .eq('id', id)
-      .single();
-
-    if (error || !studio) {
-      console.error('Error fetching studio from Supabase:', error);
-      return { notFound: true };
-    }
-
-    return {
-      props: {
-        studio,
+  // Always return manual studio data
+  const studio = {
+    id: 'manual-studio',
+    name: 'Munchies Studio',
+    slogan: 'We are a Powerhouse crafting the\nnext best sh*t on the net: Branding,\nTypeface, Illustration.',
+    projects: [
+      {
+        id: 'munchies',
+        title: 'Munchies Project',
+        image: '/assets/Munchies/Munchies/10.jpg',
+        slug: 'munchies-project',
+        category: 'Branding',
+        year: 2024,
+        behanceUrl: 'https://www.behance.net/gallery/135884519/MUNCHIES'
       },
-    };
-  } catch (err) {
-    console.error('An unexpected error occurred:', err);
-    return {
-      props: {
-        studio: null,
-        error: 'Failed to load studio data.',
+      {
+        id: 'nuoc',
+        title: 'Nuoc Project',
+        image: '/assets/Nuoc/Nuoc/cd268e114371313.6039d4b567b34.jpg',
+        slug: 'nuoc-project',
+        category: 'Packaging',
+        year: 2023,
+        behanceUrl: 'https://www.behance.net/gallery/114371313/NUOC-BRANDING'
       },
-    };
-  }
+      {
+        id: 'slender',
+        title: 'Slender Typeface',
+        image: '/assets/Slender Typeface/Slender Typeface/b2e8f2156766269.63826b47e7b88.jpg',
+        slug: 'slender-typeface',
+        category: 'Typeface',
+        year: 2022,
+        behanceUrl: 'https://www.behance.net/gallery/156766269/SLENDER'
+      }
+    ],
+    fonts: [
+      {
+        id: 'typo1',
+        name: 'Typo One',
+        image: '/assets/typo1.png',
+        type: 'Display',
+        price: 0
+      },
+      {
+        id: 'typo2',
+        name: 'Typo Two',
+        image: '/assets/typo2.png',
+        type: 'Serif',
+        price: 0
+      },
+      {
+        id: 'typo3',
+        name: 'Typo Three',
+        image: '/assets/typo3.png',
+        type: 'Sans',
+        price: 0
+      }
+    ]
+    // Add artworks or other fields as needed
+  };
+  return {
+    props: {
+      studio,
+    },
+  };
 };
 
 export default StudioHomepage;
