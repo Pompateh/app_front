@@ -838,7 +838,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   // Always return manual studio data
   const studio = {
     id: 'manual-studio',
-    name: 'Munchies Studio',
+    name: 'NewStalgia',
     slogan: 'We are a Powerhouse crafting the\nnext best sh*t on the net: Branding,\nTypeface, Illustration.',
     projects: [
       {
