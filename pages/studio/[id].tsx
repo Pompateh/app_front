@@ -121,7 +121,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
         transition={{ duration: 0.8 }}
         className="w-full"
       >
-        <section className="w-full py-8 sm:py-12 md:py-16 lg:py-20 xl:py-28 bg-black text-white">
+        {/* Desktop Hero Section (md and up) */}
+        <section className="hidden md:block w-full py-16 lg:py-20 xl:py-28 bg-black text-white">
           <motion.div 
             style={{ y: y1, scale }}
             className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16"
@@ -142,7 +143,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 }}
                 src="/assets/head1.png" 
                 alt="Studio Doodle" 
-                className="w-24 md:w-32 lg:w-40 h-auto object-contain mb-4" 
+                className="w-32 lg:w-40 h-auto object-contain mb-4" 
               />
               <motion.p 
                 initial={{ opacity: 0, y: 30 }}
@@ -154,7 +155,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 whileHover={{ scale: 1.05 }}
-                className="text-base md:text-lg text-center mb-4 px-4" 
+                className="text-lg text-center mb-4 px-4" 
                 style={{
                   fontFamily: '"Gothic A1", sans-serif',
                   fontWeight: 800
@@ -173,13 +174,13 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 }}
                 className="text-center mb-6 px-4 sm:px-6 md:px-8 lg:px-12"
               >
-                <div className="max-w-[90vw] md:max-w-[80vw] lg:max-w-[1200px] mx-auto">
+                <div className="max-w-[80vw] lg:max-w-[1200px] mx-auto">
                   {studio.slogan.split('\n').map((line, index) => (
                     <span 
                       key={index} 
                       className="block leading-tight tracking-wide w-full text-center font-crimson-pro" 
                       style={{ 
-                        fontSize: 'clamp(2rem, 5vw, 5.3rem)',
+                        fontSize: '5.3rem',
                         fontWeight: 200,
                         fontStyle: 'italic'
                       }}
@@ -204,7 +205,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 400,
                   fontStyle: 'italic',
-                  fontSize: 'clamp(1.5rem, 3vw, 4rem)',
+                  fontSize: '4rem',
                   lineHeight: '1.1',
                   letterSpacing: '-0.02em'
                 }}
@@ -215,12 +216,101 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
           </motion.div>
         </section>
 
-        {/* Work Portfolio Section (restored old design, but using projects) */}
+        {/* Mobile Hero Section (below md) */}
+        <section className="md:hidden w-full py-6 bg-black text-white">
+          <div className="max-w-screen-2xl mx-auto px-4">
+            <div className="flex flex-col items-center">
+              <motion.img 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.8,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  transition: { duration: 0.3 }
+                }}
+                src="/assets/head1.png" 
+                alt="Studio Doodle" 
+                className="w-16 h-auto object-contain mb-3" 
+              />
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.8,
+                  delay: 0.2,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                className="text-sm text-center mb-3" 
+                style={{
+                  fontFamily: '"Gothic A1", sans-serif',
+                  fontWeight: 800
+                }}
+              >
+                Xin chào! Chúng tôi là {studio.name}
+              </motion.p>
+              <motion.div 
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.8,
+                  delay: 0.4,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                className="text-center mb-3"
+              >
+                <div className="max-w-[90vw] mx-auto">
+                  {studio.slogan.split('\n').map((line, index) => (
+                    <span 
+                      key={index} 
+                      className="block leading-tight tracking-wide w-full text-center font-crimson-pro" 
+                      style={{ 
+                        fontSize: '1.25rem',
+                        fontWeight: 200,
+                        fontStyle: 'italic'
+                      }}
+                    >
+                      {line}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.8,
+                  delay: 0.6,
+                  type: "spring",
+                  stiffness: 100
+                }}
+                className="text-center" 
+                style={{
+                  fontFamily: '"Crimson Pro", serif',
+                  fontWeight: 400,
+                  fontStyle: 'italic',
+                  fontSize: '1.125rem',
+                  lineHeight: '1.1',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                You name it. We've got it
+              </motion.p>
+            </div>
+          </div>
+        </section>
+
+        {/* Desktop Portfolio Section (md and up) */}
         {projects && (
-          <section className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12 bg-black text-white">
+          <section className="hidden md:block w-full pt-10 lg:pt-12 bg-black text-white">
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
 
-              <div className="space-y-8 sm:space-y-10 md:space-y-12">
+              <div className="space-y-8 md:space-y-10 lg:space-y-12">
                 {projects.map((item, index) => {
                   const projectUrl = item.behanceUrl || (item.slug ? `/project/${item.slug}` : `/project/${item.id}`);
                   const isExternal = Boolean(item.behanceUrl);
@@ -256,8 +346,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                               style={{ maxHeight: 700 }}
                             />
                           </motion.div>
-                          <div className="py-3 sm:py-4 w-full">
-                            <div className="flex justify-between items-center mb-2">
+                          <div className="py-3 sm:py-4 w-full px-4 sm:px-0">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 space-y-1 sm:space-y-0">
                               <h3
                                 className="text-lg sm:text-xl font-bold group-hover:underline"
                                 style={{ fontFamily: '"Crimson Pro", serif', fontWeight: 400 }}
@@ -330,7 +420,125 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
           </section>
         )}
 
-        {/* Featured Fonts Section */}
+        {/* Mobile Portfolio Section (below md) */}
+        {projects && (
+          <section className="md:hidden w-full pt-6 bg-black text-white">
+            <div className="max-w-screen-2xl mx-auto px-4">
+              <div className="space-y-6">
+                {projects.map((item, index) => {
+                  const projectUrl = item.behanceUrl || (item.slug ? `/project/${item.slug}` : `/project/${item.id}`);
+                  const isExternal = Boolean(item.behanceUrl);
+                  return (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.6,
+                        delay: index * 0.1,
+                        type: "spring",
+                        stiffness: 50,
+                        damping: 20
+                      }}
+                      viewport={{ once: true, margin: "-10%" }}
+                      className="overflow-hidden"
+                    >
+                      {isExternal ? (
+                        <a href={projectUrl} target="_blank" rel="noopener noreferrer" className="block group">
+                          <motion.div className="relative overflow-hidden w-full rounded-lg">
+                            <motion.img
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              whileInView={{ opacity: 1, scale: 1 }}
+                              whileHover={{ 
+                                scale: 1.02,
+                                transition: { duration: 0.3, ease: "easeOut" }
+                              }}
+                              transition={{ duration: 0.4, delay: index * 0.1 + 0.2 }}
+                              src={item.thumbnail || item.image}
+                              alt={item.title}
+                              className="w-full h-auto object-cover group-hover:opacity-90 transition"
+                              style={{ maxHeight: 400 }}
+                            />
+                          </motion.div>
+                          <div className="py-3 px-4">
+                            <div className="flex flex-col space-y-1">
+                              <h3
+                                className="text-lg font-bold group-hover:underline"
+                                style={{ fontFamily: '"Crimson Pro", serif', fontWeight: 400 }}
+                              >
+                                {item.title}
+                              </h3>
+                              <div className="flex justify-between items-center">
+                                <div
+                                  className="text-gray-300 text-sm"
+                                  style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                                >
+                                  {item.category}
+                                </div>
+                                <div
+                                  className="text-gray-300 text-sm"
+                                  style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                                >
+                                  {item.year}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                      ) : (
+                        <Link href={projectUrl} legacyBehavior>
+                          <a className="block group">
+                            <motion.div className="relative overflow-hidden w-full rounded-lg">
+                              <motion.img
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                whileHover={{ 
+                                  scale: 1.02,
+                                  transition: { duration: 0.3, ease: "easeOut" }
+                                }}
+                                transition={{ duration: 0.4, delay: index * 0.1 + 0.2 }}
+                                src={item.thumbnail || item.image}
+                                alt={item.title}
+                                className="w-full h-auto object-cover group-hover:opacity-90 transition"
+                                style={{ maxHeight: 400 }}
+                              />
+                            </motion.div>
+                            <div className="py-3 px-4">
+                              <div className="flex flex-col space-y-1">
+                                <h3
+                                  className="text-lg font-bold group-hover:underline"
+                                  style={{ fontFamily: '"Crimson Pro", serif', fontWeight: 400 }}
+                                >
+                                  {item.title}
+                                </h3>
+                                <div className="flex justify-between items-center">
+                                  <div
+                                    className="text-gray-300 text-sm"
+                                    style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                                  >
+                                    {item.category}
+                                  </div>
+                                  <div
+                                    className="text-gray-300 text-sm"
+                                    style={{ fontFamily: '"Gothic A1", sans-serif', fontWeight: 700 }}
+                                  >
+                                    {item.year}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                        </Link>
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Desktop Fonts Section (md and up) */}
         {studio.fonts && (
           <motion.section 
             initial={{ opacity: 0, y: 50 }}
@@ -341,7 +549,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
               stiffness: 50
             }}
             viewport={{ once: true }}
-            className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12 bg-gray-50"
+            className="hidden md:block w-full pt-10 lg:pt-12 bg-gray-50"
           >
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
               <motion.img 
@@ -356,7 +564,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 viewport={{ once: true }}
                 src="/assets/drawing.png" 
                 alt="Fonts Doodle" 
-                className="w-64 h-64 object-contain mx-auto" 
+                className="w-48 sm:w-56 md:w-64 h-48 sm:h-56 md:h-64 object-contain mx-auto" 
               />
               <motion.p 
                 initial={{ opacity: 0, y: 30 }}
@@ -404,15 +612,17 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center mb-6 sm:mb-8" 
+                className="text-center mb-6 sm:mb-8 px-4 sm:px-0" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
-                  fontWeight: 400
+                  fontWeight: 400,
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                  lineHeight: 1.5
                 }}
               >
-                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác<br />
+                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác<br className="hidden sm:block" />
                 đều có thể được tùy chỉnh theo nhu cầu của khách
-                Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
+                Được làm từ nguyên liệu 100% hữu cơ (bắp),<br className="hidden sm:block" /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
               <div className="mb-16 sm:mb-20 md:mb-24">
@@ -491,7 +701,122 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
           </motion.section>
         )}
 
-        {/* Featured Artworks Section */}
+        {/* Mobile Fonts Section (below md) */}
+        {studio.fonts && (
+          <section className="md:hidden w-full pt-8 bg-gray-50">
+            <div className="max-w-screen-2xl mx-auto px-4">
+              <motion.img 
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                src="/assets/drawing.png" 
+                alt="Fonts Doodle" 
+                className="w-32 h-32 object-contain mx-auto mb-4" 
+              />
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-center text-sm mb-2" 
+                style={{
+                  fontFamily: '"Gothic A1", sans-serif',
+                  fontWeight: 800
+                }}
+              >
+                Handcrafted Typefaces
+              </motion.p>
+              <motion.h3 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-lg text-center mb-4" 
+                style={{
+                  fontFamily: '"Crimson Pro", serif',
+                  fontWeight: 200
+                }}
+              >
+                Phông-chữ <span className="italic">Nhà-làm</span>
+              </motion.h3>
+              <motion.p 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-center mb-6 text-sm px-4" 
+                style={{
+                  fontFamily: '"Crimson Pro", serif',
+                  fontWeight: 400,
+                  lineHeight: 1.5
+                }}
+              >
+                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác đều có thể được tùy chỉnh theo nhu cầu của khách. Được làm từ nguyên liệu 100% hữu cơ (bắp), nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
+              </motion.p>
+              <div className="mb-12">
+                <div className="space-y-4">
+                  {studio.fonts.map((item, index) => {
+                    const imagePath = index === 0 
+                      ? '/assets/image 61.png'
+                      : index === 1 
+                      ? '/assets/image 64.png'
+                      : '/assets/image 65.png';
+                    const fallbackImage = index === 0 
+                      ? '/assets/61.png'
+                      : index === 1 
+                      ? '/assets/64.png'
+                      : '/assets/65.png';
+                    return (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.6,
+                          delay: index * 0.1,
+                          type: "spring",
+                          stiffness: 50
+                        }}
+                        viewport={{ once: true }}
+                        className="overflow-hidden transform transition duration-300 bg-white rounded-lg shadow-sm"
+                      >
+                        <motion.div 
+                          className="bg-[#2A211C] px-6 py-8 overflow-hidden flex items-center justify-center"
+                          style={{ aspectRatio: '4/5' }}
+                        >
+                          <motion.img
+                            whileHover={{ 
+                              scale: 1.05,
+                              transition: { duration: 0.3 }
+                            }}
+                            src={imagePath}
+                            alt={`${item.name} font preview`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = fallbackImage;
+                            }}
+                          />
+                        </motion.div>
+                        <div className="p-4">
+                          <div className="text-gray-700 uppercase text-xs mb-1">
+                            {item.type}
+                          </div>
+                          <h3 className="text-lg font-bold mb-1">
+                            {item.name}
+                          </h3>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Desktop Artworks Section (md and up) */}
         {studio.artworks && (
           <motion.section 
             initial={{ opacity: 0, y: 50 }}
@@ -502,7 +827,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
               stiffness: 50
             }}
             viewport={{ once: true }}
-            className="w-full pt-8 sm:pt-10 md:pt-12 lg:pt-16 bg-white"
+            className="hidden md:block w-full pt-12 lg:pt-16 bg-white"
           >
             <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
               <motion.img 
@@ -517,7 +842,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 viewport={{ once: true }}
                 src="/assets/head.png" 
                 alt="Arts Doodle" 
-                className="w-64 h-64 object-contain mx-auto mb-8" 
+                className="w-48 sm:w-56 md:w-64 h-48 sm:h-56 md:h-64 object-contain mx-auto mb-6 sm:mb-8" 
               />
               <motion.p 
                 initial={{ opacity: 0, y: 30 }}
@@ -566,15 +891,17 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center mb-6 sm:mb-8" 
+                className="text-center mb-6 sm:mb-8 px-4 sm:px-0" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
-                  fontWeight: 400
+                  fontWeight: 400,
+                  fontSize: 'clamp(0.875rem, 2.5vw, 1rem)',
+                  lineHeight: 1.5
                 }}
               >
-                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác<br />
+                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác<br className="hidden sm:block" />
                 đều có thể được tùy chỉnh theo nhu cầu của khách
-                Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
+                Được làm từ nguyên liệu 100% hữu cơ (bắp),<br className="hidden sm:block" /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
               <div className="mb-12 sm:mb-16 md:mb-20">
@@ -612,10 +939,10 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                         />
                       </motion.div>
                       <div className="p-3 sm:p-4 md:p-6">
-                        <div className="text-gray-700 uppercase">
+                        <div className="text-gray-700 uppercase text-sm sm:text-base">
                           {item.author}
                         </div>
-                        <h3 className="text-2xl font-bold mb-2">
+                        <h3 className="text-xl sm:text-2xl font-bold mb-2">
                           {item.name}
                         </h3>
                       </div>
@@ -659,10 +986,10 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                         />
                       </motion.div>
                       <div className="p-3 sm:p-4 md:p-6">
-                        <div className="text-gray-700 uppercase">
+                        <div className="text-gray-700 uppercase text-sm sm:text-base">
                           {item.author}
                         </div>
-                        <h3 className="text-2xl font-bold mb-2">
+                        <h3 className="text-xl sm:text-2xl font-bold mb-2">
                           {item.name}
                         </h3>
                       </div>
@@ -680,6 +1007,106 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
             </div>
             */}
           </motion.section>
+        )}
+
+        {/* Mobile Artworks Section (below md) */}
+        {studio.artworks && (
+          <section className="md:hidden w-full pt-8 bg-white">
+            <div className="max-w-screen-2xl mx-auto px-4">
+              <motion.img 
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                src="/assets/head.png" 
+                alt="Arts Doodle" 
+                className="w-32 h-32 object-contain mx-auto mb-4" 
+              />
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-center text-sm mb-2" 
+                style={{
+                  fontFamily: '"Gothic A1", sans-serif',
+                  fontWeight: 800
+                }}
+              >
+                Home-cooked Illustrations
+              </motion.p>
+              <motion.h3 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-lg text-center mb-4" 
+                style={{
+                  fontFamily: '"Crimson Pro", serif',
+                  fontWeight: 200,
+                  fontStyle: 'italic'
+                }}
+              >
+                <span className="italic">Tranh-vẽ</span> Nhà-làm
+              </motion.h3>
+              <motion.p 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="text-center mb-6 text-sm px-4" 
+                style={{
+                  fontFamily: '"Crimson Pro", serif',
+                  fontWeight: 400,
+                  lineHeight: 1.5
+                }}
+              >
+                Bổn tiệm bán thiết kế nhà làm có tính cá nhân hóa - tất cả túi xách, con chữ và các sản phẩm khác đều có thể được tùy chỉnh theo nhu cầu của khách. Được làm từ nguyên liệu 100% hữu cơ (bắp), nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
+              </motion.p>
+              <div className="mb-12">
+                <div className="space-y-4">
+                  {studio.artworks.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.6,
+                        delay: index * 0.1,
+                        type: "spring",
+                        stiffness: 50
+                      }}
+                      viewport={{ once: true }}
+                      className="overflow-hidden transform transition duration-300 bg-white rounded-lg shadow-sm"
+                    >
+                      <motion.div
+                        className="overflow-hidden"
+                        style={{ aspectRatio: '1 / 1' }}
+                      >
+                        <motion.img
+                          whileHover={{ 
+                            scale: 1.05,
+                            transition: { duration: 0.3 }
+                          }}
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
+                      <div className="p-4">
+                        <div className="text-gray-700 uppercase text-xs mb-1">
+                          {item.author}
+                        </div>
+                        <h3 className="text-lg font-bold mb-1">
+                          {item.name}
+                        </h3>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
 
