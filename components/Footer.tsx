@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="max-w-[1500px] mx-auto py-12 flex flex-col md:flex-row">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12 flex flex-col md:flex-row">
         {/* Left half: Logo and Slogan */}
         <div className="w-full md:w-1/2 flex flex-col items-start">
           <img src="/assets/Vector-y.png" alt="NEWStalgia Logo" className="h-[7.5rem] mb-2" />
@@ -75,7 +75,7 @@ const Footer: React.FC = () => {
       </div>
       {/* Footer Content with lighter background full width */}
       <div className="w-full bg-[#3b322d] py-4">
-        <div className="max-w-[1500px] mx-auto">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <p className="text-left text-sm">
             Bảo quyền thuộc về NewStalgia 2025
           </p>

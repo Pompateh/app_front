@@ -76,10 +76,10 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white fixed top-0 w-full z-50 border-b-2 border-[#999380] px-4">
+    <header className="bg-white fixed top-0 w-full z-50 border-b-2 border-[#999380]">
       <div className="absolute left-0 top-0 h-full w-2 bg-[#999380] z-40" style={{ height: '100vh' }}></div>
       
-      <div className="max-w-[1500px] mx-auto relative">
+      <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 relative">
         {/* Desktop Header */}
         <div className="hidden md:flex items-stretch" style={{ height: '50px' }}>
           {/* Left half - Logo/Name */}

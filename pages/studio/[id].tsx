@@ -121,10 +121,10 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
         transition={{ duration: 0.8 }}
         className="w-full"
       >
-        <section className="w-full py-12 md:py-20 lg:py-28 bg-black text-white">
+        <section className="w-full py-8 sm:py-12 md:py-16 lg:py-20 xl:py-28 bg-black text-white">
           <motion.div 
             style={{ y: y1, scale }}
-            className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8"
+            className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16"
           >
             <div className="flex flex-col items-center">
               <motion.img 
@@ -171,7 +171,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   type: "spring",
                   stiffness: 100
                 }}
-                className="text-center mb-6 px-4 sm:px-6 md:px-8"
+                className="text-center mb-6 px-4 sm:px-6 md:px-8 lg:px-12"
               >
                 <div className="max-w-[90vw] md:max-w-[80vw] lg:max-w-[1200px] mx-auto">
                   {studio.slogan.split('\n').map((line, index) => (
@@ -217,8 +217,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
 
         {/* Work Portfolio Section (restored old design, but using projects) */}
         {projects && (
-          <section className="w-full pt-8 sm:pt-10 md:pt-12 bg-black text-white">
-            <div className="max-w-screen-2xl mx-auto px-4">
+          <section className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12 bg-black text-white">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
 
               <div className="space-y-8 sm:space-y-10 md:space-y-12">
                 {projects.map((item, index) => {
@@ -341,9 +341,9 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
               stiffness: 50
             }}
             viewport={{ once: true }}
-            className="w-full pt-6 bg-gray-50"
+            className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12 bg-gray-50"
           >
-            <div className="max-w-screen-2xl mx-auto px-4">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
               <motion.img 
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -368,7 +368,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center text-lg mb-2" 
+                className="text-center text-base sm:text-lg mb-2" 
                 style={{
                   fontFamily: '"Gothic A1", sans-serif',
                   fontWeight: 800
@@ -386,7 +386,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-2xl text-center mb-4" 
+                className="text-xl sm:text-2xl text-center mb-4" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 200
@@ -404,7 +404,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center mb-8" 
+                className="text-center mb-6 sm:mb-8" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 400
@@ -415,8 +415,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
-              <div className="mb-24">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="mb-16 sm:mb-20 md:mb-24">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                   {studio.fonts.map((item, index) => {
                     const imagePath = index === 0 
                       ? '/assets/image 61.png'
@@ -443,7 +443,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                         className="overflow-hidden transform transition duration-300"
                       >
                         <motion.div 
-                          className="bg-[#2A211C] px-14 py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
+                          className="bg-[#2A211C] px-6 sm:px-8 md:px-10 lg:px-14 py-8 sm:py-10 md:py-12 overflow-hidden flex items-center justify-center aspect-[4/5]"
                           whileHover={{ 
                             scale: 1.02,
                             transition: { duration: 0.3 }
@@ -502,9 +502,9 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
               stiffness: 50
             }}
             viewport={{ once: true }}
-            className="w-full pt-12 bg-white"
+            className="w-full pt-8 sm:pt-10 md:pt-12 lg:pt-16 bg-white"
           >
-            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
               <motion.img 
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
@@ -529,7 +529,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center text-lg mb-2" 
+                className="text-center text-base sm:text-lg mb-2" 
                 style={{
                   fontFamily: '"Gothic A1", sans-serif',
                   fontWeight: 800
@@ -547,7 +547,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-3xl text-center mb-4" 
+                className="text-2xl sm:text-3xl text-center mb-4" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 200,
@@ -566,7 +566,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                   stiffness: 100
                 }}
                 viewport={{ once: true }}
-                className="text-center mb-8" 
+                className="text-center mb-6 sm:mb-8" 
                 style={{
                   fontFamily: '"Crimson Pro", serif',
                   fontWeight: 400
@@ -577,8 +577,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 Được làm từ nguyên liệu 100% hữu cơ (bắp),<br /> 
                 nhập mới hàng ngày, đảm bảo chát lượng tốt nhất ngay từ khâu lên ý tưởng.
               </motion.p>
-              <div className="mb-20">
-                <div className="grid grid-cols-2 gap-0">
+              <div className="mb-12 sm:mb-16 md:mb-20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
                   {studio.artworks.slice(0, 2).map((item, index) => (
                     <motion.div
                       key={item.id}
@@ -611,7 +611,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                           style={{ aspectRatio: '1 / 1', height: 'auto' }}
                         />
                       </motion.div>
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4 md:p-6">
                         <div className="text-gray-700 uppercase">
                           {item.author}
                         </div>
@@ -624,8 +624,8 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                 </div>
               </div>
 
-              <div className="mb-24">
-                <div className="grid grid-cols-4 gap-0">
+              <div className="mb-16 sm:mb-20 md:mb-24">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0">
                   {studio.artworks.slice(2, 6).map((item, index) => (
                     <motion.div
                       key={item.id}
@@ -655,10 +655,10 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
                           src={item.image}
                           alt={item.name}
                           className="w-full object-cover"
-                          style={{ width: '100%', height: '700px' }}
+                          style={{ width: '100%', height: 'clamp(400px, 50vh, 700px)' }}
                         />
                       </motion.div>
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4 md:p-6">
                         <div className="text-gray-700 uppercase">
                           {item.author}
                         </div>
