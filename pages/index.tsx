@@ -97,136 +97,295 @@ const MasterHomepage: NextPage<MasterHomepageProps> = ({ studios, error }) => {
         <VerticalLineBlack />
         {studios.map((studio) => (
           <section key={studio.id} className="relative h-screen snap-start flex flex-col md:flex-row bg-indigo-900 text-white overflow-hidden">
-            {/* Left: Image content */}
-            <div className="relative flex-1 overflow-hidden">
-              <div className="w-full h-full relative">
+            {/* Desktop Layout (md and up) */}
+            <div className="hidden md:flex w-full h-full">
+              {/* Left: Image content */}
+              <div className="relative flex-1 overflow-hidden">
+                <div className="w-full h-full relative">
+                  <img
+                    src={munchiesImages[0]}
+                    alt="Munchies 13"
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Overlays (title, description, author) remain unchanged */}
+                  <div
+                    className="absolute bottom-0 left-8 right-4 flex items-center justify-between bg-white animate-fadeIn"
+                    style={{ height: '130px', boxSizing: 'border-box' }}
+                  >
+                    <div className="flex flex-col" style={{ maxWidth: '70%', lineHeight: '1.2', padding: '14px 14px' }}>
+                      <h2
+                        style={{
+                          fontFamily: '"Crimson Pro", serif',
+                          letterSpacing: '0.05em',
+                          margin: '0 0 0.5em 0',
+                          fontWeight: 400,
+                          fontStyle: 'italic',
+                          fontSize: '2rem',
+                        }}
+                        className="text-black"
+                      >
+                        Munchies Package Box
+                      </h2>
+                      <p
+                        style={{ 
+                          fontSize: '1.125rem', 
+                          lineHeight: '1.3', 
+                          margin: 0,
+                          fontFamily: '"Crimson Pro", serif',
+                          fontWeight: 400,
+                          fontStyle: 'normal'
+                        }}
+                        className="text-black"
+                      >
+                        "The spirit of joy , color & friendship"
+                      </p>
+                    </div>
+                    {studio.author && (
+                      <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px 5px 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
+                        {studio.author.split('/').map(line => line.trim()).join('\n')}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* Right: Studio details and Navigation */}
+              <div className="flex-1 flex flex-col bg-[#1a1916] relative">
+                <div className="flex-1 flex flex-col justify-center items-center">
+                <div
+className="relative border border-[#999380] bg-black text-white"
+style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5rem' }}
+>
+                    {/* Doodle Stickers Around the Studio Box */}
+                    <img 
+                      src={isNightTime ? "/assets/sleepy.png" : "/assets/Layer_12.png"} 
+                      alt={isNightTime ? "Sleepy Doodle" : "Doodle Far Bottom Left"} 
+                      style={{ 
+                        position: 'absolute', 
+                        bottom: '-40px', 
+                        right: '-90px', 
+                        width: '100px', 
+                        height: '100px', 
+                        zIndex: 10,
+                        transition: 'opacity 0.3s ease-in-out'
+                      }} 
+                    />
+                    <div className="p-4">
+                      <div className="w-full">
+                        {studio.logo ? (
+                          <div className="flex items-center w-full" style={{ height: '2.5rem', marginBottom: '0.75rem' }}>
+                            <img
+                              src="/assets/Vector-w.png"
+                              alt={studio.name + ' logo'}
+                              className="max-h-10 object-contain"
+                              style={{ maxWidth: '100%', maxHeight: '2.5rem' }}
+                            />
+                          </div>
+                        ) : (
+                          <h2 
+                            className="text-2xl mb-3" 
+                            style={{
+                              fontFamily: '"Crimson Pro", serif',
+                              fontWeight: 400,
+                              fontSize: '2rem'
+                            }}
+                          >
+                            {studio.name}
+                          </h2>
+                        )}
+                        <hr className="border-t border-[#999380] mt-2 w-full" />
+                      </div>
+                    </div>
+                    <p
+                      className="text-sm px-4 py-2"
+                      style={{
+                        fontFamily: '"Crimson Pro", serif',
+                        fontWeight: 400,
+                        fontSize: '1.125rem',
+                        lineHeight: 1.2
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: studio.description.replace(/\n/g, '<br />')
+                      }}
+                    />
+                    <hr className="micro-divider mt-2" />
+                    <div className="py-2">
+                      <div className="p-4">
+                        <p 
+                          className="text-xs uppercase mb-4" 
+                          style={{
+                            fontFamily: '"Gothic A1", sans-serif',
+                            fontWeight: 700,
+                            fontSize: '1rem'
+                          }}
+                        >
+                          Giờ Mở Cửa
+                        </p>
+                        <hr className="border-t border-[#999380] mt-2 w-full" />
+                      </div>
+                      <div className="flex justify-between p-4">
+                        <span 
+                          className="text-sm" 
+                          style={{
+                            fontFamily: '"Crimson Pro", serif',
+                            fontWeight: 400,
+                            fontSize: '1.125rem'
+                          }}
+                        >
+                          {studio.openHours || 'N/A'}
+                        </span>
+                        <span 
+                          className="text-sm" 
+                          style={{
+                            fontFamily: '"Crimson Pro", serif',
+                            fontWeight: 400,
+                            fontStyle: 'italic',
+                            fontSize: '1.125rem'
+                          }}
+                        >
+                          {studio.openDays && studio.openDays.length > 0 ? studio.openDays.join(', ') : ''}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Enter Studio Button */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
+                      <Link href={`/studio/${studio.id}`}>
+                        <button
+                          className="w-full bg-yellow-400 text-black py-3 px-4 flex items-center justify-between transition hover:bg-yellow-500 focus:outline-none"
+                          style={{
+                            fontFamily: '"Gothic A1", "Crimson Pro", sans-serif',
+                            fontWeight: 800,
+                            textTransform: 'uppercase',
+                            fontSize: '1.125rem'
+                          }}
+                        >
+                          <span>TỚI STUDIO</span>
+                          <span className="text-xl">
+                            <img
+                              src="https://www.svgrepo.com/show/175121/door-open.svg"
+                              alt="Door Icon"
+                              className="w-6 h-6"
+                            />
+                          </span>
+                        </button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                {/* Full-Width Navigation Bar */}
+                <div className="w-full border-[#999380]">
+                  <NavigationProvider key={studio.id}>
+                    <StudioNavigation navItems={studio.navigation || [
+                      { label: 'Overview', href: `/studio/${studio.id}/overview` },
+                      { label: 'Exhibits', href: `/studio/${studio.id}/exhibits` },
+                      { label: 'Events', href: `/studio/${studio.id}/events` },
+                      
+                    ]} />
+                  </NavigationProvider>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Layout (below md) */}
+            <div className="md:hidden flex flex-col h-full">
+              {/* Mobile Header with Studio Info */}
+              <div className="flex-shrink-0 bg-black border-b border-[#999380] p-4">
+                <div className="flex items-center justify-between">
+                  {studio.logo ? (
+                    <img
+                      src="/assets/Vector-w.png"
+                      alt={studio.name + ' logo'}
+                      className="h-8 object-contain"
+                    />
+                  ) : (
+                    <h2 
+                      className="text-xl" 
+                      style={{
+                        fontFamily: '"Crimson Pro", serif',
+                        fontWeight: 400
+                      }}
+                    >
+                      {studio.name}
+                    </h2>
+                  )}
+                  <img 
+                    src={isNightTime ? "/assets/sleepy.png" : "/assets/Layer_12.png"} 
+                    alt="Doodle" 
+                    className="w-12 h-12 object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Mobile Image Section */}
+              <div className="flex-1 relative overflow-hidden">
                 <img
                   src={munchiesImages[0]}
                   alt="Munchies 13"
                   className="w-full h-full object-cover"
                 />
-                {/* Overlays (title, description, author) remain unchanged */}
-                <div
-                  className="absolute bottom-0 left-8 right-4 flex items-center justify-between bg-white animate-fadeIn"
-                  style={{ height: '130px', boxSizing: 'border-box' }}
-                >
-                  <div className="flex flex-col" style={{ maxWidth: '70%', lineHeight: '1.2', padding: '14px 14px' }}>
-                    <h2
+                {/* Mobile Image Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <div className="bg-white rounded-lg p-4">
+                    <h3
                       style={{
                         fontFamily: '"Crimson Pro", serif',
-                        letterSpacing: '0.05em',
-                        margin: '0 0 0.5em 0',
                         fontWeight: 400,
                         fontStyle: 'italic',
-                        fontSize: '2rem',
+                        fontSize: '1.25rem',
                       }}
-                      className="text-black"
+                      className="text-black mb-2"
                     >
                       Munchies Package Box
-                    </h2>
+                    </h3>
                     <p
                       style={{ 
-                        fontSize: '1.125rem', 
-                        lineHeight: '1.3', 
-                        margin: 0,
+                        fontSize: '0.875rem', 
                         fontFamily: '"Crimson Pro", serif',
                         fontWeight: 400,
-                        fontStyle: 'normal'
                       }}
                       className="text-black"
                     >
-                      "The spirit of joy , color & friendship"
+                      "The spirit of joy, color & friendship"
                     </p>
                   </div>
-                  {studio.author && (
-                    <div className="text-black" style={{ fontSize: '0.75rem', fontFamily: 'Gothic A1, sans-serif', fontWeight: 600, textTransform: 'uppercase', textAlign: 'right', whiteSpace: 'pre-line', lineHeight: 1.1, position: 'absolute', right: 12, bottom: 10, padding: '0 8px 5px 8px', background: 'rgba(255,255,255,0.85)', borderRadius: '4px' }}>
-                      {studio.author.split('/').map(line => line.trim()).join('\n')}
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
-            {/* Right: Studio details and Navigation */}
-            <div className="flex-1 flex flex-col bg-[#1a1916] relative">
-              <div className="flex-1 flex flex-col justify-center items-center">
-              <div
-className="relative border border-[#999380] bg-black text-white"
-style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5rem' }}
->
-                  {/* Doodle Stickers Around the Studio Box */}
-                  <img 
-                    src={isNightTime ? "/assets/sleepy.png" : "/assets/Layer_12.png"} 
-                    alt={isNightTime ? "Sleepy Doodle" : "Doodle Far Bottom Left"} 
-                    style={{ 
-                      position: 'absolute', 
-                      bottom: '-40px', 
-                      right: '-90px', 
-                      width: '100px', 
-                      height: '100px', 
-                      zIndex: 10,
-                      transition: 'opacity 0.3s ease-in-out'
-                    }} 
-                  />
-                  <div className="p-4">
-                    <div className="w-full">
-                      {studio.logo ? (
-                        <div className="flex items-center w-full" style={{ height: '2.5rem', marginBottom: '0.75rem' }}>
-                          <img
-                            src="/assets/Vector-w.png"
-                            alt={studio.name + ' logo'}
-                            className="max-h-10 object-contain"
-                            style={{ maxWidth: '100%', maxHeight: '2.5rem' }}
-                          />
-                        </div>
-                      ) : (
-                        <h2 
-                          className="text-2xl mb-3" 
-                          style={{
-                            fontFamily: '"Crimson Pro", serif',
-                            fontWeight: 400,
-                            fontSize: '2rem'
-                          }}
-                        >
-                          {studio.name}
-                        </h2>
-                      )}
-                      <hr className="border-t border-[#999380] mt-2 w-full" />
-                    </div>
-                  </div>
+
+              {/* Mobile Studio Details */}
+              <div className="flex-shrink-0 bg-black p-4">
+                <div className="space-y-4">
+                  {/* Description */}
                   <p
-                    className="text-sm px-4 py-2"
+                    className="text-sm"
                     style={{
                       fontFamily: '"Crimson Pro", serif',
                       fontWeight: 400,
-                      fontSize: '1.125rem',
-                      lineHeight: 1.2
+                      fontSize: '1rem',
+                      lineHeight: 1.4
                     }}
                     dangerouslySetInnerHTML={{
                       __html: studio.description.replace(/\n/g, '<br />')
                     }}
                   />
-                  <hr className="micro-divider mt-2" />
-                  <div className="py-2">
-                    <div className="p-4">
-                      <p 
-                        className="text-xs uppercase mb-4" 
-                        style={{
-                          fontFamily: '"Gothic A1", sans-serif',
-                          fontWeight: 700,
-                          fontSize: '1rem'
-                        }}
-                      >
-                        Giờ Mở Cửa
-                      </p>
-                      <hr className="border-t border-[#999380] mt-2 w-full" />
-                    </div>
-                    <div className="flex justify-between p-4">
+                  
+                  {/* Hours Section */}
+                  <div className="border-t border-[#999380] pt-4">
+                    <p 
+                      className="text-xs uppercase mb-3" 
+                      style={{
+                        fontFamily: '"Gothic A1", sans-serif',
+                        fontWeight: 700,
+                        fontSize: '0.875rem'
+                      }}
+                    >
+                      Giờ Mở Cửa
+                    </p>
+                    <div className="flex justify-between items-center">
                       <span 
                         className="text-sm" 
                         style={{
                           fontFamily: '"Crimson Pro", serif',
                           fontWeight: 400,
-                          fontSize: '1.125rem'
+                          fontSize: '1rem'
                         }}
                       >
                         {studio.openHours || 'N/A'}
@@ -237,46 +396,43 @@ style={{ width: '350px', minHeight: '400px', height: 'auto', paddingBottom: '3.5
                           fontFamily: '"Crimson Pro", serif',
                           fontWeight: 400,
                           fontStyle: 'italic',
-                          fontSize: '1.125rem'
+                          fontSize: '1rem'
                         }}
                       >
                         {studio.openDays && studio.openDays.length > 0 ? studio.openDays.join(', ') : ''}
                       </span>
                     </div>
                   </div>
-                  {/* Enter Studio Button */}
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}>
-                    <Link href={`/studio/${studio.id}`}>
-                      <button
-                        className="w-full bg-yellow-400 text-black py-3 px-4 flex items-center justify-between transition hover:bg-yellow-500 focus:outline-none"
-                        style={{
-                          fontFamily: '"Gothic A1", "Crimson Pro", sans-serif',
-                          fontWeight: 800,
-                          textTransform: 'uppercase',
-                          fontSize: '1.125rem'
-                        }}
-                      >
-                        <span>TỚI STUDIO</span>
-                        <span className="text-xl">
-                          <img
-                            src="https://www.svgrepo.com/show/175121/door-open.svg"
-                            alt="Door Icon"
-                            className="w-6 h-6"
-                          />
-                        </span>
-                      </button>
-                    </Link>
-                  </div>
+
+                  {/* Mobile Button */}
+                  <Link href={`/studio/${studio.id}`} className="block">
+                    <button
+                      className="w-full bg-yellow-400 text-black py-4 px-6 flex items-center justify-between rounded-lg transition hover:bg-yellow-500 focus:outline-none"
+                      style={{
+                        fontFamily: '"Gothic A1", "Crimson Pro", sans-serif',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        fontSize: '1rem'
+                      }}
+                    >
+                      <span>TỚI STUDIO</span>
+                      <img
+                        src="https://www.svgrepo.com/show/175121/door-open.svg"
+                        alt="Door Icon"
+                        className="w-6 h-6"
+                      />
+                    </button>
+                  </Link>
                 </div>
               </div>
-              {/* Full-Width Navigation Bar */}
-              <div className="w-full border-[#999380]">
+
+              {/* Mobile Navigation */}
+              <div className="flex-shrink-0 border-t border-[#999380]">
                 <NavigationProvider key={studio.id}>
                   <StudioNavigation navItems={studio.navigation || [
                     { label: 'Overview', href: `/studio/${studio.id}/overview` },
                     { label: 'Exhibits', href: `/studio/${studio.id}/exhibits` },
                     { label: 'Events', href: `/studio/${studio.id}/events` },
-                    
                   ]} />
                 </NavigationProvider>
               </div>

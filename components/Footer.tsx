@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
       <div className="w-full bg-[#3b322d] py-4">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
           <p className="text-left text-sm">
-            Bảo quyền thuộc về NewStalgia 2025
+            Bản quyền thuộc về NewStalgia 2025
           </p>
         </div>
       </div>
