@@ -52,19 +52,19 @@ html, body {
   z-index: 1; /* Ensure it stays on top of other content */
 }
 
-.vertical-line-black {
+.vertical-line-right {
   position: fixed;
   top: 0;
-  left: 0; /* Position it on the left side of the screen */
+  right: 0; /* Position it on the right side of the screen */
   width: 13px;
   height: 100vh; /* Use viewport height to ensure it spans the full height */
-  background-color: white; /* Base color for the line */
+  background-color: grey; /* Base color for the line */
   background-image: linear-gradient(
     to bottom,
-    black 12%, /* Adjusted to reduce thickness */
+    #f5f3ef 12%, /* Adjusted to reduce thickness */
     transparent 5%,
     transparent 15%, /* Adjusted to reduce thickness */
-    black 15%
+    #f5f3ef 15%
   );
   background-size: 100% 35px; /* Adjust the size to create the ladder effect */
   border-left: 1px solid #b0a99f; /* Border color for the segments */

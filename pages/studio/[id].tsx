@@ -115,6 +115,7 @@ const StudioHomepage: React.FC<StudioPageProps> = ({ studio, error }) => {
   return (
     <Layout>
       <VerticalLine />
+      <div className="vertical-line-right"></div>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
