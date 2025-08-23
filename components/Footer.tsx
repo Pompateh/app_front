@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
       )}
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-12 flex flex-col md:flex-row">
         {/* Left half: Logo and Slogan */}
-        <div className="w-full md:w-1/2 flex flex-col items-start">
+        <div className="w-full md:w-1/2 flex flex-col items-start mb-8 md:mb-0">
           <img src="/assets/Vector-y.png" alt="NEWStalgia Logo" className="h-[7.5rem] mb-2" />
           <p className="text-left text-[#F5D76E] text-sm font-medium">
             <span className="font-normal italic font-crimson">Honor the Past</span>
@@ -39,15 +39,15 @@ const Footer: React.FC = () => {
             <span className="font-normal">Bridge the Future</span>
           </p>
         </div>
-        {/* Right half: Navigation buttons with centered columns, moved slightly right */}
-        <div className="w-full md:w-1/2 flex justify-center mt-4 md:mt-0 ml-40">
-          <div className="flex space-x-24">
-            {/* Column 1 */}
+        {/* Right half: Navigation buttons - 2 separate columns */}
+        <div className="w-full md:w-1/2 flex justify-start md:justify-center">
+          <div className="grid grid-cols-2 gap-x-16 md:gap-x-24 w-full max-w-xs">
+            {/* Column 1: Main Navigation */}
             <div className="flex flex-col text-left text-sm">
-              <button className="mb-2 block text-left">Ấn-phẩm</button>
-              <button className="mb-2 block text-left" onClick={handleComingSoon}>Tiệm-chữ</button>
-              <button className="mb-2 block text-left" onClick={handleComingSoon}>Bảng-tin</button>
-              <button className="block text-left" onClick={handleComingSoon}>Quy-trình</button>
+              <button className="mb-2 block text-left hover:text-white transition-colors">Ấn-phẩm</button>
+              <button className="mb-2 block text-left hover:text-white transition-colors" onClick={handleComingSoon}>Tiệm-chữ</button>
+              <button className="mb-2 block text-left hover:text-white transition-colors" onClick={handleComingSoon}>Bảng-tin</button>
+              <button className="block text-left hover:text-white transition-colors" onClick={handleComingSoon}>Quy-trình</button>
             </div>
             {/* Column 2: Social Media */}
             <div className="flex flex-col text-left text-sm">
